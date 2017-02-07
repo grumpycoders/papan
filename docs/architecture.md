@@ -2,6 +2,7 @@
   - Probably using gRPC.
   - Desktop / web browser / Android / iOS clients.
     - Not sure if Android / iOS clients only fullscreen webpages.
+      - Native clients means native gRPC (until web gRPC works in bi-di).
 - Notion of Global / Local views.
   - Global = the board visible by everyone, including spectators.
   - Local = player's hands and UI.
