@@ -1,11 +1,13 @@
 - Client/Server architecture.
   - Probably using gRPC.
+  - Nice to have: webcams headshots.
   - Desktop / web browser / Android / iOS clients.
     - Not sure if Android / iOS clients only fullscreen webpages.
       - Native clients means native gRPC (until web gRPC works in bi-di).
 - Notion of Global / Local views.
   - Global = the board visible by everyone, including spectators.
   - Local = player's hands and UI.
+  - Should have the notion of having a proper overlay for the Local view into the Global.
   - Global board should still be interactive, but only on each player's "turn".
     - Preemptivity of turns to allow interruptions.
 - Lobby server in node.js.
