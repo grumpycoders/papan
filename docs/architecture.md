@@ -1,0 +1,21 @@
+- Client/Server architecture.
+  - Probably using gRPC.
+  - Desktop / web browser / Android / iOS clients.
+    - Not sure if Android / iOS clients only fullscreen webpages.
+- Notion of Global / Local views.
+  - Global = the board visible by everyone, including spectators.
+  - Local = player's hands and UI.
+  - Global board should still be interactive, but only on each player's "turn".
+    - Preemptivity of turns to allow interruptions.
+- Lobby server in node.js.
+  - May be a REST / Websocket gateway for web clients.
+  - Spawns game instances (maybe C/Lua ?) in docker files for sandboxing when running on things that cost money.
+    - Lobby server plays the role of the gateway.
+    - gRPC uds sockets between the two, if possible.
+  - Maybe running the game instance in plain-Lua-within-node.js when running everything on desktop (Electron, that is).
+- Game logic in Lua, for portability (Android / iOS ?) and sandboxing.
+- Game "packages" containing server Lua code, client Lua code, and assets.
+  - Means we can't trust the packages.
+- Replayability / game session recording.
+  - Needs to have replayable "game states", aka the game server only retraces / resends events that happened (gRPC messages should be enough ?), and game clients become non-interactive.
+  - Probably shows the Local views too.
