@@ -3,22 +3,43 @@
   - Nice to have: webcams headshots.
   - Desktop / web browser / Android / iOS clients.
     - Not sure if Android / iOS clients only fullscreen webpages.
-      - Native clients means native gRPC (until web gRPC works in bi-di).
+      - Native "clients" could just be running web view.
+      - The native client would help connecting to a lobby.
+      - Using [SSPD](https://en.wikipedia.org/wiki/Simple_Service_Discovery_Protocol), a Desktop server could advertize its URLs to the clients.
 - Notion of Global / Local views.
   - Global = the board visible by everyone, including spectators.
   - Local = player's hands and UI.
   - Should have the notion of having a proper overlay for the Local view into the Global.
   - Global board should still be interactive, but only on each player's "turn".
     - Preemptivity of turns to allow interruptions.
-- Lobby server in node.js.
+- Server in node.js.
   - May be a REST / Websocket gateway for web clients.
-  - Spawns game instances (maybe C/Lua ?) in docker files for sandboxing when running on things that cost money.
+  - Possibility to run it as an electron app for Desktops.
+  - Spawns game instances (only one in electron).
+    - Needs to be scalable, potentially on more than one machine.
     - Lobby server plays the role of the gateway.
-    - gRPC uds sockets between the two, if possible.
-  - Maybe running the game instance in plain-Lua-within-node.js when running everything on desktop (Electron, that is).
-- Game logic in Lua, for portability (Android / iOS ?) and sandboxing.
-- Game "packages" containing server Lua code, client Lua code, and assets.
-  - Means we can't trust the packages.
+    - gRPC uds sockets between the two, if possible ?
+- Need to make sure that disconnection and client crash is recoverable.
+  - A reconnection should send the full current state of the Global and Local view (for non-spectators).
+- Game logic in Javascript.
+  - Maybe have an example using emscripten to demonstrate that Javascript isn't necessarily the only programming language available.
+    - Maybe create a Lua framework for people who prefer Lua over Javascript ? But not at first.
+- Game "packages" containing server JS code, client JS code, and assets.
+  - Means we can't trust the packages. Should warn users about that.
+  - Packages should only be installed by server admins.
+  - Could packages be actual npm packages ? That'd solve hosting a bit.
+    - We could have true dependency trees, such as having a "52 cards" deck assets, or basic libraries.
+  - We probably don't want to run a "main" game lobby for everyone, for cost and copyright reasons (if anyone uploads copyrighted material - we don't want to need a DMCA response team).
+    - We could provide a default one, but clients should be allowed to store their preferred game servers.
+    - The default lobby we'd run should only have basic games (Poker, Game of the Goose, etc...)
+- User accounts.
+  - Simply using Google auth for login maybe ? Or have pluggable auth, with a default on Google auth.
+  - Favorite servers ? Or do we keep that in each game clients ?
+  - Limited persistent storage per game package ? A bit like Steam Cloud.
 - Replayability / game session recording.
-  - Needs to have replayable "game states", aka the game server only retraces / resends events that happened (gRPC messages should be enough ?), and game clients become non-interactive.
+  - Needs to have replayable "game states", aka the game server only retraces / resends events that happened (gRPC messages could be enough ?), and game clients become non-interactive.
   - Probably shows the Local views too.
+    - Playback should then let you selects which Local view to display.
+- Not really different from any typical node.js app. The key to success is probably going to be in the provided libraries.
+  - Good and strong messaging framework. Need to bikeshed about how to properly handle replays.
+  - Strong base libraries for dealing with very common things like cards, decks, hands, dices, tokens, etc...
