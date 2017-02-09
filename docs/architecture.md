@@ -12,6 +12,7 @@
   - Should have the notion of having a proper overlay for the Local view into the Global.
   - Global board should still be interactive, but only on each player's "turn".
     - Preemptivity of turns to allow interruptions.
+  - Option to have public or private games.
 - Server in node.js.
   - May be a REST / Websocket gateway for web clients.
   - Possibility to run it as an electron app for Desktops.
@@ -21,6 +22,7 @@
     - gRPC uds sockets between the two, if possible ?
 - Need to make sure that disconnection and client crash is recoverable.
   - A reconnection should send the full current state of the Global and Local view (for non-spectators).
+  - Heartbeats to check server health.
 - Game logic in Javascript.
   - Maybe have an example using emscripten to demonstrate that Javascript isn't necessarily the only programming language available.
     - Maybe create a Lua framework for people who prefer Lua over Javascript ? But not at first.
@@ -36,10 +38,18 @@
   - Simply using Google auth for login maybe ? Or have pluggable auth, with a default on Google auth.
   - Favorite servers ? Or do we keep that in each game clients ?
   - Limited persistent storage per game package ? A bit like Steam Cloud.
+  - User profile, game history.
+  - Provide user configuration (preferences).
+  - Administration interface.
+    - Add game packages.
+    - Manage users.
+    - Configuration.
 - Replayability / game session recording.
-  - Needs to have replayable "game states", aka the game server only retraces / resends events that happened (gRPC messages could be enough ?), and game clients become non-interactive.
+  - Needs to have replayable "game states", aka the game server only retraces / resends events that happened (gRPC messages could be enough ?), and game clients become non-interactive (except option to play/pause?).
   - Probably shows the Local views too.
     - Playback should then let you selects which Local view to display.
 - Not really different from any typical node.js app. The key to success is probably going to be in the provided libraries.
   - Good and strong messaging framework. Need to bikeshed about how to properly handle replays.
   - Strong base libraries for dealing with very common things like cards, decks, hands, dices, tokens, etc...
+- Storage
+  - Store game data somewhere for replays (Provide option to save a game to replay it later).
