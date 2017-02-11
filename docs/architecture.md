@@ -23,7 +23,9 @@
     - Clients should adapt to the number of layers, depending on the situation.
   - Global board should still be interactive, but only on each player's "turn".
     - Preemptivity of turns to allow interruptions.
+    - Clients can be remote input for the Global board
   - Option to have public or private games.
+    - Spectator mode
 
 - Server in node.js.
   - May be a REST / Websocket gateway for web clients.
@@ -33,6 +35,10 @@
     - Lobby server plays the role of the gateway.
     - gRPC uds sockets between the two, if possible ?
     - Heartbeats to check server health.
+
+- Clients
+  - Configurable user interface
+    - Templates, themes
 
 - Game logic in Javascript.
   - Maybe have an example using emscripten to demonstrate that Javascript isn't necessarily the only programming language available.
@@ -44,7 +50,7 @@
 - Game "packages" containing server JS code, client JS code, and assets.
   - Means we can't really trust the packages. Should warn users about that.
   - Packages should only be installed by server admins.
-  - Basic common logic distributed as npm packages. Ex: card decks, card shuffling, RNGs, ...
+  - Basic common logic distributed as npm packages. Ex: card decks, card shuffling, RNGs, dices, ...
     - Packages should then specify the list of npm dependencies to install.
   - We probably don't want to run a "main" game lobby for everyone, for cost and copyright reasons (if anyone uploads copyrighted material - we don't want to need a DMCA response team).
     - We could provide a default one, but clients should be allowed to store their preferred game servers somehow.
@@ -54,8 +60,11 @@
   - Simply using Google auth for login maybe ? Or have pluggable auth, with a default on Google auth.
   - Favorite servers stored in the Google account ? Or do we keep that in each game clients ?
   - Limited persistent storage per game package ? A bit like Steam Cloud.
-  - Achievements ?
+  - Achievements.
+    - Global achievements: across all servers.
+    - Local achievements: customizable on each server.
   - User profile, game history.
+  - User stats: win/loss, high scores, etc.
   - Provide user configuration (preferences).
   - Administration interface.
     - Add game packages.
@@ -74,6 +83,7 @@
   - Chess
   - Checkers
   - Game of the Goose
+  - Belotte
   - https://boardgamegeek.com/geeklist/33151/creative-commonsopen-source-games
   - https://boardgamegeek.com/geeklist/1061/top-20-public-domain-games-quotinternet-top-100-ga
   - http://mentalfloss.com/article/67181/15-centuries-old-board-games
