@@ -89,7 +89,7 @@
 
 - Storage
   - Store game data somewhere for replays (Provide option to save a game to replay it later).
-  - Database (relational or NoSQL) for game data.
+  - Database (relational or NoSQL) for game data ? Or maybe distributed storage (Concurrency ? Distribution strategy ?)
   - Data structure database for caching, sessions ?
 
 - Potential list of games:
