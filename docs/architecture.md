@@ -31,14 +31,17 @@
   - May be a REST / Websocket gateway for web clients.
   - Possibility to run it as an electron app for Desktops.
   - Spawns game instances (only one in electron).
-    - Needs to be scalable, potentially on more than one machine. Docker for better ressource management ?
+    - Needs to be scalable, potentially on more than one machine. 
+      - Docker for better ressource management ?
+      - Running game instances parallel on a machine ?
     - Lobby server plays the role of the gateway.
     - gRPC uds sockets between the two, if possible ?
     - Heartbeats to check server health.
 
 - Clients
   - Configurable user interface
-    - Templates, themes
+    - Themes
+    - Templates
   - Kodi add-on
 
 - Game logic in Javascript.
@@ -52,7 +55,7 @@
   - Means we can't really trust the packages. Should warn users about that.
   - Packages should only be installed by server admins.
   - Basic common logic distributed as npm packages. Ex: card decks, card shuffling, RNGs, dices, ...
-    - Packages should then specify the list of npm dependencies to install.
+    - Packages should then specify the list of npm dependencies to install (using packages.json ?).
   - We probably don't want to run a "main" game lobby for everyone, for cost and copyright reasons (if anyone uploads copyrighted material - we don't want to need a DMCA response team).
     - We could provide a default one, but clients should be allowed to store their preferred game servers somehow.
     - The default lobby we'd run should only have basic games (Poker, Game of the Goose, etc...) to get people to play on other servers.
@@ -86,6 +89,8 @@
 
 - Storage
   - Store game data somewhere for replays (Provide option to save a game to replay it later).
+  - Database (relational or NoSQL) for game data.
+  - Data structure database for caching, sessions ?
 
 - Potential list of games:
   - Poker (with variations)
