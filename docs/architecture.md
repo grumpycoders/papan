@@ -39,6 +39,7 @@
 - Clients
   - Configurable user interface
     - Templates, themes
+  - Kodi add-on
 
 - Game logic in Javascript.
   - Maybe have an example using emscripten to demonstrate that Javascript isn't necessarily the only programming language available.
@@ -64,7 +65,15 @@
     - Global achievements: across all servers.
     - Local achievements: customizable on each server.
   - User profile, game history.
-  - User stats: win/loss, high scores, etc.
+  - User stats: 
+    - Win/loss
+    - High scores
+    - Worst enemy, favorite victim
+    - Win/lose streak
+    - Most played game
+  - Guilds
+  - Friend lists
+  - Chat rooms + private chat
   - Provide user configuration (preferences).
   - Administration interface.
     - Add game packages.
