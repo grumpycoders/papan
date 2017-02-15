@@ -11,6 +11,7 @@
     - May use websockets and/or REST as a fallback for less capable clients (non-Electron).
   - Nice to have: webcams headshots.
   - Using [SSPD](https://en.wikipedia.org/wiki/Simple_Service_Discovery_Protocol), a Desktop server could advertize its URLs to the local clients.
+  - Notifications (for chat, achievements, invites, etc.)
 
 - Server behaviors.
   - Lobby server to handle creating or joining games.
