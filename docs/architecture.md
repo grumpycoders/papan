@@ -1,4 +1,4 @@
-- Client/Server architecture, both writtin in javascript.
+- Client/Server architecture, both written in javascript.
   - Server written in node.js
   - Client written in Electron, with plain webpage fallback where needed.
     - Plain webpage fallback needed for Android and iOS.
@@ -53,7 +53,8 @@
 
 - Storage
   - Store game data somewhere for replays (Provide option to save a game to replay it later).
-  - Database (relational or NoSQL) for game data ? Or maybe distributed storage (Concurrency ? Distribution strategy ?)
+    - Maybe also provide export of saved game moves (e.g. chess moves exports) ?
+  - Database (relational or NoSQL) for game data ? Or distributed storage (Concurrency ? Distribution strategy ?)
     - Maybe one abstraction but various implementations ? Maybe sqlite for example for local desktop servers.
   - Data structure database for caching, sessions ?
 
