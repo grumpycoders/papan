@@ -152,6 +152,7 @@
   - Belotte
   - Rock Paper Scissor
   - Tic Tac Toe
+  - [Yatzy](https://en.wikipedia.org/wiki/Yatzy)
   - https://boardgamegeek.com/geeklist/33151/creative-commonsopen-source-games
   - https://boardgamegeek.com/geeklist/1061/top-20-public-domain-games-quotinternet-top-100-ga
   - http://mentalfloss.com/article/67181/15-centuries-old-board-games
