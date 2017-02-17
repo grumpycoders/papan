@@ -1,0 +1,26 @@
+{
+  "name": "papan",
+  "version": "0.0.1",
+  "description": "A turn-by-turn board game engine",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron . --debug"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/grumpycoders/papan.git"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/grumpycoders/papan/issues"
+  },
+  "homepage": "https://github.com/grumpycoders/papan#readme",
+  "devDependencies": {
+    "electron": "^1.4.15",
+    "mocha": "^3.2.0"
+  },
+  "dependencies": {
+    "grpc": "^1.1.0"
+  }
+}
