@@ -58,6 +58,9 @@ exports.transition = function transition(state, action) {
   if (action.player != state.turn) {
     return state;
   }
+  if (action.name != "take") {
+    return state;
+  }
   let {x, y} = action.attributes.position;
   if (state.board[x][y].owner !== null) {
     return state;
@@ -87,14 +90,14 @@ exports.getPublicScene = function getPublicScene(state) {
             /* Checks for equality between an actor's attribute and a value.
                The action is only available if they are equal */
             conditions: [
-              ['turn.player', state.players[0]]
+              {type: 'equal', values = ['turn.player', state.players[0]]}
             ],
             name: 'take'
           },
           {
             player: state.players[1],
             conditions: [
-              ['turn.player', state.players[1]]
+              {type: 'equal', values = ['turn.player', state.players[1]]}
             ],
             name: 'take'
           }
@@ -130,5 +133,3 @@ exports.getPublicScene = function getPublicScene(state) {
 exports.getPrivateScene = function getPrivateScene(state, player) {
   return [];
 }
-
-exports.name = "Tic Tac Toe"
