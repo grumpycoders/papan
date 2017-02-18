@@ -1,82 +1,148 @@
-- Client/Server architecture.
+- Client/Server architecture, both written in javascript.
+  - Server written in node.js
+  - Client written in Electron, with plain webpage fallback where needed.
+    - Plain webpage fallback needed for Android and iOS.
+      - May be challenging to support Electron & plain webbpages simultaneously. Framework probably needed.
+      - All of our supported platforms then support ES6 properly. No transpilation bloat.
+    - Client could also be a server for local plays.
+    - Client acting as a server should still display games on its screen, while accepting incoming connections from local devices.
+    - Would also simplify Travis-style automated testing a lot, if we can run both servers and clients on the same machine.
   - Probably using gRPC.
+    - May use websockets and/or REST as a fallback for less capable clients (non-Electron).
   - Nice to have: webcams headshots.
-  - Desktop / web browser / Android / iOS clients.
-    - Native "clients" could just be running web view for the actual game.
-    - The native client would help connecting to a lobby.
-    - Using [SSPD](https://en.wikipedia.org/wiki/Simple_Service_Discovery_Protocol), a Desktop server could advertize its URLs to the clients.
+  - Using [SSPD](https://en.wikipedia.org/wiki/Simple_Service_Discovery_Protocol), a Desktop server could advertize its URLs to the local clients.
+  - Notifications (for chat, achievements, invites, etc.)
 
-- Notion of Global / Local scenes.
-  - Global = the board visible by everyone, including spectators.
-  - Local = player's hands and UI.
-  - A scene should be a collection of actors.
-    - Actors should have basic properties such as unique id, a collection of classes, a collection of remote method names that actor allows and that the client can call, and attributes in key values pairs.
-    - There shouldn't be parameters to the calls; game logic should be handled with a series of actors interactions.
-    - We would send the delta between two "frames" of a scene every few milliseconds
-      - Allows the server to go crazy with updates without flooding the client.
-      - Allows for very easy replay management.
-      - Allows for restoring the game client state between disconnections, but the client should really, really just be a renderer and input forwarder, nothing else.
-    - Potentially allows for custom game clients for specific games.
-  - Should have the notion of having a proper overlay for the Local view into the Global.
-    - Clients should be able to select which view to display.
-    - Some Local views should be "private", some others not. Poker vs Chess.
-    - Clients should adapt to the number of layers, depending on the situation.
-  - Global board should still be interactive, but only on each player's "turn".
-    - Preemptivity of turns to allow interruptions.
-    - Clients can be remote input for the Global board
-  - Option to have public or private games.
-    - Spectator mode
+- Server behaviors.
+  - Lobby server to handle creating or joining games.
+    - For scalability, handle lobby servers like meshed IRC servers maybe ?
+    - Support IRC for chat, maybe ?
+      - Need to define "chat" properly. Arbitrary chat rooms might be overkill. One chat room per game lobby and private chat maybe.
+      - Probably support (all) and (team) chats, as in many typical FPS games.
+    - Two kinds of servers: Lobby and Game Instances.
+      - An Electron desktop server is a Game Instances server, capable to spawn only one instance.
+    - Game lobbies to create games. Uses the game's package to know what parameters are available to tweak.
+      - Ready toggle for people in the lobby.
+      - Lobby chat.
+      - Private / Public games, that spectators can join.
+        - Potentially reserved player seats for public games.
+    - Game instance servers to register and connect to a lobby server of their choice.
+      - Will still have its local database for game-specific storage and replays.
+      - Notion of open servers vs private servers.
+        - Open servers can be used by anyone to spawn games from the central lobby.
+        - Private servers won't be visible publicly in the lobby, but will be available to friends and invited people.
+  - Lobby servers spawn game instances.
+    - A fully featured server would need at a minimum one lobby and one game instances server - lobby sends the game instances cluster a spawn request.
+    - Lobby server potentially plays the role of the gateway and controller, if the game server can't be reached remotely.
+    - Needs to be scalable, potentially on more than one machine.
+      - Docker for better ressource management ?
+      - Running game instances in parallel on a machine ?
+      - gRPC uds sockets between lobby and instance, if possible, when running on the same machine ?
+    - Heartbeats to check servers health.
+  - Hierarchy of one "game network":
+    - A cluster of lobby servers, meshed together.
+      - Main entry point, like IRC.
+      - Also like IRC, uses DNS round robin to load balance across the nodes of the mesh.
+      - Social stuff and game creations handled by the Lobby servers.
+    - One or more game instances servers.
+      - They are the one containing the actual game packages.
+      - They connect to the Lobby cluster and register their capabilities, such as how many instances of each game package they can run.
+      - When starting a game, a Lobby Server talks to a Game Instances Server to spawn a game.
+      - Game clients will either maintain a single connection to the Lobby Server for everything, or will be redirected by the Lobby to another address.
+        - Game clients should be able to fallback back to the Lobby server in case they don't manage to connect to the instance.
+        - Game clients should still maintain a parallel connection to the Lobby Server for social stuff. (chat popups for example ?)
 
-- Server in node.js.
-  - May be a REST / Websocket gateway for web clients.
-  - Possibility to run it as an electron app for Desktops.
-  - Spawns game instances (only one in electron).
-    - Needs to be scalable, potentially on more than one machine. Docker for better ressource management ?
-    - Lobby server plays the role of the gateway.
-    - gRPC uds sockets between the two, if possible ?
-    - Heartbeats to check server health.
-
-- Clients
-  - Configurable user interface
-    - Templates, themes
-
-- Game logic in Javascript.
-  - Maybe have an example using emscripten to demonstrate that Javascript isn't necessarily the only programming language available.
-    - Maybe create a Lua framework for people who prefer Lua over Javascript ? But not at first.
-  - The game logic should be server-side only. The client only renders. We should offer no communication method between the client and the server other than:
-    - Actor property updates from server to client.
-    - Actor action calls from client to server.
-
-- Game "packages" containing server JS code, client JS code, and assets.
-  - Means we can't really trust the packages. Should warn users about that.
-  - Packages should only be installed by server admins.
-  - Basic common logic distributed as npm packages. Ex: card decks, card shuffling, RNGs, dices, ...
-    - Packages should then specify the list of npm dependencies to install.
-  - We probably don't want to run a "main" game lobby for everyone, for cost and copyright reasons (if anyone uploads copyrighted material - we don't want to need a DMCA response team).
-    - We could provide a default one, but clients should be allowed to store their preferred game servers somehow.
-    - The default lobby we'd run should only have basic games (Poker, Game of the Goose, etc...) to get people to play on other servers.
+- Storage
+  - Store game data somewhere for replays (Provide option to save a game to replay it later).
+    - Maybe also provide export of saved game moves (e.g. chess moves exports) ?
+  - Database (relational or NoSQL) for game data ? Or distributed storage (Concurrency ? Distribution strategy ?)
+    - Maybe one abstraction but various implementations ? Maybe sqlite for example for local desktop servers.
+  - Data structure database for caching, sessions ?
 
 - User accounts.
-  - Simply using Google auth for login maybe ? Or have pluggable auth, with a default on Google auth.
+  - Simply using Google auth for login maybe ? Or have pluggable auth, with a default on Google auth ?
   - Favorite servers stored in the Google account ? Or do we keep that in each game clients ?
   - Limited persistent storage per game package ? A bit like Steam Cloud.
   - Achievements.
-    - Global achievements: across all servers.
+    - Global achievements: across all servers linked with the same lobby - may be difficult to secure and assert.
     - Local achievements: customizable on each server.
-  - User profile, game history.
-  - User stats: win/loss, high scores, etc.
+    - May put heavy database stress.
+  - User profile, game history, with replays.
+  - User stats, local to the server.
+    - Win/loss
+    - High scores
+    - Worst enemy, favorite victim
+    - Win/lose streak
+    - Most played game
+  - Guilds
+  - Friend lists
   - Provide user configuration (preferences).
   - Administration interface.
     - Add game packages.
     - Manage users.
     - Configuration.
 
+- Clients
+  - Configurable user interface
+    - Themes
+    - Templates
+  - Chromecast / FireTV / Kodi / ... support
+
+- Client rendering: notion of Global / Local scenes.
+  - Global = the board visible by everyone, including spectators.
+    - Exactly one global scene.
+  - Local = player's hands and UI.
+    - Exactly one local scene per player.
+  - A scene should be a collection of actors.
+    - Actors should have basic properties such as unique id, a collection of classes, a collection of remote method names that actor allows and that the client can call, and attributes in key values pairs.
+    - Minimal parameters should be passed on with each action calls; game logic should be handled with a series of actors interactions.
+    - The actor's actions may have a list of player ids that can run that action. The framework will then update the clients accordingly by filtering out what's not relevant, and will also verify incoming actions.
+    - We would send the delta between two "frames" of a scene every few milliseconds, if there are changes.
+      - Meaning all the changes wouldn't be sent at once, but bufferized.
+      - Allows the server to go crazy with updates without flooding the client.
+      - Allows for very easy replay management.
+    - Scene simplicity (HTML5 webcomponents style) potentially allows for custom game clients for specific games.
+  - Should have the notion of having a proper inclusion of the Local view into the Global.
+    - Clients should be able to select which view to display.
+    - But ultimately up to the client to decide how to stack local and global.
+  - Option to have public or private games.
+    - Spectator mode that can only view the global view.
+
+- Game logic in Javascript.
+  - Maybe have an example using emscripten to demonstrate that Javascript isn't necessarily the only programming language available.
+    - Maybe create a more generic Lua framework for people who prefer Lua over Javascript ? But not at first.
+  - Storing the game's state using something like [redux](https://github.com/reactjs/redux).
+    - Game logic only written as the set of transformation functions into the redux store.
+    - Scene logic are subscribers to the redux store in order to re-generate the whole client scenes.
+      - Our framework is going to detect the deltas between the scenes and do the "compression".
+      - Serialization / deserialization of the redux state should help with:
+        - Migrating the game instance to another server.
+        - Creating undo snapshots.
+        - Creating replay data.
+      - We'd need to think about how to do a proper checkpoint logic, to avoid storing useless gamestates such as "loading..." or "selecting a card from my hand".
+        - Maybe the state contains a well-known 'checkpoint' timestamp that triggers a subscriber to store the state when set to a new value.
+  - The game logic should be server-side only. The client only renders. We should offer no communication method between the client and the server other than:
+    - Actor property updates from server to client.
+    - Actor action calls from client to server.
+  - Well known, reserved "startup" action that takes the lobby parameters as an argument to initialize the game state.
+  - The framework should still provide timeout features for timed actions.
+    - Storing the deadline in the store should be the way to go, in a well known, reserved location, for the framework to find them and process them.
+    - Deadline expiration events should be a well known, reserved action name.
+
+- Game "packages" containing server JS code, client JS code, and assets.
+  - Means we can't really trust the packages. Should warn users about that.
+  - Packages should only be installed by server admins.
+  - Packages should contain a package.json-style description of their dependencies and other properties, such as what are the parameters the lobby needs to ask in order to request a game start.
+  - Basic common logic distributed as npm packages. Ex: card decks, card shuffling, RNGs, dices, ...
+    - Packages should then specify the list of npm dependencies to install.
+  - We probably don't want to run a "main" game lobby for everyone, for cost and copyright reasons (if anyone uploads copyrighted material - we don't want to need a DMCA response team).
+    - We could provide a default one, but clients should be allowed to store their preferred game servers somehow.
+    - A global lobby could help running local games.
+    - The default lobby we'd run should only have basic games (Poker, Game of the Goose, etc...) to get people to play on other servers.
+
 - Not really different from any typical node.js app. The key to success is probably going to be in the provided libraries.
   - Good and strong framework. Let's make sure our architecture is sane.
   - Strong base libraries for dealing with very common things like cards, decks, hands, dices, tokens, etc...
-
-- Storage
-  - Store game data somewhere for replays (Provide option to save a game to replay it later).
 
 - Potential list of games:
   - Poker (with variations)
@@ -84,6 +150,9 @@
   - Checkers
   - Game of the Goose
   - Belotte
+  - Rock Paper Scissor
+  - Tic Tac Toe
+  - [Yatzy](https://en.wikipedia.org/wiki/Yatzy)
   - https://boardgamegeek.com/geeklist/33151/creative-commonsopen-source-games
   - https://boardgamegeek.com/geeklist/1061/top-20-public-domain-games-quotinternet-top-100-ga
   - http://mentalfloss.com/article/67181/15-centuries-old-board-games
