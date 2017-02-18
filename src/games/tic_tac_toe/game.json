@@ -1,0 +1,8 @@
+{
+    "name": "Tic Tac Toe",
+    "main": "tic_tac_toe.js",
+    "players": {
+        "min": 2,
+        "max": 2
+    }
+}
