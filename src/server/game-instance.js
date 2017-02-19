@@ -5,19 +5,34 @@ const path = require('path')
 
 const redux = require('redux')
 
+let registry = {}
+
+const baseDir = path.join(__dirname, '..', '..')
+
+exports.registerGame = (gameId, gamePath) => {
+  let dataPath = path.join(baseDir, gamePath, 'game.json')
+  if (fs.existsSync(dataPath)) {
+    registry[gameId] = gamePath
+  }
+}
+
 exports.findGameData = (gameId) => {
-  if (gameId == 'tic-tac-toe') {
-    let dataPath = path.join(__dirname, '../../src/games/tic_tac_toe/game.json')
+  const gamePath = registry[gameId]
+  if (gamePath) {
+    let dataPath = path.join(gamePath, 'game.json')
     let data = fs.readFileSync(dataPath)
-    return JSON.parse(data)
+    return {
+      gameData: JSON.parse(data),
+      gamePath: gamePath
+    }
   }
 
   return null
 }
 
 exports.createInstance = (gameId, settings = []) => {
-  let data = exports.findGameData(gameId)
-  const game = require(path.join(__dirname, '../../src/games/tic_tac_toe', data.main))
+  let {gameData, gamePath} = exports.findGameData(gameId)
+  const game = require(path.join(baseDir, gamePath, gameData.main))
 
   let store = redux.createStore((state, action) => {
     console.log(action)
@@ -30,3 +45,4 @@ exports.createInstance = (gameId, settings = []) => {
   })
 }
 
+exports.registerGame('tic-tac-toe', 'src/games/tic_tac_toe')
