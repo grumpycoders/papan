@@ -11,14 +11,8 @@
 
     <script>
       function isElectron() {
-        if (typeof(process) !== "undefined") {
-          if (typeof(process.versions) !== "undefined") {
-            if (typeof(process.versions.electron) !== "undefined") {
-              return true;
-            }
-          }
-        }
-        return false;
+        var p = typeof(process) !== "undefined" && process;
+        return !!p && !!p.versions && !!p.versions.electron;
       }
     </script>
 
