@@ -83,10 +83,16 @@
     - Configuration.
 
 - Clients
-  - Configurable user interface
-    - Themes
-    - Templates
-  - Chromecast / FireTV / Kodi / ... support
+  - Configurable user interface.
+    - Themes.
+    - Templates.
+  - Chromecast / FireTV / Kodi / ... support.
+  - Client "knows" a list of lobbies (servers). Each lobby gives a list of games (with versions?).
+    - Instances sorted by lobby or by game.
+    - Create an instance on a lobby for a partcular game.
+    - Instances with friends highlighted. Should they appear first?
+    - Favorite lobbys, favorite games. Should they appear first?
+    - Game page: description, picture, rules.
 
 - Client rendering: notion of Global / Local scenes.
   - Global = the board visible by everyone, including spectators.
@@ -135,6 +141,7 @@
   - Packages should contain a package.json-style description of their dependencies and other properties, such as what are the parameters the lobby needs to ask in order to request a game start.
   - Basic common logic distributed as npm packages. Ex: card decks, card shuffling, RNGs, dices, ...
     - Packages should then specify the list of npm dependencies to install.
+    - Packages must contain a short description and the game rules. Languages?
   - We probably don't want to run a "main" game lobby for everyone, for cost and copyright reasons (if anyone uploads copyrighted material - we don't want to need a DMCA response team).
     - We could provide a default one, but clients should be allowed to store their preferred game servers somehow.
     - A global lobby could help running local games.
