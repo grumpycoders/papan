@@ -7,16 +7,54 @@
     <link rel="stylesheet" href="node_modules/material-design-icons/iconfont/material-icons.css">
     <link rel="stylesheet" href="node_modules/material-design-lite/dist/material.deep_purple-amber.min.css">
 
+    <link rel="import" href="node_modules/Polymer/polymer.html">
+
+    <script>
+      function isElectron() {
+        if (typeof(process) !== "undefined") {
+          if (typeof(process.versions) !== "undefined") {
+            if (typeof(process.versions.electron) !== "undefined") {
+              return true;
+            }
+          }
+        }
+        return false;
+      }
+    </script>
+
   </head>
   <body>
-    <h1>Papan</h1>
+    <mdl-layout>
+
+      <mdl-drawer>
+        <span class="mdl-layout-title">Options</span>
+        <mdl-navigation>
+          <a href="">Option 1</a>
+          <a href="">Option 2</a>
+        </mdl-navigation>
+      </mdl-drawer>
+
+      <mld-header style="background-color: blue;">
+        <mdl-header-row>
+          <span class="mdl-layout-title" style="color: white;">Papan</span>
+          <mdl-spacer></mdl-spacer>
+          <mdl-navigation id="navigation">
+            <a href="https://github.com/grumpycoders.papan" style="visibility: hidden;" id="github-link">
+              <mdl-icon style="margin-right: 7px;" class="material-icons">link</mdl-icon>Github
+            </a>
+          </mdl-navigation>
+        </mdl-header-row>
+      </mld-header>
+    </mdl-layout>
   </body>
 
   <script src="node_modules/material-design-lite/dist/material.min.js"></script>
   <script src="node_modules/webcomponent-mdl/dist/webcomponent-mdl.min.js"></script>
   <script>
-    if (typeof(process.versions.electron) !== "undefined") {
+    if (isElectron()) {
       require('./renderer.js')
+    } else {
+      document.getElementById('github-link').setAttribute('style', 'visibility: visible');
     }
   </script>
 </html>
