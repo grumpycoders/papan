@@ -26,6 +26,8 @@
   },
 
   "dependencies": {
+    "command-line-args": "^4.0.1",
+
     "grpc": "^1.1.0",
     "redux": "^3.6.0",
 

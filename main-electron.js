@@ -1,5 +1,11 @@
 'use strict'
 
+const commandline = require('command-line-args')
+
+const optionDefinitions = [
+  { name: 'debug', type: Boolean }
+]
+
 const electron = require('electron')
 const ipc = require('electron').ipcMain
 
@@ -13,6 +19,10 @@ exports.main = () => {
 const app = electron.app
 const BrowserWindow = electron.BrowserWindow
 
+const options = commandline(optionDefinitions)
+
+console.log(options)
+
 let mainWindow
 
 function createWindow() {
@@ -22,6 +32,10 @@ function createWindow() {
     protocol: 'file:',
     slashes: true
   }))
+
+  if (options.debug) {
+    mainWindow.webContents.openDevTools()
+  }
 
   mainWindow.on('closed', function() {
     mainWindow = null
