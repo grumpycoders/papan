@@ -10,9 +10,30 @@
     <link rel="import" href="node_modules/Polymer/polymer.html">
 
     <script>
+      'use strict'
+
       function isElectron() {
-        var p = typeof(process) !== "undefined" && process;
+        let p = typeof(process) !== "undefined" && process;
         return !!p && !!p.versions && !!p.versions.electron;
+      }
+
+      let startGame
+      let toggleDebug
+
+      if (isElectron()) {
+        const electron = require('electron')
+        startGame = () => {
+          const ipc = electron.ipcRenderer
+          let gameId = ipc.send('synchronous-message', 'start-game')
+          console.log("renderer: startGame = " + gameId)
+        }
+        toggleDebug = () => {
+          electron.remote.getCurrentWindow().toggleDevTools()
+        }
+      } else {
+        startGame = () => {
+          alert("Browser support not implemented yet")
+        }
       }
     </script>
 
@@ -33,20 +54,31 @@
           <span class="mdl-layout-title" style="color: white;">Papan</span>
           <mdl-spacer></mdl-spacer>
           <mdl-navigation id="navigation">
+            <a onclick="toggleDebug()">
+              Debugger
+            </a>
             <a href="https://github.com/grumpycoders.papan" style="visibility: hidden;" id="github-link">
               <mdl-icon style="margin-right: 7px;" class="material-icons">link</mdl-icon>Github
             </a>
           </mdl-navigation>
         </mdl-header-row>
       </mld-header>
+
+      <mdl-button
+        onclick="startGame();">
+        Start Game
+      </mdl-button>
     </mdl-layout>
   </body>
 
   <script src="node_modules/material-design-lite/dist/material.min.js"></script>
   <script src="node_modules/webcomponent-mdl/dist/webcomponent-mdl.min.js"></script>
   <script>
+    'use strict'
+
     if (isElectron()) {
       require('./renderer.js')
+      require('devtron').install()
     } else {
       document.getElementById('github-link').setAttribute('style', 'visibility: visible');
     }

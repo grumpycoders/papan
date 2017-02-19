@@ -1,3 +1,5 @@
+'use strict'
+
 exports.main = () => {
 
 const path = require('path')

@@ -1,10 +1,17 @@
-exports.main = () => {
+'use strict'
 
 const electron = require('electron')
-const app = electron.app
-const BrowserWindow = electron.BrowserWindow
+const ipc = require('electron').ipcMain
+
 const path = require('path')
 const url = require('url')
+
+const instance = require('./src/server/game-instance.js')
+
+exports.main = () => {
+
+const app = electron.app
+const BrowserWindow = electron.BrowserWindow
 
 let mainWindow
 
@@ -33,6 +40,12 @@ app.on('activate', function() {
   if (mainWindow === null) {
     createWindow()
   }
+})
+
+ipc.on('synchronous-message', function (event, arg) {
+  console.log('main process: arg = ' + arg)
+  instance.createInstance('tic-tac-toe')
+  event.returnValue = 'tic-tac-toe'
 })
 
 }

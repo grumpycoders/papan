@@ -92,7 +92,7 @@ exports.getPublicScene = function getPublicScene(state) {
             conditions: [
               {
                 type: 'equal',
-                values = [
+                values: [
                   {
                     type: 'actor',
                     name: 'turn',
@@ -112,7 +112,7 @@ exports.getPublicScene = function getPublicScene(state) {
             conditions: [
               {
                 type: 'equal',
-                values = [
+                values: [
                   {
                     type: 'actor',
                     name: 'turn',
