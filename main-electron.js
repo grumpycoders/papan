@@ -19,9 +19,7 @@ exports.main = () => {
 const app = electron.app
 const BrowserWindow = electron.BrowserWindow
 
-const options = commandline(optionDefinitions)
-
-console.log(options)
+const options = commandline(optionDefinitions, { partial: true })
 
 let mainWindow
 

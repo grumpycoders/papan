@@ -78,8 +78,8 @@ exports.transition = function transition(state, action) {
 exports.getPublicScene = function getPublicScene(state) {
   let actors = {};
   console.log(state)
-  for (let x = 0; x < 3; y++) {
-    for (let y = 0; y < 3; x ++) {
+  for (let x = 0; x < 3; x++) {
+    for (let y = 0; y < 3; y++) {
       let class_list = [];
       let actions = [];
       if (state.board[x][y].hasOwnProperty('owner')) {
