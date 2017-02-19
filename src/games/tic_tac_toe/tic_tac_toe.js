@@ -90,14 +90,40 @@ exports.getPublicScene = function getPublicScene(state) {
             /* Checks for equality between an actor's attribute and a value.
                The action is only available if they are equal */
             conditions: [
-              {type: 'equal', values = ['turn.player', state.players[0]]}
+              {
+                type: 'equal',
+                values = [
+                  {
+                    type: 'actor',
+                    name: 'turn',
+                    property: 'player'
+                  },
+                  {
+                    type: 'constant',
+                    value: state.players[0]
+                  }
+                ]
+              }
             ],
             name: 'take'
           },
           {
             player: state.players[1],
             conditions: [
-              {type: 'equal', values = ['turn.player', state.players[1]]}
+              {
+                type: 'equal',
+                values = [
+                  {
+                    type: 'actor',
+                    name: 'turn',
+                    property: 'player'
+                  },
+                  {
+                    type: 'constant',
+                    value: state.players[1]
+                  }
+                ]
+              }
             ],
             name: 'take'
           }
