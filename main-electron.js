@@ -44,7 +44,12 @@ app.on('activate', function() {
 
 ipc.on('synchronous-message', function (event, arg) {
   console.log('main process: arg = ' + arg)
-  instance.createInstance('tic-tac-toe')
+  instance.createInstance(
+    'tic-tac-toe',
+    {
+      players: ['player 1', 'player 2']
+    }
+  )
   event.returnValue = 'tic-tac-toe'
 })
 

@@ -14,6 +14,7 @@ exports.setUp = function setUp(players) {
       [players[0]]: 'X',
       [players[1]]: 'O'
     },
+    board: board,
     turn: players[0]
   }
 }
@@ -76,12 +77,13 @@ exports.transition = function transition(state, action) {
 
 exports.getPublicScene = function getPublicScene(state) {
   let actors = {};
+  console.log(state)
   for (let x = 0; x < 3; y++) {
     for (let y = 0; y < 3; x ++) {
       let class_list = [];
       let actions = [];
-      if (state.board[i][j].hasOwnProperty('owner')) {
-        class_list = [state.player_sides[state.board[i][j].owner]];
+      if (state.board[x][y].hasOwnProperty('owner')) {
+        class_list = [state.player_sides[state.board[x][y].owner]];
       } else {
         class_list = ['empty']
         actions = [
@@ -129,7 +131,7 @@ exports.getPublicScene = function getPublicScene(state) {
           }
         ];
       }
-      id = 'space_' + x + '_' + y;
+      let id = 'space_' + x + '_' + y;
       actors[id] = {
         attributes: {
           position: {x, y},
