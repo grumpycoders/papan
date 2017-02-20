@@ -61,16 +61,9 @@
         }
       }
 
-      document.body.addEventListener('click', function (event) {
-        if (event.target.dataset.userpage) {
-          handleUserMenu(event)
-        }
-      })
-
       function showProfile() {
-        let view = document.getElementById('user-profile');
-        var clone = document.importNode(view.content, true);
-        document.getElementById('main-view').appendChild(clone);
+        let profile = document.getElementsByTagName('papan-user-profile')[0];
+        profile.style.display = 'block'
       }
     </script>
 
@@ -116,8 +109,7 @@
           Start Game
         </mdl-button>
         <div id="main-view">
-           <papan-user-profile>toto
-           </papan-user-profile>
+           <papan-user-profile style="display: none"/>
         </div>
       </mdl-content>
     </mdl-layout>

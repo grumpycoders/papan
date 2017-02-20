@@ -1,4 +1,45 @@
-<dom-module id="papan-user-profile">
+<dom-module id="user-game">
+  <template>
+    <mdl-card class="user-game" shadow="4">
+      <img src="" />
+      <mdl-card-title-text class="user-game-name"></mdl-card-title-text>
+    </mdl-card>
+  </template>
+  <style>
+    .user-game.mdl-card {
+      width: 200px;
+      height: 200px;
+      display: inline-block;
+      margin-left: 10px;
+      margin-right: 10px;
+    }
+  </style>
+
+  <script>
+    Polymer({
+      is: "user-game",
+    })
+  </script>
+</dom-module>
+
+<dom-module id="user-achievement">
+  <template>
+    <mdl-chip class="user-achievement">
+      <mdl-chip-contact class="mdl-color--amber mdl-color-text--white user-achievement-image"></mdl-chip-contact>
+      <mdl-chip-text class="user-achievement-name"></mdl-chip-text>
+    </mdl-chip>
+  </template>
+  <style>
+  </style>
+
+  <script>
+    Polymer({
+      is: "user-achievement",
+    })
+  </script>
+</dom-module>
+
+<dom-module id="papan-user-profile" class="user-page">
   <template>
     <mdl-card class="user-info">
       <img src="" alt="Profile pic" id="picture"  shadow="4"/>
@@ -7,36 +48,31 @@
       </mdl-card-title-tex>
     </mdl-card>
 
-    <h1>Games</h1>
-    <mdl-card class="user-game" shadow="4">
-      <img src="" alt="Game pic 1" />
-      <mdl-card-title-tex>
-        Game 1
-      </mdl-card-title-tex>
-    </mdl-card>
-    <mdl-card class="user-game" shadow="4">
-      <img src="" alt="Game pic 2" />
-      <mdl-card-title-tex>
-        Game 2
-      </mdl-card-title-tex>
-    </mdl-card>
+    <div id="user-games-list">
+      <h1>Games</h1>
+    </div>
 
-    <h1>Achievements</h1>
-    <mdl-chip class="user-achievement">
-      <mdl-chip-contact class="mdl-color--teal mdl-color-text--white">A</mdl-chip-contact>
-      <mdl-chip-text>Achievement 1</mdl-chip-text>
-    </mdl-chip>
-    <mdl-chip class="user-achievement">
-      <mdl-chip-contact class="mdl-color--red mdl-color-text--white">B</mdl-chip-contact>
-      <mdl-chip-text>Achievement 2</mdl-chip-text>
-    </mdl-chip>
+    <div id="user-achievements-list">
+      <h1>Achievements</h1>
+    </div>
   </template>
 
   <style>
-    .user-info.mdl-card-wide {
+    .user-info {
       width: auto;
+      height: 250px;
+    }
+
+    .user-info #nickname{
+      margin-top: 5px;
+      font-size: 20pt;
+    }
+
+    .user-info img {
+      width: 200px;
       height: 200px;
     }
+
     .user-game.mdl-card {
       width: 200px;
       height: 200px;
@@ -45,22 +81,36 @@
       margin-right: 10px;
     }
 
-    #papan-user-profile {
-      /*display: none;*/
-    }
-
-    #papan-user-profile.shown {
-      display: block;
-    }
-
     h1 {
       font-size: 20pt;
+      border-bottom: 1px solid lightgrey;
     }
   </style>
 
   <script>
     Polymer({
       is: "papan-user-profile",
+
+      ready: function() {
+        //populate list of games
+        var list = document.getElementById('user-games-list');
+        var games = ["Chess", "Tic tac toe", "Falken's Maze", "Poker"];
+        for (i = 0; i < games.length; i++) {
+          var game = document.createElement('user-game');
+          game.getElementsByClassName('user-game-name')[0].innerHTML = games[i];
+          list.appendChild(game);
+        }
+
+        //populate list of achievements
+        var list = document.getElementById('user-achievements-list');
+        var achievements = ["Gamer", "Master of nuggets", "Killed em' all"];
+        for (i = 0; i < achievements.length; i++) {
+          var achievement = document.createElement('user-achievement');
+          achievement.getElementsByClassName('user-achievement-name')[0].innerHTML = achievements[i];
+          achievement.getElementsByClassName('user-achievement-image')[0].innerHTML = achievements[i][0];
+          list.appendChild(achievement);
+        }
+      },
     })
   </script>
 
