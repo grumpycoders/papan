@@ -21,8 +21,8 @@ exports.setUp = function setUp(players) {
 
 function checkWinner(board) {
   for (let i = 0; i < 3; i++) {
-    row_owner = [];
-    col_owner = [];
+    let row_owner = [];
+    let col_owner = [];
     for (let j = 0; j < 3; j++) {
       row_owner[j] = board[i][j].owner;
       col_owner[j] = board[j][i].owner;
@@ -35,8 +35,8 @@ function checkWinner(board) {
       }
     }
   }
-  diag1_owner = [board[0][0].owner, board[1][1].owner, board[2][2].owner];
-  diag2_owner = [board[0][2].owner, board[1][1].owner, board[2][0].owner];
+  let diag1_owner = [board[0][0].owner, board[1][1].owner, board[2][2].owner];
+  let diag2_owner = [board[0][2].owner, board[1][1].owner, board[2][0].owner];
   for (const arr of [diag1_owner, diag2_owner]) {
     if (arr[0] !== null) {
       if (arr.every( (val, i, arr) => val === arr[0])) {
