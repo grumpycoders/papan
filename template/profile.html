@@ -1,8 +1,8 @@
 <dom-module id="papan-user-profile">
   <template>
-    <mdl-card class="user-info" shadow="4">
-      <img src="" alt="Profile pic" />
-      <mdl-card-title-tex>
+    <mdl-card class="user-info">
+      <img src="" alt="Profile pic" id="picture"  shadow="4"/>
+      <mdl-card-title-tex id="nickname">
         Nickname
       </mdl-card-title-tex>
     </mdl-card>
@@ -33,15 +33,35 @@
   </template>
 
   <style>
-    .user-info.mdl-card-wide" shadow="4" {
+    .user-info.mdl-card-wide {
       width: auto;
       height: 200px;
     }
-    .user-game.mdl-card" shadow="4" {
+    .user-game.mdl-card {
       width: 200px;
       height: 200px;
+      display: inline-block;
+      margin-left: 10px;
+      margin-right: 10px;
     }
 
+    #papan-user-profile {
+      /*display: none;*/
+    }
+
+    #papan-user-profile.shown {
+      display: block;
+    }
+
+    h1 {
+      font-size: 20pt;
+    }
   </style>
+
+  <script>
+    Polymer({
+      is: "papan-user-profile",
+    })
+  </script>
 
 </dom-module>
