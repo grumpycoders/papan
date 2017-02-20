@@ -1,13 +1,14 @@
 'use strict'
 
 const commandline = require('command-line-args')
+const deepDiff = require('deep-diff')
 
 const optionDefinitions = [
   { name: 'debug', type: Boolean }
 ]
 
 const electron = require('electron')
-const ipc = require('electron').ipcMain
+const ipc = electron.ipcMain
 
 const path = require('path')
 const url = require('url')
@@ -54,12 +55,25 @@ app.on('activate', function() {
   }
 })
 
+let channel = {}
+
+channel.sendPrivateScene = (oldscene, newscene, player) => {
+}
+
+channel.sendPublicScene = (oldscene, newscene) => {
+  const diff = deepDiff(oldscene, newscene)
+  console.log(diff)
+}
+
 ipc.on('synchronous-message', function (event, arg) {
   console.log('main process: arg = ' + arg)
   instance.createInstance(
-    'tic-tac-toe',
     {
-      players: ['player 1', 'player 2']
+      gameId: 'tic-tac-toe',
+      channel: channel,
+      settings: {
+        players: ['player 1', 'player 2']
+      }
     }
   )
   event.returnValue = 'tic-tac-toe'

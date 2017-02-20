@@ -31,22 +31,24 @@ exports.findGameData = (gameId) => {
 }
 
 function sendPublicScene(oldScene, newScene) {
-  console.log('old scene: ' + oldScene)
-  console.log('new scene: ' + newScene)
 }
 
 function sendPrivateScene(oldScene, newScene, player) {
 
 }
 
-exports.createInstance = (gameId, settings = []) => {
-  let {gameData, gamePath} = exports.findGameData(gameId)
+exports.createInstance = (args) => {
+  let { gameId, settings, channel } = args
+  let { gameData, gamePath } = exports.findGameData(gameId)
   const game = require(path.join(baseDir, gamePath, gameData.main))
 
   let players = settings.players
 
-  let currentPublicScene = undefined
+  let currentPublicScene = {}
   let currentPrivateScenes = {}
+  for (let player of players) {
+    currentPrivateScenes[player] = {}
+  }
 
   let store = redux.createStore((state, action) => {
     console.log(action)
@@ -58,15 +60,15 @@ exports.createInstance = (gameId, settings = []) => {
     }
   })
 
-  let sceneWatcher = () => {
+  const sceneWatcher = () => {
     let state = store.getState()
     let newPublicScene = game.getPublicScene(state)
-    sendPublicScene(currentPublicScene, newPublicScene)
+    channel.sendPublicScene(currentPublicScene, newPublicScene)
     currentPublicScene = newPublicScene
 
     for (let player of players) {
       let newPrivateScene = game.getPrivateScene(state, player)
-      sendPrivateScene(currentPrivateScenes[player], newPrivateScene, player)
+      channel.sendPrivateScene(currentPrivateScenes[player], newPrivateScene, player)
       currentPrivateScenes[player] = newPrivateScene
     }
   }

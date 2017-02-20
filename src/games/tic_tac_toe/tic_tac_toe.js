@@ -56,9 +56,6 @@ function otherPlayer(state, player) {
 }
 
 exports.transition = function transition(state, action) {
-  if (action.player != state.turn) {
-    return state;
-  }
   if (action.name != "take") {
     return state;
   }
@@ -66,7 +63,7 @@ exports.transition = function transition(state, action) {
   if (state.board[x][y].owner !== null) {
     return state;
   }
-  state.board[x][y].owner = action.player;
+  state.board[x][y].owner = state.turn;
   let winner = checkWinner(state.board);
   if (winner !== null) {
     state.winner = winner;
@@ -88,47 +85,22 @@ exports.getPublicScene = function getPublicScene(state) {
         class_list = ['empty']
         actions = [
           {
-            player: state.players[0],
-            /* Checks for equality between an actor's attribute and a value.
-               The action is only available if they are equal */
             conditions: [
               {
-                type: 'equal',
-                values: [
-                  {
-                    type: 'actor',
-                    name: 'turn',
-                    property: 'player'
-                  },
-                  {
-                    type: 'constant',
-                    value: state.players[0]
-                  }
-                ]
+                type: 'is_in_set',
+                element: {
+                  type: 'actor',
+                  name: 'turn',
+                  property: 'player'
+                },
+                set: {
+                  type: 'channel',
+                  value: 'players'
+                }
               }
             ],
             name: 'take'
           },
-          {
-            player: state.players[1],
-            conditions: [
-              {
-                type: 'equal',
-                values: [
-                  {
-                    type: 'actor',
-                    name: 'turn',
-                    property: 'player'
-                  },
-                  {
-                    type: 'constant',
-                    value: state.players[1]
-                  }
-                ]
-              }
-            ],
-            name: 'take'
-          }
         ];
       }
       let id = 'space_' + x + '_' + y;
