@@ -37,8 +37,10 @@
             link.onload = () => {
               let view = document.createElement('papan-main-board')
               view.setAttribute('id', 'main-board')
+              view.addEventListener('view-ready', () => {
+                ipc.send('asynchronous-message', 'refreshPublicScene')
+              })
               document.getElementById('main-view').appendChild(view)
-              ipc.send('asynchronous-message', 'refreshPublicScene')
             }
             document.body.appendChild(link)
           })
@@ -99,7 +101,7 @@
             <a onclick="toggleDebug()">
               Debugger
             </a>
-            <a href="https://github.com/grumpycoders.papan" style="visibility: hidden;" id="github-link">
+            <a href="https://github.com/grumpycoders.papan" style="display: none;" id="github-link">
               <mdl-icon style="margin-right: 7px;" class="material-icons">link</mdl-icon>Github
             </a>
           </mdl-navigation>
@@ -127,7 +129,7 @@
       require('./renderer.js')
       require('devtron').install()
     } else {
-      document.getElementById('github-link').setAttribute('style', 'visibility: visible');
+      document.getElementById('github-link').style.display = 'inline'
     }
   </script>
 </html>
