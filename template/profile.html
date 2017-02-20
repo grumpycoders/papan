@@ -12,6 +12,20 @@
       display: inline-block;
       margin-left: 10px;
       margin-right: 10px;
+      transition: all .2s ease-in-out;
+    }
+
+    .user-game.mdl-card:hover { transform: scale(1.1); }
+
+    .user-game img {
+      width: 200px;
+      height: 150px;
+      background-color: lightgray;
+    }
+
+    .user-game-name{
+      margin-left: 10px;
+      margin-top: 10px;
     }
   </style>
 
@@ -42,7 +56,7 @@
 <dom-module id="papan-user-profile" class="user-page">
   <template>
     <mdl-card class="user-info">
-      <img src="" alt="Profile pic" id="picture"  shadow="4"/>
+      <img src="" id="picture"/>
       <mdl-card-title-tex id="nickname">
         Nickname
       </mdl-card-title-tex>
@@ -64,21 +78,17 @@
     }
 
     .user-info #nickname{
-      margin-top: 5px;
+      margin-top: 10px;
+      margin-left: 10px;
       font-size: 20pt;
     }
 
     .user-info img {
-      width: 200px;
-      height: 200px;
-    }
-
-    .user-game.mdl-card {
-      width: 200px;
-      height: 200px;
-      display: inline-block;
+      margin-top: 10px;
       margin-left: 10px;
-      margin-right: 10px;
+      width: 200px;
+      height: 200px;
+      background-color: lightgray;
     }
 
     h1 {
