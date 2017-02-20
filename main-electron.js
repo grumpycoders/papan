@@ -59,26 +59,36 @@ let channel = {}
 
 channel.sendPrivateScene = (oldscene, newscene, player) => {
   const diff = deepDiff(oldscene, newscene, player)
-  mainWindow.webContents.send('privateSceneDelta', { diff: diff, player: player })
+  if (diff !== undefined) {
+    mainWindow.webContents.send('privateSceneDelta', { diff: diff, player: player })
+  }
 }
 
 channel.sendPublicScene = (oldscene, newscene) => {
   const diff = deepDiff(oldscene, newscene)
-  mainWindow.webContents.send('publicSceneDelta', { diff: diff })
+  if (diff !== undefined) {
+    mainWindow.webContents.send('publicSceneDelta', { diff: diff })
+  }
 }
 
+let currentGame
+
 ipc.on('asynchronous-message', (event, arg) => {
-  console.log('main process: arg = ' + arg)
-  instance.createInstance(
-    {
+  switch(arg) {
+  case 'startGame':
+    currentGame = instance.createInstance({
       gameId: 'tic-tac-toe',
       channel: channel,
       settings: {
         players: ['player 1', 'player 2']
       }
-    }
-  )
-  event.sender.send('asynchronous-reply', instance.findGameData('tic-tac-toe'))
+    })
+    event.sender.send('asynchronous-reply', instance.findGameData('tic-tac-toe'))
+    break
+  case 'refreshPublicScene':
+    currentGame.refreshPublicScene()
+    break
+  }
 })
 
 }

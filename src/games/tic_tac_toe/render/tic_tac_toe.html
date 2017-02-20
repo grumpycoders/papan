@@ -1,11 +1,42 @@
+
+
 <dom-module id="papan-main-board">
   <template>
-    <mdl-spinner></mdl-spinner>
+    <mdl-card class="board" shadow="4">
+      <table>
+        <tr><td id="s00"></td><td id="s01"></td><td id="s02"></td></tr>
+        <tr><td id="s10"></td><td id="s11"></td><td id="s12"></td></tr>
+        <tr><td id="s20"></td><td id="s21"></td><td id="s22"></td></tr>
+      </table>
+    <mdl-card>
   </template>
+
+  <style>
+    .board.mdl-card {
+      width: 384px;
+      height: 402px;
+    }
+    td {
+      width: 128px;
+      height: 128px;
+      border: 1px;
+      border-style: solid;
+      border-color: black;
+    }
+  </style>
 
   <script>
     Polymer({
       is: "papan-main-board",
+      created: function() {
+        this._publicScene = {}
+      },
+      applyPublicDelta: function(delta) {
+        let element = this
+        delta.forEach((change) => {
+          DeepDiff.applyChange(element._publicScene, {}, change)
+        })
+      }
     })
   </script>
 </dom-module>

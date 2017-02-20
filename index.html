@@ -7,6 +7,8 @@
     <link rel="stylesheet" href="node_modules/material-design-icons/iconfont/material-icons.css">
     <link rel="stylesheet" href="node_modules/material-design-lite/dist/material.deep_purple-amber.min.css">
 
+    <script src="node_modules/deep-diff/releases/deep-diff-0.3.4.min.js"></script>
+
     <script src="node_modules/document-register-element/build/document-register-element.max.js"></script>
     <link rel="import" href="node_modules/@polymer/polymer/polymer.html">
     <link rel="import" href="src/games/tic_tac_toe/render/tic_tac_toe.html">
@@ -24,8 +26,8 @@
 
       if (isElectron()) {
         const electron = require('electron')
+        const ipc = electron.ipcRenderer
         startGame = () => {
-          const ipc = electron.ipcRenderer
           ipc.once('asynchronous-reply', (event, game) => {
             const renderer = game.gamePath + '/' + game.gameData.webcomponent
             let link = document.createElement('link')
@@ -33,15 +35,20 @@
             link.setAttribute('href', renderer)
             link.onload = () => {
               let view = document.createElement('papan-main-board')
+              view.setAttribute('id', 'main-board')
               document.getElementById('main-view').appendChild(view)
+              ipc.send('asynchronous-message', 'refreshPublicScene')
             }
             document.body.appendChild(link)
           })
-          ipc.send('asynchronous-message', 'start-game')
+          ipc.send('asynchronous-message', 'startGame')
         }
         toggleDebug = () => {
           let gameData = electron.remote.getCurrentWindow().toggleDevTools()
         }
+        ipc.on('publicSceneDelta', (event, { diff }) => {
+          document.getElementById('main-board').applyPublicDelta(diff)
+        })
       } else {
         startGame = () => {
           alert("Browser support not implemented yet")

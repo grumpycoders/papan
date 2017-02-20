@@ -30,13 +30,6 @@ exports.findGameData = (gameId) => {
   return null
 }
 
-function sendPublicScene(oldScene, newScene) {
-}
-
-function sendPrivateScene(oldScene, newScene, player) {
-
-}
-
 exports.createInstance = (args) => {
   let { gameId, settings, channel } = args
   let { gameData, gamePath } = exports.findGameData(gameId)
@@ -51,12 +44,11 @@ exports.createInstance = (args) => {
   }
 
   let store = redux.createStore((state, action) => {
-    console.log(action)
     switch(action.type) {
     case '@@redux/INIT':
       return game.setUp(players)
-    default:
-      return game.transition(state, action)
+    case 'action':
+      return game.transition(state, action.data)
     }
   })
 
@@ -74,15 +66,29 @@ exports.createInstance = (args) => {
   }
 
   store.subscribe(sceneWatcher)
-  sceneWatcher()
+  let state = store.getState()
+  currentPublicScene = game.getPublicScene(state)
+  for (let player of players) {
+    currentPrivateScenes[player] = game.getPrivateScene(state, player)
+  }
 
   return {
     game: game,
     gameId: gameId,
-    state: store,
-    scenes: {
-      publicScene: currentPublicScene,
-      privateScenes: currentPrivateScenes,
+    getState: () => {
+      return store.getState()
+    },
+    refreshPublicScene: () => {
+      channel.sendPublicScene({}, currentPublicScene)
+    },
+    refreshPrivateScene: (player) => {
+      channel.sendPrivateScene({}, currentPrivateScenes[player], player)
+    },
+    action: (action) => {
+      store.dispatch({
+        type: 'action',
+        data: action
+      })
     }
   }
 }

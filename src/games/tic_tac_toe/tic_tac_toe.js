@@ -74,17 +74,17 @@ exports.transition = function transition(state, action) {
 
 exports.getPublicScene = function getPublicScene(state) {
   let actors = {};
-  console.log(state)
   for (let x = 0; x < 3; x++) {
     for (let y = 0; y < 3; y++) {
       let class_list = [];
       let actions = [];
-      if (state.board[x][y].hasOwnProperty('owner')) {
+      if (state.board[x][y].owner) {
         class_list = [state.player_sides[state.board[x][y].owner]];
       } else {
         class_list = ['empty']
         actions = [
           {
+            name: 'take',
             conditions: [
               {
                 type: 'is_in_set',
@@ -98,9 +98,8 @@ exports.getPublicScene = function getPublicScene(state) {
                   value: 'players'
                 }
               }
-            ],
-            name: 'take'
-          },
+            ]
+          }
         ];
       }
       let id = 'space_' + x + '_' + y;
