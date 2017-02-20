@@ -12,6 +12,7 @@
     <script src="node_modules/document-register-element/build/document-register-element.max.js"></script>
     <link rel="import" href="node_modules/@polymer/polymer/polymer.html">
     <link rel="import" href="src/games/tic_tac_toe/render/tic_tac_toe.html">
+    <link rel="import" href="template/profile.html">
 
     <script>
       'use strict'
@@ -54,6 +55,12 @@
           alert("Browser support not implemented yet")
         }
       }
+
+      function showProfile() {
+        let view = document.createElement('papan-user-profile')
+              view.setAttribute('id', 'user-profile')
+              document.getElementById('main-view').appendChild(view)
+      }
     </script>
 
   </head>
@@ -63,7 +70,7 @@
       <mdl-drawer>
         <span class="mdl-layout-title">Menu</span>
         <mdl-navigation>
-          <a>
+          <a href="#" onclick="showProfile()">
             <mdl-icon style="margin-right: 7px;" class="material-icons">account_circle</mdl-icon>Profile
           </a>
           <a>
