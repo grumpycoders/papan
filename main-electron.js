@@ -58,14 +58,16 @@ app.on('activate', function() {
 let channel = {}
 
 channel.sendPrivateScene = (oldscene, newscene, player) => {
+  const diff = deepDiff(oldscene, newscene, player)
+  mainWindow.webContents.send('privateSceneDelta', { diff: diff, player: player })
 }
 
 channel.sendPublicScene = (oldscene, newscene) => {
   const diff = deepDiff(oldscene, newscene)
-  console.log(diff)
+  mainWindow.webContents.send('publicSceneDelta', { diff: diff })
 }
 
-ipc.on('synchronous-message', function (event, arg) {
+ipc.on('asynchronous-message', (event, arg) => {
   console.log('main process: arg = ' + arg)
   instance.createInstance(
     {
@@ -76,7 +78,7 @@ ipc.on('synchronous-message', function (event, arg) {
       }
     }
   )
-  event.returnValue = 'tic-tac-toe'
+  event.sender.send('asynchronous-reply', instance.findGameData('tic-tac-toe'))
 })
 
 }

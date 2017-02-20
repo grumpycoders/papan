@@ -7,8 +7,9 @@
     <link rel="stylesheet" href="node_modules/material-design-icons/iconfont/material-icons.css">
     <link rel="stylesheet" href="node_modules/material-design-lite/dist/material.deep_purple-amber.min.css">
 
-    <script src="node_modules/document-register-element/build/document-register-element.js"></script>
-    <link rel="import" href="node_modules/Polymer/polymer.html">
+    <script src="node_modules/document-register-element/build/document-register-element.max.js"></script>
+    <link rel="import" href="node_modules/@polymer/polymer/polymer.html">
+    <link rel="import" href="src/games/tic_tac_toe/render/tic_tac_toe.html">
 
     <script>
       'use strict'
@@ -25,11 +26,21 @@
         const electron = require('electron')
         startGame = () => {
           const ipc = electron.ipcRenderer
-          let gameId = ipc.send('synchronous-message', 'start-game')
-          console.log("renderer: startGame = " + gameId)
+          ipc.once('asynchronous-reply', (event, game) => {
+            const renderer = game.gamePath + '/' + game.gameData.webcomponent
+            let link = document.createElement('link')
+            link.setAttribute('rel', 'import')
+            link.setAttribute('href', renderer)
+            link.onload = () => {
+              let view = document.createElement('papan-main-board')
+              document.getElementById('main-view').appendChild(view)
+            }
+            document.body.appendChild(link)
+          })
+          ipc.send('asynchronous-message', 'start-game')
         }
         toggleDebug = () => {
-          electron.remote.getCurrentWindow().toggleDevTools()
+          let gameData = electron.remote.getCurrentWindow().toggleDevTools()
         }
       } else {
         startGame = () => {
@@ -76,10 +87,11 @@
       </mdl-header>
 
       <mdl-content>
-        <mdl-button
-          onclick="startGame();">
+        <mdl-button onclick="startGame();">
           Start Game
         </mdl-button>
+        <div id="main-view">
+        </div>
       </mdl-content>
     </mdl-layout>
   </body>

@@ -37,7 +37,7 @@
     "document-register-element": "^1.3.0",
     "material-design-icons": "^3.0.1",
     "material-design-lite": "^1.3.0",
-    "Polymer": "^1.6.1",
+    "@polymer/polymer": "^1.7.1-npm-test.4",
     "webcomponent-mdl": "^1.0.9"
   }
 }
