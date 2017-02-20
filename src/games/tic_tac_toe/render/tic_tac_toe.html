@@ -72,7 +72,7 @@
 
 <dom-module id="ttt-square">
   <template>
-    <div>
+    <div on-tap="actionFired">
       <ttt-square-circle id="circle" class="square"></ttt-square-circle>
       <ttt-square-cross id="cross" class="square"></ttt-square-cross>
       <ttt-square-empty id="empty" class="square"></ttt-square-empty>
@@ -93,10 +93,6 @@
 
       _actor: {},
 
-      listeners: {
-        'action': 'actionFired'
-      },
-
       showCircle: function() {
         this.$.circle.style.display = 'inline'
         this.$.cross.style.display = 'none'
@@ -115,17 +111,20 @@
         this.$.empty.style.display = 'inline'
       },
 
-      actionFired: function(evcent) {
-        alert('xyz')
+      actionFired: function(event) {
+        this.fire('action', {
+          name: 'take',
+          attributes: this._actor.attributes
+        })
       },
 
       attachActor: function(actor) {
         this._actor = actor
         switch(actor.class[0]) {
-        case 'circle':
+        case 'O':
           this.showCircle()
           break
-        case 'cross':
+        case 'X':
           this.showCross()
           break
         case 'empty':

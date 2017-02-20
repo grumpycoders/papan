@@ -74,7 +74,7 @@ channel.sendPublicScene = (oldscene, newscene) => {
 let currentGame
 
 ipc.on('asynchronous-message', (event, arg) => {
-  switch(arg) {
+  switch(arg.type) {
   case 'startGame':
     currentGame = instance.createInstance({
       gameId: 'tic-tac-toe',
@@ -87,6 +87,9 @@ ipc.on('asynchronous-message', (event, arg) => {
     break
   case 'refreshPublicScene':
     currentGame.refreshPublicScene()
+    break
+  case 'action':
+    currentGame.action(arg.data)
     break
   }
 })
