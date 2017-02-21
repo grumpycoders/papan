@@ -62,7 +62,7 @@
       }
 
       function showProfile() {
-        let profile = document.getElementsByTagName('papan-user-profile')[0];
+        let profile = document.getElementById('profile-view');
         profile.style.display = 'block'
       }
     </script>
@@ -109,7 +109,7 @@
           Start Game
         </mdl-button>
         <div id="main-view">
-           <papan-user-profile style="display: none"/>
+           <papan-user-profile id="profile-view" style="display: none"/>
         </div>
       </mdl-content>
     </mdl-layout>
