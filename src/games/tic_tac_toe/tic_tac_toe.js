@@ -1,11 +1,11 @@
-'use strict';
+'use strict'
 
-exports.setUp = function setUp(players) {
-  let board = [];
+exports.setUp = (players) => {
+  let board = []
   for (let x = 0; x < 3; x++) {
-    board[x] = [];
+    board[x] = []
     for (let y = 0; y < 3; y++) {
-      board[x][y] = {owner: null};
+      board[x][y] = {owner: null}
     }
   }
   return {
@@ -14,75 +14,75 @@ exports.setUp = function setUp(players) {
       [players[0]]: 'X',
       [players[1]]: 'O'
     },
+    winner: null,
     board: board,
-    turn: players[0]
+    turn: players[0],
+    turns: 0
   }
 }
 
-function checkWinner(board) {
+function checkWinner (board) {
   for (let i = 0; i < 3; i++) {
-    let row_owner = [];
-    let col_owner = [];
+    let rowOwner = []
+    let colOwner = []
     for (let j = 0; j < 3; j++) {
-      row_owner[j] = board[i][j].owner;
-      col_owner[j] = board[j][i].owner;
+      rowOwner[j] = board[i][j].owner
+      colOwner[j] = board[j][i].owner
     }
-    for (const arr of [row_owner, col_owner]) {
+    for (const arr of [rowOwner, colOwner]) {
       if (arr[0] !== null) {
-        if (arr.every( (val, i, arr) => val === arr[0])) {
-          return arr[0];
+        if (arr.every((val, i, arr) => val === arr[0])) {
+          return arr[0]
         }
       }
     }
   }
-  let diag1_owner = [board[0][0].owner, board[1][1].owner, board[2][2].owner];
-  let diag2_owner = [board[0][2].owner, board[1][1].owner, board[2][0].owner];
-  for (const arr of [diag1_owner, diag2_owner]) {
+  let diag1Owner = [board[0][0].owner, board[1][1].owner, board[2][2].owner]
+  let diag2Owner = [board[0][2].owner, board[1][1].owner, board[2][0].owner]
+  for (const arr of [diag1Owner, diag2Owner]) {
     if (arr[0] !== null) {
-      if (arr.every( (val, i, arr) => val === arr[0])) {
-        return arr[0];
+      if (arr.every((val, i, arr) => val === arr[0])) {
+        return arr[0]
       }
     }
   }
-  return null;
+  return null
 }
 
-function otherPlayer(state, player) {
+function otherPlayer (state, player) {
   if (player === state.players[0]) {
-    return state.players[1];
+    return state.players[1]
   } else {
-    return state.players[0];
+    return state.players[0]
   }
 }
 
-exports.transition = function transition(state, action) {
-  if (action.name != "take") {
-    return state;
+exports.transition = (state, action) => {
+  if (action.name !== 'take' && !!state.winner) {
+    return state
   }
-  let {x, y} = action.attributes.position;
+  let {x, y} = action.attributes.position
   if (state.board[x][y].owner !== null) {
-    return state;
+    return state
   }
-  state.board[x][y].owner = state.turn;
-  let winner = checkWinner(state.board);
-  if (winner !== null) {
-    state.winner = winner;
-  }
-  state.turn = otherPlayer(state, state.turn);
-  return state;
+  state.turns++
+  state.board[x][y].owner = state.turn
+  state.winner = checkWinner(state.board)
+  state.turn = otherPlayer(state, state.turn)
+  return state
 }
 
-exports.getPublicScene = function getPublicScene(state) {
-  let actors = {};
+exports.getPublicScene = (state) => {
+  let actors = {}
   for (let x = 0; x < 3; x++) {
     for (let y = 0; y < 3; y++) {
-      let class_list = [];
-      let actions = [];
+      let classList = []
+      let actions = []
       if (state.board[x][y].owner) {
-        class_list = [state.player_sides[state.board[x][y].owner]];
+        classList = [state.player_sides[state.board[x][y].owner]]
       } else {
-        class_list = ['empty']
-        actions = [
+        classList = ['empty']
+        actions = !state.winner && [
           {
             name: 'take',
             conditions: [
@@ -100,16 +100,16 @@ exports.getPublicScene = function getPublicScene(state) {
               }
             ]
           }
-        ];
+        ] || []
       }
-      let id = 'space_' + x + '_' + y;
+      let id = 'space_' + x + '_' + y
       actors[id] = {
         attributes: {
-          position: {x, y},
+          position: {x, y}
         },
-        class: class_list,
+        class: classList,
         actions
-      };
+      }
     }
   }
   actors['turn'] = {
@@ -118,17 +118,17 @@ exports.getPublicScene = function getPublicScene(state) {
     },
     class: ['turn']
   }
-  if (state.hasOwnProperty('winner')) {
+  if (!!state.winner || state.turns === 9) {
     actors['winner'] = {
       attributes: {
         player: state.winner
       },
       class: ['winner']
-    };
+    }
   }
-  return actors;
+  return actors
 }
 
-exports.getPrivateScene = function getPrivateScene(state, player) {
-  return [];
-}
+exports.getPrivateScene = (state, player) => []
+
+exports.isRunning = (state) => !state.winner && state.turns !== 9
