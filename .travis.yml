@@ -10,10 +10,6 @@ before_script:
 script:
   - npm test
 
-branches:
-  only:
-    - master
-
 cache:
   directories:
     - node_modules
