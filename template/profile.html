@@ -10,7 +10,7 @@
     <div id="user-games-list">
       <div class="category">Games</div>
       <template is="dom-repeat" items="{{games}}">
-        <mdl-card class="user-game" shadow="4" on-click="showGame({{item.name}})" game="{{item.name}}">
+        <mdl-card class="user-game" shadow="4" on-tap="showg" game="{{item.name}}">
           <img src="{{item.picture}}" />
           <mdl-card-title-text class="gameName">{{item.name}}</mdl-card-title-text>
         </mdl-card>
@@ -107,7 +107,7 @@
       },
 
       showg: function(e){
-        var game = e.$$.game;
+        var game = e.model.get('item.name');
         showGame(game);
       },
     })
