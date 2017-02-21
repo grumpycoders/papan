@@ -82,7 +82,7 @@ exports.getPublicScene = (state) => {
         classList = [state.player_sides[state.board[x][y].owner]]
       } else {
         classList = ['empty']
-        actions = state.winner && [
+        actions = !state.winner && [
           {
             name: 'take',
             conditions: [
