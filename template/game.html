@@ -1,0 +1,54 @@
+<dom-module id="papan-game-page">
+  <template>
+    <div id="gameHeader">
+    </div>
+    <div id="gameInfos">
+        <mdl-icon style="margin-right: 7px;" class="material-icons">people</mdl-icon>2 players
+        <mdl-icon style="margin-right: 7px;" class="material-icons">access_time</mdl-icon>2 minutes
+    </div>
+    <div id="gameDescription">
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+    </div>
+  </template>
+
+  <style>
+    #gameHeader {
+      width: auto;
+      height: 250px;
+      font-size: 20pt;
+      background-color: lightgrey;
+      margin-top: 10px;
+      margin-bottom: 10px;
+      padding-left: 10px;
+      padding-top: 10px;
+    }
+
+    #gameInfos {
+      margin-top: 10px;
+      margin-bottom: 10px;
+    }
+
+    #gameDescription {
+      margin-top: 10px;
+      margin-bottom: 10px;
+    }
+  </style>
+
+  <script>
+    Polymer({
+      is: "papan-game-page",
+
+      ready: function() {
+          this.setGameName('Tic Tac Toe')
+      },
+
+      setGameName: function(name) {
+        this.$.gameHeader.innerHTML = name;
+      },
+
+      setBackgroundPicture: function(file) {
+        this.$.gameHeader.style.backgroundImage = file;
+      },
+    })
+  </script>
+</dom-module>
