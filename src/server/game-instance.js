@@ -44,11 +44,11 @@ exports.createInstance = (args) => {
   }
 
   let store = redux.createStore((state, action) => {
-    switch(action.type) {
-    case '@@redux/INIT':
-      return game.setUp(players)
-    case 'action':
-      return game.transition(state, action.data)
+    switch (action.type) {
+      case '@@redux/INIT':
+        return game.setUp(players)
+      case 'action':
+        return game.transition(state, action.data)
     }
   })
 
