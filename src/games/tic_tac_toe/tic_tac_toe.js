@@ -1,6 +1,6 @@
 'use strict';
 
-exports.setUp = function setUp(players) {
+exports.setUp = (players) => {
   let board = [];
   for (let x = 0; x < 3; x++) {
     board[x] = [];
@@ -14,8 +14,10 @@ exports.setUp = function setUp(players) {
       [players[0]]: 'X',
       [players[1]]: 'O'
     },
+    winner: null,
     board: board,
-    turn: players[0]
+    turn: players[0],
+    turns: 0
   }
 }
 
@@ -55,24 +57,22 @@ function otherPlayer(state, player) {
   }
 }
 
-exports.transition = function transition(state, action) {
-  if (action.name != "take") {
+exports.transition = (state, action) => {
+  if (action.name != "take" && !!state.winner) {
     return state;
   }
   let {x, y} = action.attributes.position;
   if (state.board[x][y].owner !== null) {
     return state;
   }
+  state.turns++;
   state.board[x][y].owner = state.turn;
-  let winner = checkWinner(state.board);
-  if (winner !== null) {
-    state.winner = winner;
-  }
+  state.winner = checkWinner(state.board);
   state.turn = otherPlayer(state, state.turn);
   return state;
 }
 
-exports.getPublicScene = function getPublicScene(state) {
+exports.getPublicScene = (state) => {
   let actors = {};
   for (let x = 0; x < 3; x++) {
     for (let y = 0; y < 3; y++) {
@@ -82,7 +82,7 @@ exports.getPublicScene = function getPublicScene(state) {
         class_list = [state.player_sides[state.board[x][y].owner]];
       } else {
         class_list = ['empty']
-        actions = [
+        if (!state.winner) actions = [
           {
             name: 'take',
             conditions: [
@@ -118,7 +118,7 @@ exports.getPublicScene = function getPublicScene(state) {
     },
     class: ['turn']
   }
-  if (state.hasOwnProperty('winner')) {
+  if (!!state.winner || state.turns == 9) {
     actors['winner'] = {
       attributes: {
         player: state.winner
@@ -129,6 +129,6 @@ exports.getPublicScene = function getPublicScene(state) {
   return actors;
 }
 
-exports.getPrivateScene = function getPrivateScene(state, player) {
-  return [];
-}
+exports.getPrivateScene = (state, player) => [];
+
+exports.isRunning = (state) => !state.winner && state.turns != 9;

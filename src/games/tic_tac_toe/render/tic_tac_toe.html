@@ -56,6 +56,7 @@
 
       actionFired: function(event) {
         let actor = this._actor
+        if (!actor.actions[0]) return
         this.fire('action', {
           name: actor.actions[0].name,
           attributes: actor.attributes
@@ -100,13 +101,16 @@
           <td><ttt-square id="s22"></ttt-square></td>
         </tr>
       </table>
+      <mdl-card-actions border>
+        <span id="gameStatus"></span>
+      </mdl-card-actions>
     <mdl-card>
   </template>
 
   <style>
     .board.mdl-card {
       width: 384px;
-      height: 402px;
+      height: 425px;
     }
 
     td {
@@ -135,6 +139,16 @@
         delta.forEach((change) => {
           DeepDiff.applyChange(element._publicScene, {}, change)
         })
+
+        this.$.gameStatus.innerHTML = this._publicScene.turn.attributes.player
+        if (!!this._publicScene.winner) {
+          const winner = this._publicScene.winner.attributes.player
+          if (winner) {
+            this.$.gameStatus.innerHTML = 'Game over: winner = ' + winner
+          } else {
+            this.$.gameStatus.innerHTML = 'Game over: draw'
+          }
+        }
 
         for (let x = 0; x < 3; x++) {
           for (let y = 0; y < 3; y++) {
