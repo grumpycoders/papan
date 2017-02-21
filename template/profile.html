@@ -108,7 +108,7 @@
 
       showg: function(e){
         var game = e.model.get('item.name');
-        showGame(game);
+        this.fire('gameclicked', { name: game });
       },
     })
   </script>
