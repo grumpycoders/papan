@@ -61,9 +61,17 @@
         }
       }
 
+      function closeMenu(){
+        let drawer = document.getElementById('menu');
+        drawer.classList.remove('is-visible');
+        let obfuscator = document.getElementsByClassName('mdl-layout__obfuscator')[0];
+        obfuscator.classList.remove('is-visible');
+      }
+
       function showProfile() {
         let profile = document.getElementById('profile-view');
-        profile.style.display = 'block'
+        profile.style.display = 'block';
+        closeMenu();
       }
     </script>
 
@@ -71,7 +79,7 @@
   <body>
     <mdl-layout>
 
-      <mdl-drawer>
+      <mdl-drawer id="menu">
         <span class="mdl-layout-title">Menu</span>
         <mdl-navigation>
           <a onclick="showProfile()">
