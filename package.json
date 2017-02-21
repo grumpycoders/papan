@@ -9,7 +9,8 @@
 
     "start-headless": "node .",
 
-    "lint": "standard | snazzy"
+    "lint": "standard | snazzy",
+    "test": "npm run lint"
   },
   "repository": {
     "type": "git",
