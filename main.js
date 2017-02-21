@@ -1,9 +1,9 @@
 'use strict'
 
-if (typeof(process.versions.electron) !== "undefined") {
-  const main_electron = require('./main-electron.js')
-  main_electron.main()
+if (typeof (process.versions.electron) !== 'undefined') {
+  const mainElectron = require('./main-electron.js')
+  mainElectron.main()
 }
 
-const main_node = require('./main-node.js')
-main_node.main()
+const mainNode = require('./main-node.js')
+mainNode.main()
