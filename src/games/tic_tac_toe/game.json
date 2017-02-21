@@ -1,0 +1,9 @@
+{
+    "name": "Tic Tac Toe",
+    "main": "tic_tac_toe.js",
+    "webcomponent": "render/tic_tac_toe.html",
+    "players": {
+        "min": 2,
+        "max": 2
+    }
+}
