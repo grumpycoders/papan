@@ -13,6 +13,7 @@
     <link rel="import" href="node_modules/@polymer/polymer/polymer.html">
     <link rel="import" href="src/games/tic_tac_toe/render/tic_tac_toe.html">
     <link rel="import" href="template/profile.html">
+    <link rel="import" href="template/game.html">
 
     <script>
       'use strict'
@@ -68,11 +69,27 @@
         obfuscator.classList.remove('is-visible');
       }
 
+      function closeMenuViews(){
+        let views = document.getElementsByClassName("user-page");
+        for (var i = 0; i < views.length; i++)
+          views[i].style.display = 'none';
+      }
+
       function showProfile() {
-        let profile = document.getElementById('profile-view');
-        profile.style.display = 'block';
+        closeMenuViews();
+        let view = document.getElementById('profile-view');
+        view.style.display = 'block';
         closeMenu();
       }
+
+      function showGame(name){
+        closeMenuViews();
+        let view = document.getElementById('game-view');
+        view.style.display = 'block';
+        view.setGameName(name)
+        closeMenu();
+      }
+
     </script>
 
   </head>
@@ -82,16 +99,16 @@
       <mdl-drawer id="menu">
         <span class="mdl-layout-title">Menu</span>
         <mdl-navigation>
-          <a onclick="showProfile()">
+          <a onclick="showProfile()" style="cursor: pointer;">
             <mdl-icon style="margin-right: 7px;" class="material-icons">account_circle</mdl-icon>Profile
           </a>
-          <a>
+          <a style="cursor: pointer;">
             <mdl-icon style="margin-right: 7px;" class="material-icons">contacts</mdl-icon>Friends
 	        </a>
-          <a>
+          <a style="cursor: pointer;">
             <mdl-icon style="margin-right: 7px;" class="material-icons">casino</mdl-icon>Games
           </a>
-          <a>
+          <a style="cursor: pointer;">
             <mdl-icon style="margin-right: 7px;" class="material-icons">dvr</mdl-icon>Servers
           </a>
         </mdl-navigation>
@@ -102,7 +119,7 @@
           <span class="mdl-layout-title" style="color: white;">Papan</span>
           <mdl-spacer></mdl-spacer>
           <mdl-navigation id="navigation">
-            <a onclick="toggleDebug()">
+            <a onclick="toggleDebug()" style="cursor: pointer;">
               Debugger
             </a>
             <a href="https://github.com/grumpycoders.papan" style="display: none;" id="github-link">
@@ -117,7 +134,8 @@
           Start Game
         </mdl-button>
         <div id="main-view">
-           <papan-user-profile id="profile-view" style="display: none"/>
+           <papan-user-profile id="profile-view" class="user-page" style="display: none"></papan-user-profile>
+           <papan-game-page id="game-view" class="user-page" style="display: none"></papan-game-page>
         </div>
       </mdl-content>
     </mdl-layout>

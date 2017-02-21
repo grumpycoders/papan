@@ -1,6 +1,7 @@
 <dom-module id="papan-game-page">
   <template>
-    <div id="gameHeader">
+    <div id="gameHeader" style="background-image: [[banner]]">
+        [[name]]
     </div>
     <div id="gameInfos">
         <mdl-icon style="margin-right: 7px;" class="material-icons">people</mdl-icon>2 players
@@ -38,12 +39,20 @@
     Polymer({
       is: "papan-game-page",
 
-      ready: function() {
-          this.setGameName('Tic Tac Toe')
+      properties: {
+          gameid: String,
+          gamename: String,
+          banner: String,
+          description: String,
       },
 
-      setGameName: function(name) {
-        this.$.gameHeader.innerHTML = name;
+      ready: function() {
+        this.games = [
+          {id: 'chess', name: 'Chess', picture: 'chess.png'}, 
+          {id: 'tictactoe', name: 'Tic Tac Toe', picture: 'tictactoe.png'}, 
+          {id: 'falken', name: 'Falken\'s Maze', picture: 'falken.png'}, 
+          {id: 'poker', name: 'Poker', picture: 'poker.png'}, 
+          ];
       },
 
       setBackgroundPicture: function(file) {

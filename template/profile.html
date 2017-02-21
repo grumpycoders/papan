@@ -1,59 +1,4 @@
-<dom-module id="user-game">
-  <template>
-    <mdl-card class="user-game" shadow="4">
-      <img src="" />
-      <mdl-card-title-text class="user-game-name"></mdl-card-title-text>
-    </mdl-card>
-  </template>
-  <style>
-    .user-game.mdl-card {
-      width: 200px;
-      height: 200px;
-      display: inline-block;
-      margin-left: 10px;
-      margin-right: 10px;
-      transition: all .2s ease-in-out;
-    }
-
-    .user-game.mdl-card:hover { transform: scale(1.1); }
-
-    .user-game img {
-      width: 200px;
-      height: 150px;
-      background-color: lightgray;
-    }
-
-    .user-game-name{
-      margin-left: 10px;
-      margin-top: 10px;
-    }
-  </style>
-
-  <script>
-    Polymer({
-      is: "user-game",
-    })
-  </script>
-</dom-module>
-
-<dom-module id="user-achievement">
-  <template>
-    <mdl-chip class="user-achievement">
-      <mdl-chip-contact class="mdl-color--amber mdl-color-text--white user-achievement-image"></mdl-chip-contact>
-      <mdl-chip-text class="user-achievement-name"></mdl-chip-text>
-    </mdl-chip>
-  </template>
-  <style>
-  </style>
-
-  <script>
-    Polymer({
-      is: "user-achievement",
-    })
-  </script>
-</dom-module>
-
-<dom-module id="papan-user-profile" class="user-page">
+<dom-module id="papan-user-profile">
   <template>
     <mdl-card class="user-info">
       <img src="" id="picture"/>
@@ -64,14 +9,55 @@
 
     <div id="user-games-list">
       <div class="category">Games</div>
+      <template is="dom-repeat" items="{{games}}">
+        <mdl-card class="user-game" shadow="4" on-click="showGame({{item.name}})" game="{{item.name}}">
+          <img src="{{item.picture}}" />
+          <mdl-card-title-text class="gameName">{{item.name}}</mdl-card-title-text>
+        </mdl-card>
+      </template>
     </div>
 
     <div id="user-achievements-list">
       <div class = "category">Achievements</div>
+      <template is="dom-repeat" items="{{achievements}}">
+      <mdl-chip class="user-achievement">
+        <mdl-chip-contact class="mdl-color--amber mdl-color-text--white user-achievement-image">{{item.picture}}</mdl-chip-contact>
+        <mdl-chip-text class="user-achievement-name">{{item.name}}</mdl-chip-text>
+      </mdl-chip>
+      </template>
     </div>
   </template>
 
   <style>
+    .user-game.mdl-card {
+      width: 200px;
+      height: 200px;
+      display: inline-block;
+      margin-left: 10px;
+      margin-right: 10px;
+      transition: all .2s ease-in-out;
+    }
+
+    .user-game.mdl-card:hover { 
+      transform: scale(1.1);
+      cursor: pointer;
+    }
+
+    .user-game img {
+      width: 200px;
+      height: 150px;
+      background-color: lightgray;
+    }
+
+    .gameName{
+      margin-left: 10px;
+      margin-top: 10px;
+    }
+
+    .user-achievement{
+      margin-left: 10px;
+    }
+
     .user-info {
       width: auto;
       height: 250px;
@@ -105,26 +91,25 @@
       is: "papan-user-profile",
 
       ready: function() {
-        //populate list of games
-        var list = document.getElementById('user-games-list');
-        var games = ["Chess", "Tic tac toe", "Falken's Maze", "Poker"];
-        for (i = 0; i < games.length; i++) {
-          var game = document.createElement('user-game');
-          game.getElementsByClassName('user-game-name')[0].innerHTML = games[i];
-          list.appendChild(game);
-        }
+        this.games = [
+          {id: 'chess', name: 'Chess', picture: 'chess.png'}, 
+          {id: 'tictactoe', name: 'Tic Tac Toe', picture: 'tictactoe.png'}, 
+          {id: 'falken', name: 'Falken\'s Maze', picture: 'falken.png'}, 
+          {id: 'poker', name: 'Poker', picture: 'poker.png'}, 
+          ];
 
-        //populate list of achievements
-        var list = document.getElementById('user-achievements-list');
-        var achievements = ["Gamer", "Master of nuggets", "Killed em' all"];
-        for (i = 0; i < achievements.length; i++) {
-          var achievement = document.createElement('user-achievement');
-          achievement.getElementsByClassName('user-achievement-name')[0].innerHTML = achievements[i];
-          achievement.getElementsByClassName('user-achievement-image')[0].innerHTML = achievements[i][0];
-          list.appendChild(achievement);
-        }
+       this.achievements = [
+          { name: 'Gamer', picture: '⚄'}, 
+          { name: 'Master of nuggets', picture: '♨︎'},
+          { name: 'Killed em\' all', picture: '⚔'},
+          { name: 'Ace of Spades', picture: '♠︎'},
+        ];
+      },
+
+      showg: function(e){
+        var game = e.$$.game;
+        showGame(game);
       },
     })
   </script>
-
 </dom-module>
