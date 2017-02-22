@@ -1,0 +1,58 @@
+package papan;
+
+/* This is a maximally type-safe description of the diffs output by the npm
+   package deep-diff */
+
+message PathItem {
+  oneof item {
+    string key = 1;
+    int32 index = 2;
+  }
+}
+
+message Path {
+  repeated PathItem items = 1;
+}
+
+// kind === 'N'
+message NewDiffElement {
+  Path path = 1;
+  // JSON string
+  string rhs = 3;
+}
+
+// kind === 'D'
+message DeleteDiffElement {
+  Path path = 1;
+  // JSON string. Only really necessary for verification
+  string lhs = 2;
+}
+
+// kind === 'E'
+message EditDiffElement {
+  Path path = 1;
+  // JSON string. Only really necessary for verification
+  string lhs = 2;
+  // JSON string
+  string rhs = 3;
+}
+
+// kind === 'A'
+message ArrayDiffElement {
+  Path path = 1;
+  int32 index = 4;
+  DiffElement item = 5;
+}
+
+message DiffElement {
+  oneof element {
+    NewDiffElement new = 1;
+    DeleteDiffElement delete = 2;
+    EditDiffElement edit = 3;
+    ArrayDiffElement array = 4;
+  }
+}
+
+message Diff {
+  repeated DiffElement elements = 1;
+}

@@ -1,0 +1,100 @@
+import "game_info.proto"
+
+package papan;
+
+message RegisterUpdate {
+  oneof update {
+    GameType type_added = 1;
+    /* We assume that a server will not concurrently add two game types of the
+       same name. If one attempts to do so, the second one should be ignored */
+    string type_removed = 2;
+  }
+}
+
+message RegisterServerResponse {
+}
+
+message CreateGameLobby {
+  uint32 game_type_id = 1;
+  repeated map<string, string> options = 2;
+}
+
+message LobbyAction {
+  CreateGameLobby create = 1;
+}
+
+message GameInstance {
+  uint32 game_type_id = 1;
+  uint32 current_players = 2;
+  uint32 game_lobby_id = 3;
+  map<string, string> chosen_options = 4;
+}
+
+message LobbyUpdate {
+  oneof update {
+    // A server registered a new game types.
+    GameType type_added = 1;
+    // A server unregistered a game type, or disconnected
+    uint32 type_id_removed = 2;
+    // A player created a new game lobby
+    GameInstance instance_added = 1;
+    // A game lobby became unavailable
+    uint32 instance_removed = 2;
+    // The player making this call created a game lobby
+    GameInstance instace_created = 3;
+  }
+}
+
+enum GameLobbyFinish {
+  // Can only be chosen by the game host
+  START = 0;
+  LEAVE = 1;
+}
+
+message GameLobbyAction {
+  oneof action {
+    string send_chat_message = 1;
+    // A finish message should be followed by a client-side half-close
+    GameLobbyFinish finish = 2;
+  }
+}
+
+message Player {
+  /* I expect ID to be specific to a single connection to the lobby by that
+     player */
+  string player_id = 1;
+  string player_name = 2;
+}
+
+message GameLobbyChatMessage {
+  string sender_player_id = 1;
+  string message_text = 2;
+}
+
+message GameInfo {
+  /* Both of these will be passed in the metadata of the RPC to the game server
+     that joins the game */
+  string game_instance_id = 1;
+  string game_instance_player_id = 2;
+}
+
+message GameLobbyUpdate {
+  oneof update {
+    GameLobbyChatMessage new_chat_message = 1;
+    Player player_joined = 2;
+    // Should be followed by a server-side half-close
+    GameInfo game_started = 3;
+  }
+}
+
+service Lobby {
+  /* The diffs sent via this method should apply to an array of the information
+     contained in a game.json file */
+  rpc RegisterServer (stream RegisterUpdate) returns (RegisterServerResponse);
+  
+  rpc Lobby (stream LobbyAction) returns (stream LobbyUpdate);
+
+  /* Client metadata contains game lobby ID. Server metadata contains server
+     address */
+  rpc GameLobby (stream GameLobbyAction) returns (stream GameLobbyUpdate);
+}
