@@ -6,6 +6,7 @@
 
     <link rel="stylesheet" href="node_modules/material-design-icons/iconfont/material-icons.css">
     <link rel="stylesheet" href="node_modules/material-design-lite/dist/material.deep_purple-amber.min.css">
+    <link rel="stylesheet" href="index.css">
 
     <script src="node_modules/deep-diff/releases/deep-diff-0.3.4.min.js"></script>
 
@@ -98,16 +99,16 @@
       <mdl-drawer id="menu">
         <span class="mdl-layout-title">Menu</span>
         <mdl-navigation>
-          <a onclick="showProfile()" style="cursor: pointer;">
+          <a onclick="showProfile()">
             <mdl-icon style="margin-right: 7px;" class="material-icons">account_circle</mdl-icon>Profile
           </a>
-          <a style="cursor: pointer;">
+          <a>
             <mdl-icon style="margin-right: 7px;" class="material-icons">contacts</mdl-icon>Friends
-	        </a>
-          <a style="cursor: pointer;">
+          </a>
+          <a>
             <mdl-icon style="margin-right: 7px;" class="material-icons">casino</mdl-icon>Games
           </a>
-          <a style="cursor: pointer;">
+          <a>
             <mdl-icon style="margin-right: 7px;" class="material-icons">dvr</mdl-icon>Servers
           </a>
         </mdl-navigation>
@@ -118,7 +119,7 @@
           <span class="mdl-layout-title" style="color: white;">Papan</span>
           <mdl-spacer></mdl-spacer>
           <mdl-navigation id="navigation">
-            <a onclick="toggleDebug()" style="cursor: pointer;">
+            <a onclick="toggleDebug()">
               Debugger
             </a>
             <a href="https://github.com/grumpycoders.papan" style="display: none;" id="github-link">
