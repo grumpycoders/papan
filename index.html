@@ -6,12 +6,15 @@
 
     <link rel="stylesheet" href="node_modules/material-design-icons/iconfont/material-icons.css">
     <link rel="stylesheet" href="node_modules/material-design-lite/dist/material.deep_purple-amber.min.css">
+    <link rel="stylesheet" href="index.css">
 
     <script src="node_modules/deep-diff/releases/deep-diff-0.3.4.min.js"></script>
 
     <script src="node_modules/document-register-element/build/document-register-element.max.js"></script>
     <link rel="import" href="node_modules/@polymer/polymer/polymer.html">
     <link rel="import" href="src/games/tic_tac_toe/render/tic_tac_toe.html">
+    <link rel="import" href="template/profile.html">
+    <link rel="import" href="template/game.html">
 
     <script>
       'use strict'
@@ -59,21 +62,49 @@
           alert("Browser support not implemented yet")
         }
       }
+
+      function closeMenu(){
+        let drawer = document.getElementById('menu');
+        drawer.classList.remove('is-visible');
+        let obfuscator = document.getElementsByClassName('mdl-layout__obfuscator')[0];
+        obfuscator.classList.remove('is-visible');
+      }
+
+      function closeMenuViews(){
+        let views = document.getElementsByClassName("user-page");
+        for (var i = 0; i < views.length; i++)
+          views[i].style.display = 'none';
+      }
+
+      function showProfile() {
+        closeMenuViews();
+        let view = document.getElementById('profile-view');
+        view.style.display = 'block';
+        closeMenu();
+      }
+
+      function showGame(event){
+        closeMenuViews();
+        let view = document.getElementById('game-view');
+        view.style.display = 'block';
+        view.setAttribute('name', event.name)
+        closeMenu();
+      }
     </script>
 
   </head>
   <body>
     <mdl-layout>
 
-      <mdl-drawer>
+      <mdl-drawer id="menu">
         <span class="mdl-layout-title">Menu</span>
         <mdl-navigation>
-          <a>
+          <a onclick="showProfile()">
             <mdl-icon style="margin-right: 7px;" class="material-icons">account_circle</mdl-icon>Profile
           </a>
           <a>
             <mdl-icon style="margin-right: 7px;" class="material-icons">contacts</mdl-icon>Friends
-	        </a>
+          </a>
           <a>
             <mdl-icon style="margin-right: 7px;" class="material-icons">casino</mdl-icon>Games
           </a>
@@ -103,6 +134,8 @@
           Start Game
         </mdl-button>
         <div id="main-view">
+           <papan-user-profile id="profile-view" class="user-page" style="display: none"></papan-user-profile>
+           <papan-game-page id="game-view" class="user-page" style="display: none"></papan-game-page>
         </div>
       </mdl-content>
     </mdl-layout>
@@ -119,5 +152,11 @@
     } else {
       document.getElementById('github-link').style.display = 'inline'
     }
+
+    window.onload = () => { 
+      var view = document.getElementById('profile-view');
+      view.addEventListener('gameclicked', (event) => { showGame(event.detail) } );
+    }
+
   </script>
 </html>
