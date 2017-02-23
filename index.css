@@ -1,3 +1,29 @@
-a {
-  cursor: pointer;
+paper-item {
+  --paper-item: {
+    cursor: pointer;
+  };
+  --paper-icon-item: {
+    cursor: pointer;
+  };
+}
+
+app-header {
+  background-color: #00897B;
+  color: #fff;
+}
+
+app-header paper-icon-button {
+  --paper-icon-button-ink-color: white;
+}
+
+app-drawer {
+  z-index: 1000;
+  --app-drawer-scrim-background: rgba(0, 0, 0, 0.8);
+  --app-drawer-content-container: {
+    background-color: rgba(1, 1, 1, 0.9);
+  }
+}
+
+app-drawer iron-icon {
+  margin-right: 5px;
 }

@@ -1,52 +1,47 @@
 <dom-module id="papan-user-profile">
   <template>
-    <mdl-card class="user-info">
-      <img src="" id="picture"/>
-      <mdl-card-title-tex id="nickname">
-        Nickname
-      </mdl-card-title-tex>
-    </mdl-card>
+    <div class="user-info">
+      <img src$="[[picture]]"/>
+      <div id="nickname">[[username]]</div>
+    </div>
 
     <div id="user-games-list">
       <div class="category">Games</div>
       <template is="dom-repeat" items="{{games}}">
-        <mdl-card class="user-game" shadow="4" on-tap="showg" game="{{item.name}}">
-          <img src="{{item.picture}}" />
-          <mdl-card-title-text class="gameName">{{item.name}}</mdl-card-title-text>
-        </mdl-card>
+        <paper-card heading="{{item.name}}" image="{{item.picture}}" elevation="4" on-tap="showg" game="{{item.name}}">
+        </paper-card>
       </template>
     </div>
 
     <div id="user-achievements-list">
       <div class = "category">Achievements</div>
       <template is="dom-repeat" items="{{achievements}}">
-      <mdl-chip class="user-achievement">
-        <mdl-chip-contact class="mdl-color--amber mdl-color-text--white user-achievement-image">{{item.picture}}</mdl-chip-contact>
-        <mdl-chip-text class="user-achievement-name">{{item.name}}</mdl-chip-text>
-      </mdl-chip>
+      <div class="user-achievement">
+        <div class="pic">{{item.picture}}</div>{{item.name}}
+      </div>
       </template>
     </div>
   </template>
 
   <style>
-    .user-game.mdl-card {
+    paper-card {
       width: 200px;
       height: 200px;
       display: inline-block;
       margin-left: 10px;
       margin-right: 10px;
       transition: all .2s ease-in-out;
+
+      --paper-card-header-image: {
+        width: 200px;
+        height: 150px;
+        background-color: lightgray;
+      }
     }
 
-    .user-game.mdl-card:hover { 
+    paper-card:hover { 
       transform: scale(1.1);
       cursor: pointer;
-    }
-
-    .user-game img {
-      width: 200px;
-      height: 150px;
-      background-color: lightgray;
     }
 
     .gameName{
@@ -55,7 +50,25 @@
     }
 
     .user-achievement{
+      display: inline-block;
+      padding: 0 20px;
+      height: 40px;
+      font-size: 16px;
+      line-height: 40px;
+      border-radius: 20px;
+      background-color: lightgrey;
       margin-left: 10px;
+    }
+
+    .user-achievement .pic {
+      float: left;
+      margin: 0 10px 0 -20px;
+      text-align: center;
+      height: 40px;
+      width: 40px;
+      border-radius: 50%;
+      background-color: #eebb00;
+      z-index: 10;
     }
 
     .user-info {
@@ -90,25 +103,30 @@
     Polymer({
       is: "papan-user-profile",
 
+      properties: {
+          username: String,
+          picture: String
+      },
+
       ready: function() {
         this.games = [
           {id: 'chess', name: 'Chess', picture: 'chess.png'}, 
           {id: 'tictactoe', name: 'Tic Tac Toe', picture: 'tictactoe.png'}, 
           {id: 'falken', name: 'Falken\'s Maze', picture: 'falken.png'}, 
           {id: 'poker', name: 'Poker', picture: 'poker.png'}, 
-          ];
+          ]
 
        this.achievements = [
           { name: 'Gamer', picture: '⚄'}, 
           { name: 'Master of nuggets', picture: '♨︎'},
           { name: 'Killed em\' all', picture: '⚔'},
           { name: 'Ace of Spades', picture: '♠︎'},
-        ];
+        ]
       },
 
       showg: function(e){
-        var game = e.model.get('item.name');
-        this.fire('gameclicked', { name: game });
+        var game = e.model.get('item.name')
+        this.fire('gameclicked', { name: game })
       },
     })
   </script>
