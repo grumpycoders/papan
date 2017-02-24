@@ -8,10 +8,6 @@
 
     <script src="node_modules/deep-diff/releases/deep-diff-0.3.4.min.js"></script>
 
-    <script src="bower_components/webcomponentsjs/webcomponents-lite.min.js"></script>
-
-    <!--script src="node_modules/material-design-lite/dist/material.min.js"></script-->
-
     <link rel="import" href="bower_components/iron-icons/iron-icons.html">
     <link rel="import" href="bower_components/iron-icons/communication-icons.html">
     <link rel="import" href="bower_components/iron-icons/device-icons.html">
@@ -30,7 +26,6 @@
     <link rel="import" href="bower_components/app-layout/app-header/app-header.html">
     <link rel="import" href="bower_components/app-layout/app-header-layout/app-header-layout.html">
     <link rel="import" href="bower_components/app-layout/app-toolbar/app-toolbar.html">
-    <link rel="import" href="bower_components/app-layout/demo/sample-content.html">
 
     <link rel="import" href="template/profile.html">
     <link rel="import" href="template/game.html">
@@ -103,16 +98,16 @@
     </app-header>
     <app-drawer id="drawer" swipe-open>
         <iron-selector fallback-selection="profile">
-          <paper-icon-item name="profile" onclick="showProfile()">
+          <paper-icon-item class="appmenuitem" name="profile" onclick="showProfile()">
             <iron-icon icon="account-circle"></iron-icon>Profile
           </paper-icon-item>
-          <paper-icon-item name="friends">
+          <paper-icon-item class="appmenuitem" name="friends">
             <iron-icon icon="communication:contacts"></iron-icon>Friends
           </paper-icon-item>
-          <paper-icon-item name="games">
+          <paper-icon-item class="appmenuitem" name="games">
             <iron-icon icon="places:casino"></iron-icon>Games
           </paper-icon-item>
-          <paper-icon-item name="servers">
+          <paper-icon-item class="appmenuitem" name="servers">
             <iron-icon icon="device:dvr"></iron-icon>Servers
           </paper-icon-item>
       </iron-selector>

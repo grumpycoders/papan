@@ -10,7 +10,9 @@
     "start-headless": "node .",
 
     "lint": "standard | snazzy",
-    "test": "npm run lint"
+    "test": "npm run lint",
+
+    "postinstall": "bower install"
   },
   "repository": {
     "type": "git",
