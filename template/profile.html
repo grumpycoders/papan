@@ -1,4 +1,7 @@
+<link rel="import" href="../bower_components/paper-card/paper-card.html">
+
 <dom-module id="papan-user-profile">
+  <link rel="import" type="css" href="profile.css">
   <template>
     <div class="user-info">
       <img src$="[[picture]]"/>
@@ -24,79 +27,6 @@
   </template>
 
   <style>
-    paper-card {
-      width: 200px;
-      height: 200px;
-      display: inline-block;
-      margin-left: 10px;
-      margin-right: 10px;
-      transition: all .2s ease-in-out;
-
-      --paper-card-header-image: {
-        width: 200px;
-        height: 150px;
-        background-color: lightgray;
-      }
-    }
-
-    paper-card:hover { 
-      transform: scale(1.1);
-      cursor: pointer;
-    }
-
-    .gameName{
-      margin-left: 10px;
-      margin-top: 10px;
-    }
-
-    .user-achievement{
-      display: inline-block;
-      padding: 0 20px;
-      height: 40px;
-      font-size: 16px;
-      line-height: 40px;
-      border-radius: 20px;
-      background-color: lightgrey;
-      margin-left: 10px;
-    }
-
-    .user-achievement .pic {
-      float: left;
-      margin: 0 10px 0 -20px;
-      text-align: center;
-      height: 40px;
-      width: 40px;
-      border-radius: 50%;
-      background-color: #eebb00;
-      z-index: 10;
-    }
-
-    .user-info {
-      width: auto;
-      height: 250px;
-    }
-
-    .user-info #nickname{
-      margin-top: 10px;
-      margin-left: 10px;
-      font-size: 20pt;
-    }
-
-    .user-info img {
-      margin-top: 10px;
-      margin-left: 10px;
-      width: 200px;
-      height: 200px;
-      background-color: lightgray;
-    }
-
-    .category {
-      font-size: 20pt;
-      border-bottom: 1px solid lightgrey;
-      margin-top: 10px;
-      margin-bottom: 10px;
-      padding-bottom: 5px;
-    }
   </style>
 
   <script>
@@ -126,7 +56,7 @@
 
       showg: function(e){
         var game = e.model.get('item.name')
-        this.fire('gameclicked', { name: game })
+        this.fire('show-game', { name: game })
       },
     })
   </script>

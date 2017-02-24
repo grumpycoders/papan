@@ -1,0 +1,63 @@
+<link rel="import" href="../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../bower_components/iron-icons/communication-icons.html">
+<link rel="import" href="../bower_components/iron-icons/device-icons.html">
+<link rel="import" href="../bower_components/iron-icons/places-icons.html">
+<link rel="import" href="../bower_components/iron-selector/iron-selectable.html">
+<link rel="import" href="../bower_components/paper-menu/paper-menu.html">
+<link rel="import" href="../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../bower_components/paper-item/paper-icon-item.html">
+<link rel="import" href="../bower_components/app-layout/app-drawer-layout/app-drawer-layout.html">
+<link rel="import" href="../bower_components/app-layout/app-drawer/app-drawer.html">
+<link rel="import" href="../bower_components/app-layout/app-scroll-effects/app-scroll-effects.html">
+
+<dom-module id="papan-drawer-menu">
+  <link rel="import" type="css" href="drawermenu.css">
+  <template>
+    <app-drawer id="drawermenu" opened="{{drawerOpened}}" swipe-open>
+       <paper-menu selected="{{menuSelected}}" attr-for-selected="name">
+         <paper-icon-item class="appmenuitem" name="profile"><!-- ontap="showProfile()" -->
+           <iron-icon icon="account-circle"></iron-icon>Profile
+         </paper-icon-item>
+         <paper-icon-item class="appmenuitem" name="friends">
+            <iron-icon icon="communication:contacts"></iron-icon>Friends
+         </paper-icon-item>
+         <paper-icon-item class="appmenuitem" name="games">
+           <iron-icon icon="places:casino"></iron-icon>Games
+         </paper-icon-item>
+         <paper-icon-item class="appmenuitem" name="servers">
+           <iron-icon icon="device:dvr"></iron-icon>Servers
+         </paper-icon-item>
+         <paper-item class="appmenuitem" name="main" style="display: none;">Main</paper-item>
+       </paper-menu>
+     </app-drawer>
+    </template>
+
+  <script>
+    Polymer({
+      is: "papan-drawer-menu",
+
+      properties: {
+        drawerOpened: Boolean,
+
+        menuSelected:{
+          type: String,
+          notify: true,
+          value: 'main'
+        }
+      },
+
+      listeners: {
+        'iron-select': 'itemSelected'
+      },
+
+      itemSelected: function() {
+        console.info('item selected')
+        this.$.drawermenu.close()
+      },
+
+      showProfile: function() {
+        this.fire('show-page', { name: 'profile' })
+      }
+    })
+  </script>
+</dom-module>
