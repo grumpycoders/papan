@@ -12,8 +12,9 @@
 <link rel="import" href="../bower_components/app-layout/app-toolbar/app-toolbar.html">
 
 <link rel="import" href="drawermenu.html">
-<link rel="import" href="profile.html">
 <link rel="import" href="game.html">
+<link rel="import" href="profile.html">
+<link rel="import" href="user.html">
 
 <dom-module id="papan-main-window">
   <link rel="import" type="css" href="mainwindow.css">
@@ -24,6 +25,9 @@
       use-hash-as-path
       route="{{route}}">
     </app-location>
+    <papan-user-data
+      user="{{user}}">
+    </papan-user-data>
     <app-route
       route="{{route}}"
       pattern="/"
@@ -40,21 +44,29 @@
             <paper-icon-button icon="link"></paper-icon-button>
         </a>
         <template is="dom-if" if="{{user.islogged}}">
-          <div id="username">{{user.username}}</div>
-          <div id="signout">Sign out</div>
+          <div>[[user.username]]</div>
+            <paper-button on-tap="signout">
+              Sign Out
+            </paper-button>
         </template>
-        <template is="dom-if" if="!{{user.islogged}}">
+        <template is="dom-if" if="{{!user.islogged}}">
           <div id="login">
             <paper-button on-tap="showlogin">
               Log In / Sign In
             </paper-button>
           </div>
         </template>
+        <div id="fakelogin">
+          <paper-button on-tap="showuserdata">
+            DBG:USEREDIT
+          </paper-button>
+        </div>
       </app-toolbar>
     </app-header>
     <papan-drawer-menu
       id="appdrawer"
       menu-selected="{{pageSelected}}"
+      user="{{user}}"
       route="{{route}}">
     </papan-drawer-menu>
 
@@ -73,7 +85,8 @@
       <div name="main" id="main-view"></div>
     </iron-pages>
 
-    <paper-dialog id="login" modal>
+    <paper-dialog id="dbglogindata" modal>
+      <div>DBG:USEREDIT</div>
       <paper-input name="username" label="Username" value="{{user.username}}"></paper-input>
       <paper-checkbox name="logged" checked="{{user.islogged}}">Is Logged in</paper-checkbox>
       <paper-button dialog-confirm autofocus>Close</paper-button>
@@ -84,18 +97,17 @@
     Polymer({
       is: "papan-main-window",
 
-      properties: {
-          user: {
-            username: String,
-            islogged: Boolean,
-            isadmin: Boolean,
-            picture: String
-          }
+      showuserdata: function() {
+        // why ?
+        this.$.dbglogindata.open()
       },
 
       showlogin: function() {
-        // why ?
-        this.$.login.open()
+
+      },
+
+      signout: function() {
+        
       }
     })
   </script>

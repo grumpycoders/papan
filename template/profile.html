@@ -33,15 +33,6 @@
     Polymer({
       is: "papan-user-profile",
 
-      properties: {
-        user: {
-          username: String,
-          islogged: Boolean,
-          isadmin: Boolean,
-          picture: String
-        }
-      },
-
       ready: function() {
         this.games = [
           {id: 'chess', name: 'Chess', picture: 'chess.png'}, 
@@ -60,10 +51,6 @@
 
       showg: function(e) {
         var game = e.model.get('item.name')
-        console.log(this.user)
-        console.log(this.$.user)
-        console.log(this.user.username)
-        console.log(this.$.user.username)
         this.fire('show-game', { name: game })
       },
     })
