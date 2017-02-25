@@ -2,8 +2,11 @@
 <link rel="import" href="../bower_components/app-route/app-route.html"
 <link rel="import" href="../bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="../bower_components/iron-pages/iron-pages.html">
-<link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../bower_components/paper-checkbox/paper-checkbox.html">
+<link rel="import" href="../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../bower_components/paper-input/paper-input.html">
 <link rel="import" href="../bower_components/app-layout/app-header/app-header.html">
 <link rel="import" href="../bower_components/app-layout/app-header-layout/app-header-layout.html">
 <link rel="import" href="../bower_components/app-layout/app-toolbar/app-toolbar.html">
@@ -16,6 +19,7 @@
   <link rel="import" type="css" href="mainwindow.css">
 
   <template>
+    <!-- This probably should go in the index.html -->
     <app-location
       use-hash-as-path
       route="{{route}}">
@@ -37,9 +41,14 @@
         </a>
         <template is="dom-if" if="{{user.islogged}}">
           <div id="username">{{user.username}}</div>
+          <div id="signout">Sign out</div>
         </template>
         <template is="dom-if" if="!{{user.islogged}}">
-          <div id="login">Log In / Sign In</div>
+          <div id="login">
+            <paper-button on-tap="showlogin">
+              Log In / Sign In
+            </paper-button>
+          </div>
         </template>
       </app-toolbar>
     </app-header>
@@ -50,13 +59,25 @@
     </papan-drawer-menu>
 
     <iron-pages id="content" selected="{{route.path}}" attr-for-selected="name">
-      <section name="profile"><papan-user-profile id="profile-view" user="{{user}}"></papan-user-profile></section>
-      <section name="game"><papan-game-page></papan-game-page></section>
-      <div name="friends" id="games">List of friends</div>
+      <section name="profile">
+        <papan-user-profile id="profile-view" user="{{user}}">
+        </papan-user-profile>
+      </section>
+      <section name="game">
+        <papan-game-page>
+        </papan-game-page>
+      </section>
+      <div name="friends" id="friends">List of friends</div>
       <div name="games" id="games">List of local games</div>
       <div name="servers" id="servers">List of servers</div>
       <div name="main" id="main-view"></div>
     </iron-pages>
+
+    <paper-dialog id="login" modal>
+      <paper-input name="username" label="Username" value="{{user.username}}"></paper-input>
+      <paper-checkbox name="logged" checked="{{user.islogged}}">Is Logged in</paper-checkbox>
+      <paper-button dialog-confirm autofocus>Close</paper-button>
+    </paper-dialog>
   </template>
 
   <script>
@@ -70,6 +91,11 @@
             isadmin: Boolean,
             picture: String
           }
+      },
+
+      showlogin: function() {
+        // why ?
+        this.$.login.open()
       }
     })
   </script>
