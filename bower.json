@@ -12,7 +12,8 @@
     "paper-menu": "PolymerElements/paper-menu#^1.2.2",
     "paper-item": "PolymerElements/paper-item#^1.2.1",
     "paper-card": "PolymerElements/paper-card#^1.1.4",
-    "polymer": "Polymer/polymer#^1.6.0"
+    "polymer": "Polymer/polymer#^1.6.0",
+    "app-route": "carbon-route#^0.9.3"
   },
   "private": true
 }

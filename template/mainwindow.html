@@ -1,3 +1,5 @@
+<link rel="import" href="../bower_components/app-route/app-location.html"
+<link rel="import" href="../bower_components/app-route/app-route.html"
 <link rel="import" href="../bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="../bower_components/iron-pages/iron-pages.html">
 <link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
@@ -14,22 +16,41 @@
   <link rel="import" type="css" href="mainwindow.css">
 
   <template>
+    <app-location
+      use-hash-as-path
+      route="{{route}}">
+    </app-location>
+    <app-route
+      route="{{route}}"
+      pattern="/"
+      tail="{{pagesRoute}}"
+      active="{{pageActive}}">
+    </app-route>
+
     <app-header reveals>
       <app-toolbar>
-        <paper-icon-button icon="menu" on-tap="openmenu"></paper-icon-button>
+        <paper-icon-button icon="menu" onclick="appdrawer.toggle()"></paper-icon-button>
         <div main-title>Papan</div>
         <paper-icon-button icon="bug-report" onclick="toggleDebug()"></paper-icon-button>
         <a href="https://github.com/grumpycoders.papan" style="display: none;" id="github-link">
             <paper-icon-button icon="link"></paper-icon-button>
         </a>
-        <div id="username">[[username]]</div>
+        <template is="dom-if" if="{{user.islogged}}">
+          <div id="username">{{user.username}}</div>
+        </template>
+        <template is="dom-if" if="!{{user.islogged}}">
+          <div id="login">Log In / Sign In</div>
+        </template>
       </app-toolbar>
     </app-header>
-    <papan-drawer-menu menu-selected="{{pageSelected}}" drawer-opened="{{drawerOpened}}"></papan-drawer-menu>
+    <papan-drawer-menu
+      id="appdrawer"
+      menu-selected="{{pageSelected}}"
+      route="{{route}}">
+    </papan-drawer-menu>
 
-    <iron-pages id="content" selected="{{pageSelected}}" attr-for-selected="name">
-      <paper-button name="test" onclick="startGame();">Start Game</paper-button>
-      <section name="profile"><papan-user-profile id="profile-view" username="Grumpy Coder"></papan-user-profile></section>
+    <iron-pages id="content" selected="{{route.path}}" attr-for-selected="name">
+      <section name="profile"><papan-user-profile id="profile-view" user="{{user}}"></papan-user-profile></section>
       <section name="game"><papan-game-page></papan-game-page></section>
       <div name="friends" id="games">List of friends</div>
       <div name="games" id="games">List of local games</div>
@@ -42,11 +63,13 @@
     Polymer({
       is: "papan-main-window",
 
-      pageSelected: "main",
-
       properties: {
-          username: String,
-          picture: String
+          user: {
+            username: String,
+            islogged: Boolean,
+            isadmin: Boolean,
+            picture: String
+          }
       },
 
       listeners: {
@@ -54,30 +77,24 @@
         'show-game': 'showGame',
       },
 
-      openmenu : function() {
-          console.info('drawer ' + this.drawerOpened)
-        this.drawerOpened = true;//!this.drawerOpened;
-      },
-
-      showProfile : function() {
+      showProfile: function() {
         var pages = document.getElementById('content')
         pages.select('profile')
         this.$.drawer.$.drawermenu.close()
       },
 
-      openPage : function(event) {
+      openPage: function(event) {
         var pages = document.getElementById('content')
         pages.select(event.name)
         this.$.drawer.$.drawermenu.close()
       },
 
-       showGame : function(event) {
+       showGame: function(event) {
         var pages = document.getElementById('content')
         pages.select('game')
         document.getElementById('game-view').setAttribute('name', event.name)
         this.$.drawer.$.drawermenu.close()
       }
-
     })
   </script>
 </dom-module>
