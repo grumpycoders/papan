@@ -1,0 +1,24 @@
+import "diff.proto";
+import "game_info.proto";
+
+message InstanceArgs {
+  string game_type_name = 1;
+  repeated Player players = 2;
+  map<string, string> chosen_options = 3;
+}
+
+message GameInstanceInfo {
+  string game_instance_id = 1;
+  // Map lobby player IDs to game instance player IDs
+  map<string, string> player_ids = 2;
+}
+
+message Action {
+  // To be defined
+}
+
+service GameService {
+  rpc StartInstance (InstanceArgs) returns (GameInstanceInfo);
+  // Metadata should include game instance ID and game instance player ID
+  rpc JoinGame (stream Action) returns (stream Diff);
+}

@@ -1,0 +1,25 @@
+package papan;
+
+message OptionValues {
+  repeated string value = 1;
+}
+
+message GameType {
+  // Game type IDs should be unique across the lifetime of a server
+  uint32 game_type_id = 1;
+  string name = 2;
+  string version = 3;
+  uint32 players_min = 4;
+  uint32 players_max = 5;
+  /* When a player joins a game lobby, the app should download the assets from
+     the server, and note the server address for connecting when the game
+     starts */
+  string server_address = 6;
+  map<string, OptionValues> available_exclusive_options = 7;
+  map<string, OptionValues> available_group_options = 8;
+}
+
+message Player {
+  string player_id = 1;
+  string player_name = 2;
+}
