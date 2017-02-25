@@ -14,21 +14,23 @@
   <link rel="import" type="css" href="drawermenu.css">
   <template>
     <app-drawer id="drawermenu" swipe-open>
-       <paper-menu selected="{{route.path}}" attr-for-selected="name">
-         <paper-icon-item class="appmenuitem" name="profile">
-           <iron-icon icon="account-circle"></iron-icon>Profile
-         </paper-icon-item>
-         <paper-icon-item class="appmenuitem" name="friends">
-            <iron-icon icon="communication:contacts"></iron-icon>Friends
-         </paper-icon-item>
-         <paper-icon-item class="appmenuitem" name="games">
-           <iron-icon icon="places:casino"></iron-icon>Games
-         </paper-icon-item>
-         <paper-icon-item class="appmenuitem" name="servers">
-           <iron-icon icon="device:dvr"></iron-icon>Servers
-         </paper-icon-item>
-         <paper-item class="appmenuitem" name="main" style="display: none;">Main</paper-item>
-       </paper-menu>
+      <paper-menu selected="{{route.path}}" attr-for-selected="name">
+        <template is="dom-if" if="{{user.islogged}}">
+          <paper-icon-item class="appmenuitem" name="profile">
+            <iron-icon icon="account-circle"></iron-icon>Profile
+          </paper-icon-item>
+        </template>
+        <paper-icon-item class="appmenuitem" name="friends">
+           <iron-icon icon="communication:contacts"></iron-icon>Friends
+        </paper-icon-item>
+        <paper-icon-item class="appmenuitem" name="games">
+          <iron-icon icon="places:casino"></iron-icon>Games
+        </paper-icon-item>
+        <paper-icon-item class="appmenuitem" name="servers">
+          <iron-icon icon="device:dvr"></iron-icon>Servers
+        </paper-icon-item>
+        <paper-item class="appmenuitem" name="main" style="display: none;">Main</paper-item>
+      </paper-menu>
      </app-drawer>
     </template>
 
@@ -36,16 +38,11 @@
     Polymer({
       is: "papan-drawer-menu",
 
-      properties: {
-        route: Object,
-        user: Object
-      },
-
       listeners: {
-        'iron-select': 'itemSelected'
+        'iron-select': '_itemSelected'
       },
 
-      itemSelected: function() {
+      _itemSelected: function() {
         this.$.drawermenu.close()
       },
 

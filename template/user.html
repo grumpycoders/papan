@@ -1,0 +1,29 @@
+<link rel="import" href="../bower_components/app-storage/app-localstorage/app-localstorage-document.html">
+
+<dom-module id="papan-user-data">
+  <template>
+    <app-localstorage-document
+      key="papan-user-data"
+      data="{{user}}">
+    </app-localstorage-document>
+  </template>
+  <script>
+    Polymer({
+      is: 'papan-user-data',
+
+      properties: {
+        user: {
+          type: Object,
+          value: function() {
+            return {
+              username: '',
+              islogged: false,
+              isadmin: false
+            }
+          },
+          notify: true,
+        }
+      }
+    })
+  </script>
+</dom-module>
