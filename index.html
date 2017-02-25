@@ -60,9 +60,18 @@
       }
   </script>
 
+  <style is="papan-style">
+    html:not([style-scope]):not(.style-scope),body:not([style-scope]):not(.style-scope) {
+      margin: 0;
+        font-family: 'Roboto', 'Noto', sans-serif;
+        -webkit-font-smoothing: antialiased;
+        background: #f1f1f1;
+    }
+  </style>
+
   </head>
   <body>
-    <papan-main-window username="Grumpy coder"></papan-main-window>
+    <papan-main-window></papan-main-window>
   </body>
 
   <script>

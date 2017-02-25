@@ -13,9 +13,9 @@
 <dom-module id="papan-drawer-menu">
   <link rel="import" type="css" href="drawermenu.css">
   <template>
-    <app-drawer id="drawermenu" opened="{{drawerOpened}}" swipe-open>
-       <paper-menu selected="{{menuSelected}}" attr-for-selected="name">
-         <paper-icon-item class="appmenuitem" name="profile"><!-- ontap="showProfile()" -->
+    <app-drawer id="drawermenu" swipe-open>
+       <paper-menu selected="{{route.path}}" attr-for-selected="name">
+         <paper-icon-item class="appmenuitem" name="profile">
            <iron-icon icon="account-circle"></iron-icon>Profile
          </paper-icon-item>
          <paper-icon-item class="appmenuitem" name="friends">
@@ -37,13 +37,8 @@
       is: "papan-drawer-menu",
 
       properties: {
-        drawerOpened: Boolean,
-
-        menuSelected:{
-          type: String,
-          notify: true,
-          value: 'main'
-        }
+        route: Object,
+        user: Object
       },
 
       listeners: {
@@ -51,12 +46,11 @@
       },
 
       itemSelected: function() {
-        console.info('item selected')
         this.$.drawermenu.close()
       },
 
-      showProfile: function() {
-        this.fire('show-page', { name: 'profile' })
+      toggle: function() {
+        this.$.drawermenu.toggle()
       }
     })
   </script>
