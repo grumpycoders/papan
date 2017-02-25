@@ -42,10 +42,10 @@
       },
 
       listeners: {
-        'iron-select': 'itemSelected'
+        'iron-select': '_itemSelected'
       },
 
-      itemSelected: function() {
+      _itemSelected: function() {
         this.$.drawermenu.close()
       },
 
