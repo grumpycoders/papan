@@ -1,4 +1,6 @@
 <link rel="import" href="../bower_components/paper-card/paper-card.html">
+<link rel="import" href="../bower_components/iron-selector/iron-selector.html">
+<link rel="import" href="../bower_components/iron-selector/iron-selectable.html">
 
 <dom-module id="papan-user-profile">
   <link rel="import" type="css" href="profile.css">
@@ -10,10 +12,12 @@
 
     <div id="user-games-list">
       <div class="category">Games</div>
-      <template is="dom-repeat" items="{{games}}">
-        <paper-card heading="{{item.name}}" image="{{item.picture}}" elevation="4" on-tap="showg" game="{{item.name}}">
-        </paper-card>
-      </template>
+      <iron-selector selected="{{route.path}}" attr-for-selected="name">
+        <template is="dom-repeat" id="gameList" items="{{games}}">
+          <paper-card name="game" heading="{{item.name}}" image="{{item.picture}}" elevation="4" game="{{item.name}}">
+          </paper-card>
+        </template>
+      </iron-selector>
     </div>
 
     <div id="user-achievements-list">
@@ -33,6 +37,15 @@
     Polymer({
       is: "papan-user-profile",
 
+      listeners: {
+        'iron-select': '_itemSelected'
+      },
+
+      //don't know what to dind it to
+      _itemSelected: function(e, d) {
+        gameSelected = d.item.game
+      },
+
       ready: function() {
         this.games = [
           {id: 'chess', name: 'Chess', picture: 'chess.png'}, 
@@ -47,11 +60,6 @@
           { name: 'Killed em\' all', picture: '⚔'},
           { name: 'Ace of Spades', picture: '♠︎'},
         ]
-      },
-
-      showg: function(e) {
-        var game = e.model.get('item.name')
-        this.fire('show-game', { name: game })
       },
     })
   </script>

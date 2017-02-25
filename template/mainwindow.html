@@ -72,10 +72,10 @@
 
     <iron-pages id="content" selected="{{route.path}}" attr-for-selected="name">
       <section name="profile">
-        <papan-user-profile id="profile-view" user="{{user}}">
+        <papan-user-profile id="profile-view" user="{{user}}" route="{{route}}" game-selected={{game}}>
         </papan-user-profile>
       </section>
-      <section name="game">
+      <section name="game" game={{game}}>
         <papan-game-page>
         </papan-game-page>
       </section>
