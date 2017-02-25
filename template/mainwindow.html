@@ -70,30 +70,6 @@
             isadmin: Boolean,
             picture: String
           }
-      },
-
-      listeners: {
-        'open-page': 'openPage',
-        'show-game': 'showGame',
-      },
-
-      showProfile: function() {
-        var pages = document.getElementById('content')
-        pages.select('profile')
-        this.$.drawer.$.drawermenu.close()
-      },
-
-      openPage: function(event) {
-        var pages = document.getElementById('content')
-        pages.select(event.name)
-        this.$.drawer.$.drawermenu.close()
-      },
-
-       showGame: function(event) {
-        var pages = document.getElementById('content')
-        pages.select('game')
-        document.getElementById('game-view').setAttribute('name', event.name)
-        this.$.drawer.$.drawermenu.close()
       }
     })
   </script>
