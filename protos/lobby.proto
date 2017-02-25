@@ -82,13 +82,20 @@ message GameInfo {
   string game_instance_player_id = 2;
 }
 
+message PlayerReadyUpdate {
+  string player_id = 1;
+  bool ready = 2;
+}
+
 message GameLobbyUpdate {
   oneof update {
     GameLobbyChatMessage new_chat_message = 1;
     Player player_joined = 2;
+    // ID of the player that left
     string player_left = 3;
     // Should be followed by a server-side half-close
     GameInfo game_started = 4;
+    PlayerReadyUpdate player_read_update = 5;
   }
 }
 
