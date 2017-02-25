@@ -4,8 +4,8 @@
   <link rel="import" type="css" href="profile.css">
   <template>
     <div class="user-info">
-      <img src$="[[picture]]"/>
-      <div id="nickname">[[username]]</div>
+      <img src$="{{user.picture}}"/>
+      <div id="nickname">{{user.username}}</div>
     </div>
 
     <div id="user-games-list">
@@ -34,8 +34,7 @@
       is: "papan-user-profile",
 
       properties: {
-          username: String,
-          picture: String
+          user: Object
       },
 
       ready: function() {
