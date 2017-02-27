@@ -30,7 +30,7 @@
     </papan-user-data>
     <app-route
       route="{{route}}"
-      pattern="/:view"
+      pattern=":view"
       data="{{routeData}}"
       tail="{{pagesRoute}}">
     </app-route>
@@ -65,12 +65,12 @@
     </app-header>
     <papan-drawer-menu
       id="appdrawer"
-      menu-selected="{{routeData.view}}"
+      view="{{routeData.view}}"
       user="{{user}}">
     </papan-drawer-menu>
 <!-- TEMP DEBUG -->
 <div>
-  Data <view></view>: [[routeData.view]]<br />
+  Data view: [[routeData.view]]<br />
   Path: [[route.path]]<br />
   Prefix: [[route.prefix]]<br />
   Active: [[pageActive]]<br />

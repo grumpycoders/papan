@@ -14,7 +14,7 @@
   <link rel="import" type="css" href="drawermenu.css">
   <template>
     <app-drawer id="drawermenu" swipe-open>
-      <paper-menu selected="{{menuSelected}}" attr-for-selected="name">
+      <paper-menu selected="{{view}}" attr-for-selected="name">
         <template is="dom-if" if="{{user.islogged}}">
           <paper-icon-item class="appmenuitem" name="profile">
             <iron-icon icon="account-circle"></iron-icon>Profile
