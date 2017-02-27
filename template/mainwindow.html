@@ -1,5 +1,5 @@
-<link rel="import" href="../bower_components/app-route/app-location.html"
-<link rel="import" href="../bower_components/app-route/app-route.html"
+<link rel="import" href="../bower_components/app-route/app-route.html">
+<link rel="import" href="../bower_components/app-route/app-location.html">
 <link rel="import" href="../bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="../bower_components/iron-pages/iron-pages.html">
 <link rel="import" href="../bower_components/paper-button/paper-button.html">
@@ -30,9 +30,9 @@
     </papan-user-data>
     <app-route
       route="{{route}}"
-      pattern="/"
-      tail="{{pagesRoute}}"
-      active="{{pageActive}}">
+      pattern="/:view"
+      data="{{routeData}}"
+      tail="{{pagesRoute}}">
     </app-route>
 
     <app-header reveals>
@@ -65,18 +65,25 @@
     </app-header>
     <papan-drawer-menu
       id="appdrawer"
-      menu-selected="{{pageSelected}}"
-      user="{{user}}"
-      route="{{route}}">
+      menu-selected="{{routeData.view}}"
+      user="{{user}}">
     </papan-drawer-menu>
-
-    <iron-pages id="content" selected="{{route.path}}" attr-for-selected="name">
+<!-- TEMP DEBUG -->
+<div>
+  Data <view></view>: [[routeData.view]]<br />
+  Path: [[route.path]]<br />
+  Prefix: [[route.prefix]]<br />
+  Active: [[pageActive]]<br />
+  Tail path: [[pagesRoute.path]]<br />
+  Tail prefix: [[pagesRoute.prefix]]<br />
+</div>
+    <iron-pages id="content" selected="[[routeData.view]]" attr-for-selected="name">
       <section name="profile">
-        <papan-user-profile id="profile-view" user="{{user}}">
+        <papan-user-profile id="profile-view" user="{{user}}" route="{{pagesRoute}}">
         </papan-user-profile>
       </section>
       <section name="game">
-        <papan-game-page>
+        <papan-game-page route="{{pagesRoute}}">
         </papan-game-page>
       </section>
       <div name="friends" id="friends">List of friends</div>

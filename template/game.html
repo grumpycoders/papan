@@ -3,8 +3,14 @@
 
 <dom-module id="papan-game-page">
   <template>
+    <app-route
+    route="{{route}}"
+    pattern="/:gameid"
+    data="{{routeData}}"></app-route>
+
     <div id="gameHeader" style$="background-image: [[banner]]">
         [[name]]
+        [[routeData.gameid]]
     </div>
     <div id="gameInfos">
         <iron-icon icon="supervisor-account"></iron-icon>2 players

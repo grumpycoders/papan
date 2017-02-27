@@ -3,27 +3,33 @@
 <dom-module id="papan-user-profile">
   <link rel="import" type="css" href="profile.css">
   <template>
-    <div class="user-info">
-      <img src$="{{user.picture}}"/>
-      <div id="nickname">{{user.username}}</div>
-    </div>
-
-    <div id="user-games-list">
-      <div class="category">Games</div>
-      <template is="dom-repeat" items="{{games}}">
-        <paper-card heading="{{item.name}}" image="{{item.picture}}" elevation="4" on-tap="showg" game="{{item.name}}">
-        </paper-card>
-      </template>
-    </div>
-
-    <div id="user-achievements-list">
-      <div class = "category">Achievements</div>
-      <template is="dom-repeat" items="{{achievements}}">
-      <div class="user-achievement">
-        <div class="pic">{{item.picture}}</div>{{item.name}}
+    <iron-pages id="content" selected="{{route.path}}" attr-for-selected="name">
+      <div class="user-info">
+        <img src$="{{user.picture}}"/>
+        <div id="nickname">{{user.username}}</div>
       </div>
-      </template>
-    </div>
+
+      <div id="user-games-list">
+        <div class="category">Games</div>
+        <template is="dom-repeat" items="{{games}}">
+          <paper-card heading="{{item.name}}" image="{{item.picture}}" elevation="4" on-tap="showg" game="{{item.name}}">
+          </paper-card>
+        </template>
+      </div>
+
+      <div id="user-achievements-list">
+        <div class = "category">Achievements</div>
+        <template is="dom-repeat" items="{{achievements}}">
+        <div class="user-achievement">
+          <div class="pic">{{item.picture}}</div>{{item.name}}
+        </div>
+        </template>
+      </div>
+      <section name="game">
+        <papan-game-page>
+        </papan-game-page>
+      </section>
+    </iron-pages>
   </template>
 
   <style>
