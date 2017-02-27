@@ -1,4 +1,6 @@
 <link rel="import" href="../bower_components/paper-card/paper-card.html">
+<link rel="import" href="../bower_components/iron-selector/iron-selector.html">
+<link rel="import" href="../bower_components/iron-selector/iron-selectable.html">
 
 <dom-module id="papan-user-profile">
   <link rel="import" type="css" href="profile.css">
@@ -39,6 +41,15 @@
     Polymer({
       is: "papan-user-profile",
 
+      listeners: {
+        'iron-select': '_itemSelected'
+      },
+
+      //don't know what to dind it to
+      _itemSelected: function(e, d) {
+        gameSelected = d.item.game
+      },
+
       ready: function() {
         this.games = [
           {id: 'chess', name: 'Chess', picture: 'chess.png'}, 
@@ -53,11 +64,6 @@
           { name: 'Killed em\' all', picture: '⚔'},
           { name: 'Ace of Spades', picture: '♠︎'},
         ]
-      },
-
-      showg: function(e) {
-        var game = e.model.get('item.name')
-        this.fire('show-game', { name: game })
       },
     })
   </script>
