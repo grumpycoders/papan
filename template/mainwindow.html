@@ -30,7 +30,7 @@
     </papan-user-data>
     <app-route
       route="{{route}}"
-      pattern=":view"
+      pattern="/:view"
       data="{{routeData}}"
       tail="{{pagesRoute}}">
     </app-route>
@@ -68,16 +68,8 @@
       view="{{routeData.view}}"
       user="{{user}}">
     </papan-drawer-menu>
-<!-- TEMP DEBUG -->
-<div>
-  Data view: [[routeData.view]]<br />
-  Path: [[route.path]]<br />
-  Prefix: [[route.prefix]]<br />
-  Active: [[pageActive]]<br />
-  Tail path: [[pagesRoute.path]]<br />
-  Tail prefix: [[pagesRoute.prefix]]<br />
-</div>
-    <iron-pages id="content" selected="[[routeData.view]]" attr-for-selected="name">
+
+    <iron-pages id="content" selected="[[routeData.view]]" attr-for-selected="name" fallback="error">
       <section name="profile">
         <papan-user-profile id="profile-view" user="{{user}}" route="{{pagesRoute}}">
         </papan-user-profile>
@@ -90,6 +82,7 @@
       <div name="games" id="games">List of local games</div>
       <div name="servers" id="servers">List of servers</div>
       <div name="main" id="main-view"></div>
+      <div name="error" id="error">404</div>
     </iron-pages>
 
     <paper-dialog id="dbglogindata" modal>

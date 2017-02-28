@@ -5,7 +5,6 @@
 <dom-module id="papan-user-profile">
   <link rel="import" type="css" href="profile.css">
   <template>
-    <iron-pages id="content" selected="{{route.path}}" attr-for-selected="name">
       <div class="user-info">
         <img src$="{{user.picture}}"/>
         <div id="nickname">{{user.username}}</div>
@@ -14,8 +13,10 @@
       <div id="user-games-list">
         <div class="category">Games</div>
         <template is="dom-repeat" items="{{games}}">
-          <paper-card heading="{{item.name}}" image="{{item.picture}}" elevation="4" on-tap="showg" game="{{item.name}}">
-          </paper-card>
+          <a href="#/game/{{item.id}}">
+            <paper-card heading="{{item.name}}" image="{{item.picture}}" elevation="4" on-tap="showg">
+            </paper-card>
+          </a>
         </template>
       </div>
 
@@ -27,11 +28,6 @@
         </div>
         </template>
       </div>
-      <section name="game">
-        <papan-game-page>
-        </papan-game-page>
-      </section>
-    </iron-pages>
   </template>
 
   <style>
@@ -43,11 +39,6 @@
 
       listeners: {
         'iron-select': '_itemSelected'
-      },
-
-      //don't know what to dind it to
-      _itemSelected: function(e, d) {
-        gameSelected = d.item.game
       },
 
       ready: function() {
