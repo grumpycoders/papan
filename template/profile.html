@@ -1,33 +1,48 @@
 <link rel="import" href="../bower_components/paper-card/paper-card.html">
 <link rel="import" href="../bower_components/iron-selector/iron-selector.html">
 <link rel="import" href="../bower_components/iron-selector/iron-selectable.html">
+<link rel="import" href="../bower_components/iron-ajax/iron-ajax.html">
 
 <dom-module id="papan-user-profile">
   <link rel="import" type="css" href="profile.css">
   <template>
-      <div class="user-info">
-        <img src$="{{user.picture}}"/>
-        <div id="nickname">{{user.username}}</div>
-      </div>
+    <app-route
+      route="{{route}}"
+      pattern="/:userid"
+      data="{{routeData}}">
+    </app-route>
+    <iron-ajax
+      verbose
+      auto
+      url="data/userlist.json"
+      handle-as="json"
+      last-response="{{userlist}}"
+      on-responde="test">
+    </iron-ajax>
 
-      <div id="user-games-list">
-        <div class="category">Games</div>
-        <template is="dom-repeat" items="{{games}}">
-          <a href="#/game/{{item.id}}">
-            <paper-card heading="{{item.name}}" image="{{item.picture}}" elevation="4" on-tap="showg">
-            </paper-card>
-          </a>
-        </template>
-      </div>
+    <div class="user-info">
+      <img src$="{{user.picture}}"/>
+      <div id="nickname">{{user.username}}</div>
+    </div>
 
-      <div id="user-achievements-list">
-        <div class = "category">Achievements</div>
-        <template is="dom-repeat" items="{{achievements}}">
+    <div id="user-games-list">
+      <div class="category">Games</div>
+      <template is="dom-repeat" items="{{games}}">
+        <a href="#/game/{{item.id}}">
+          <paper-card heading="{{item.name}}" image="{{item.picture}}" elevation="4" on-tap="showg">
+          </paper-card>
+        </a>
+      </template>
+    </div>
+
+    <div id="user-achievements-list">
+      <div class = "category">Achievements</div>
+      <template is="dom-repeat" items="{{achievements}}">
         <div class="user-achievement">
           <div class="pic">{{item.picture}}</div>{{item.name}}
         </div>
-        </template>
-      </div>
+      </template>
+    </div>
   </template>
 
   <script>
@@ -36,6 +51,11 @@
 
       listeners: {
         'iron-select': '_itemSelected'
+      },
+
+      test: function(ev) {
+        console.debug(this.userlist)
+        this.user = this.userlist[this.routedata.userid] // FIX THIS
       },
 
       ready: function() {

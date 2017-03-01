@@ -14,7 +14,7 @@
 <link rel="import" href="drawermenu.html">
 <link rel="import" href="game.html">
 <link rel="import" href="profile.html">
-<link rel="import" href="user.html">
+<link rel="import" href="data/user.html">
 
 <dom-module id="papan-main-window">
   <link rel="import" type="css" href="mainwindow.css">
@@ -44,7 +44,7 @@
             <paper-icon-button icon="link"></paper-icon-button>
         </a>
         <template is="dom-if" if="{{user.islogged}}">
-          <div>[[user.username]]</div>
+          <div><a href="#/profile/{{user.id}}">[[user.username]]</a></div>
             <paper-button on-tap="signout">
               Sign Out
             </paper-button>
@@ -72,7 +72,6 @@
     <iron-pages id="content" selected="[[routeData.view]]" attr-for-selected="name" fallback="error">
       <papan-user-profile 
         name="profile"
-        user="{{user}}" 
         route="{{pagesRoute}}">
       </papan-user-profile>
       <papan-game-page 

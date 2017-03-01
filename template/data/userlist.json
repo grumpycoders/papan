@@ -1,0 +1,38 @@
+{
+  "pixel": {
+    "username": "Pixel",
+    "userpicture": "pixel.jpg",
+    "usergames": [
+        "tictactoe",
+        "chess",
+        "poker"
+    ]
+  },
+  "tom": {
+    "username": "RackhamLeNoir",
+    "userpicture": "tom.jpg",
+    "usergames": [
+        "tictactoe",
+        "chess",
+        "falken"
+    ]
+  },
+  "tania": {
+    "username": "Tania",
+    "userpicture": "tania.jpg",
+    "usergames": [
+        "tictactoe",
+        "poker",
+        "falken"
+    ]
+  },
+  "murgatroid": {
+    "username": "Murgatroid99",
+    "userpicture": "murgatroid.jpg",
+    "usergames": [
+        "tictactoe",
+        "chess",
+        "poker"
+    ]
+  }
+}

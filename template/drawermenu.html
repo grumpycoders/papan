@@ -17,7 +17,7 @@
       <paper-menu selected="{{view}}" attr-for-selected="name">
         <template is="dom-if" if="{{user.islogged}}">
           <paper-icon-item class="appmenuitem" name="profile">
-            <a href="#/profile">
+            <a href="#/profile/{{user.userid}}">
               <iron-icon icon="account-circle"></iron-icon>Profile
             </a>
           </paper-icon-item>

@@ -4,9 +4,10 @@
 <dom-module id="papan-game-page">
   <template>
     <app-route
-    route="{{route}}"
-    pattern="/:gameid"
-    data="{{routeData}}"></app-route>
+      route="{{route}}"
+      pattern="/:gameid"
+      data="{{routeData}}">
+    </app-route>
 
     <div id="gameHeader" style$="background-image: [[banner]]">
         [[routeData.gameid]]
