@@ -70,19 +70,20 @@
     </papan-drawer-menu>
 
     <iron-pages id="content" selected="[[routeData.view]]" attr-for-selected="name" fallback="error">
-      <section name="profile">
-        <papan-user-profile id="profile-view" user="{{user}}" route="{{pagesRoute}}">
-        </papan-user-profile>
-      </section>
-      <section name="game">
-        <papan-game-page route="{{pagesRoute}}">
-        </papan-game-page>
-      </section>
-      <div name="friends" id="friends">List of friends</div>
-      <div name="games" id="games">List of local games</div>
-      <div name="servers" id="servers">List of servers</div>
-      <div name="main" id="main-view"></div>
-      <div name="error" id="error">404</div>
+      <papan-user-profile 
+        name="profile"
+        user="{{user}}" 
+        route="{{pagesRoute}}">
+      </papan-user-profile>
+      <papan-game-page 
+        name="game" 
+        route="{{pagesRoute}}">
+      </papan-game-page>
+      <div name="friends">List of friends</div>
+      <div name="games">List of local games</div>
+      <div name="servers">List of servers</div>
+      <div name="main"></div>
+      <div name="error">404</div>
     </iron-pages>
 
     <paper-dialog id="dbglogindata" modal>
