@@ -1,7 +1,8 @@
 <link rel="import" href="../bower_components/paper-card/paper-card.html">
 <link rel="import" href="../bower_components/iron-selector/iron-selector.html">
 <link rel="import" href="../bower_components/iron-selector/iron-selectable.html">
-<link rel="import" href="../bower_components/iron-ajax/iron-ajax.html">
+
+<link rel="import" href="data/userinfo.html">
 
 <dom-module id="papan-user-profile">
   <link rel="import" type="css" href="profile.css">
@@ -11,14 +12,7 @@
       pattern="/:userid"
       data="{{routeData}}">
     </app-route>
-    <iron-ajax
-      verbose
-      auto
-      url="data/userlist.json"
-      handle-as="json"
-      last-response="{{userlist}}"
-      on-responde="test">
-    </iron-ajax>
+    <user-info userid={{routeData.userid}} userinfo={{user}}></user-info>
 
     <div class="user-info">
       <img src$="{{user.picture}}"/>

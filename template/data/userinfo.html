@@ -1,0 +1,37 @@
+<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
+
+<dom-module id="user-info">
+  <template>
+    <iron-ajax
+      verbose
+      auto
+      url="userlist.json"
+      handle-as="json"
+      last-response="{{userinfo}}"
+      on-response="filter">
+    </iron-ajax>
+  </template>
+  <script>
+    Polymer({
+      is: 'user-info',
+
+      filter: function(e) {
+        this.userinfo = e.detail.response[this.userid]
+      },
+
+      properties: {
+        userinfo: {
+          type: Object,
+          value: () => {
+            return {
+              username: '',
+              userpicture: '',
+              usergames: []
+            }
+          },
+          notify: true,
+        }
+      }
+    })
+  </script>
+</dom-module>

@@ -44,10 +44,13 @@
             <paper-icon-button icon="link"></paper-icon-button>
         </a>
         <template is="dom-if" if="{{user.islogged}}">
-          <div><a href="#/profile/{{user.id}}">[[user.username]]</a></div>
-            <paper-button on-tap="signout">
-              Sign Out
-            </paper-button>
+          <div>
+            <a href="#/profile/{{user.username}}">[[user.username]]</a>
+            <iron-icon icon="account-circle"></iron-icon>
+          </div>
+          <paper-button on-tap="signout">
+            Sign Out
+          </paper-button>
         </template>
         <template is="dom-if" if="{{!user.islogged}}">
           <div id="login">
@@ -69,20 +72,20 @@
       user="{{user}}">
     </papan-drawer-menu>
 
-    <iron-pages id="content" selected="[[routeData.view]]" attr-for-selected="name" fallback="error">
+    <iron-pages id="content" selected="[[routeData.view]]" attr-for-selected="id" fallback="error">
       <papan-user-profile 
-        name="profile"
+        id="profile"
         route="{{pagesRoute}}">
       </papan-user-profile>
       <papan-game-page 
-        name="game" 
+        id="game" 
         route="{{pagesRoute}}">
       </papan-game-page>
-      <div name="friends">List of friends</div>
-      <div name="games">List of local games</div>
-      <div name="servers">List of servers</div>
-      <div name="main"></div>
-      <div name="error">404</div>
+      <div id="friends">List of friends</div>
+      <div id="games">List of local games</div>
+      <div id="servers">List of servers</div>
+      <div id="main"></div>
+      <div id="error">404</div>
     </iron-pages>
 
     <paper-dialog id="dbglogindata" modal>

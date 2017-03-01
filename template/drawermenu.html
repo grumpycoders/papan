@@ -15,13 +15,6 @@
   <template>
     <app-drawer id="drawermenu" swipe-open>
       <paper-menu selected="{{view}}" attr-for-selected="name">
-        <template is="dom-if" if="{{user.islogged}}">
-          <paper-icon-item class="appmenuitem" name="profile">
-            <a href="#/profile/{{user.userid}}">
-              <iron-icon icon="account-circle"></iron-icon>Profile
-            </a>
-          </paper-icon-item>
-        </template>
         <paper-icon-item class="appmenuitem" name="friends">
           <a href="#/friends">
             <iron-icon icon="communication:contacts"></iron-icon>Friends
