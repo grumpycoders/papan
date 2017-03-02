@@ -1,0 +1,18 @@
+{
+  "tictactoe": {
+    "gamename": "Tic Tac Toe",
+    "gamethumb": "tictactoe-thumb.png"
+  },
+  "poker": {
+    "gamename": "Poker",
+    "gamethumb": "poker-thumb.png"
+  },
+  "falken": {
+    "gamename": "Falken's Maze",
+    "gamethumb": "falken-thumb.png"
+  },
+  "chess": {
+    "gamename": "Chess",
+    "gamethumb": "chess-thumb.png"
+  }
+}

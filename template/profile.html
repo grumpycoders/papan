@@ -1,7 +1,6 @@
-<link rel="import" href="../bower_components/paper-card/paper-card.html">
-<link rel="import" href="../bower_components/iron-selector/iron-selector.html">
-<link rel="import" href="../bower_components/iron-selector/iron-selectable.html">
+<link rel="import" href="../bower_components/app-route/app-route.html">
 
+<link rel="import" href="gamebadge.html">
 <link rel="import" href="data/userinfo.html">
 
 <dom-module id="papan-user-profile">
@@ -21,9 +20,9 @@
 
     <div id="user-games-list">
       <div class="category">Games</div>
-      <template is="dom-repeat" items="{{games}}">
+      <template is="dom-repeat" items="{{user.usergames}}">
         <a href="#/game/{{item.id}}">
-          <paper-card heading="{{item.name}}" image="{{item.picture}}" elevation="4" on-tap="showg">
+          <papan-game-badge gameid={{item}}></papan-game-badge>
           </paper-card>
         </a>
       </template>
@@ -43,23 +42,7 @@
     Polymer({
       is: "papan-user-profile",
 
-      listeners: {
-        'iron-select': '_itemSelected'
-      },
-
-      test: function(ev) {
-        console.debug(this.userlist)
-        this.user = this.userlist[this.routedata.userid] // FIX THIS
-      },
-
       ready: function() {
-        this.games = [
-          {id: 'chess', name: 'Chess', picture: 'chess.png'}, 
-          {id: 'tictactoe', name: 'Tic Tac Toe', picture: 'tictactoe.png'}, 
-          {id: 'falken', name: 'Falken\'s Maze', picture: 'falken.png'}, 
-          {id: 'poker', name: 'Poker', picture: 'poker.png'}, 
-          ]
-
        this.achievements = [
           { name: 'Gamer', picture: '⚄'}, 
           { name: 'Master of nuggets', picture: '♨︎'},

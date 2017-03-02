@@ -1,40 +1,39 @@
 <link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
 
-<dom-module id="user-info">
+<dom-module id="game-info">
   <template>
     <iron-ajax
       id="ajax"
       auto
-      url="userlist.json"
+      url="gamelist.json"
       handle-as="json"
-      last-response="{{userinfo}}"
+      last-response="{{gameinfo}}"
       on-response="filter">
     </iron-ajax>
   </template>
   <script>
     Polymer({
-      is: 'user-info',
+      is: 'game-info',
 
       filter: function(e) {
-        this.userinfo = e.detail.response[this.userid]
+        this.gameinfo = e.detail.response[this.gameid]
       },
 
-      _updateUserInfo: function() {
+      _updateGameInfo: function() {
         this.$.ajax.generateRequest()
       },
 
       properties: {
-        userid: {
+        gameid: {
           type: String,
-          observer: "_updateUserInfo"
+          observer: "_updateGameInfo"
         },
-        userinfo: {
+        gameinfo: {
           type: Object,
           value: () => {
             return {
-              username: '',
-              userpicture: '',
-              usergames: []
+              gamename: '',
+              gamethumb: ''
             }
           },
           notify: true,

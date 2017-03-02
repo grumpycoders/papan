@@ -1,0 +1,20 @@
+#gameHeader {
+  width: auto;
+  height: 250px;
+  font-size: 20pt;
+  background-color: lightgrey;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  padding-left: 10px;
+  padding-top: 10px;
+}
+
+#gameInfos {
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+#gameDescription {
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
