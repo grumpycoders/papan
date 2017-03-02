@@ -3,6 +3,7 @@
 <dom-module id="user-info">
   <template>
     <iron-ajax
+      id="ajax"
       verbose
       auto
       url="userlist.json"
@@ -19,7 +20,15 @@
         this.userinfo = e.detail.response[this.userid]
       },
 
+      _updateUserInfo: function() {
+        this.$.ajax.generateRequest()
+      },
+
       properties: {
+        userid: {
+          type: String,
+          observer: "_updateUserInfo"
+        },
         userinfo: {
           type: Object,
           value: () => {
