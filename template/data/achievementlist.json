@@ -1,0 +1,18 @@
+{
+  "gamer": {
+    "achievementname": "Gamer",
+    "achievementpicture": "⚄"
+  },
+  "masternuggets": {
+    "achievementname": "Master of nuggets",
+    "achievementpicture":"♨"
+  },
+  "killem": {
+    "achievementname": "Killed em' all",
+    "achievementpicture": "⚔"
+  },
+  "acespades": {
+    "achievementname": "Ace of Spades",
+    "achievementpicture": "♠︎︎"
+  }
+}

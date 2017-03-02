@@ -6,6 +6,10 @@
         "tictactoe",
         "chess",
         "poker"
+    ],
+    "userachievements": [
+      "gamer",
+      "acespades"
     ]
   },
   "tom": {
@@ -15,6 +19,10 @@
         "tictactoe",
         "chess",
         "falken"
+    ],
+    "userachievements": [
+      "masternuggets",
+      "acespades"
     ]
   },
   "tania": {
@@ -24,6 +32,10 @@
         "tictactoe",
         "poker",
         "falken"
+    ],
+    "userachievements": [
+      "gamer",
+      "killem"
     ]
   },
   "murgatroid": {
@@ -33,6 +45,10 @@
         "tictactoe",
         "chess",
         "poker"
+    ],
+    "userachievements": [
+      "killem",
+      "acespades"
     ]
   }
 }

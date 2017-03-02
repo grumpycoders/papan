@@ -1,41 +1,39 @@
 <link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
 
-<dom-module id="user-info">
+<dom-module id="achievement-info">
   <template>
     <iron-ajax
       id="ajax"
       auto
-      url="userlist.json"
+      url="achievementlist.json"
       handle-as="json"
-      last-response="{{userinfo}}"
+      last-response="{{achievementinfo}}"
       on-response="filter">
     </iron-ajax>
   </template>
   <script>
     Polymer({
-      is: 'user-info',
+      is: 'achievement-info',
 
       filter: function(e) {
-        this.userinfo = e.detail.response[this.userid]
+        this.achievementinfo = e.detail.response[this.achievementid]
       },
 
-      _updateUserInfo: function() {
+      _updateAchievementInfo: function() {
         this.$.ajax.generateRequest()
       },
 
       properties: {
-        userid: {
+        achievementid: {
           type: String,
-          observer: "_updateUserInfo"
+          observer: "_updateAchievementInfo"
         },
-        userinfo: {
+        achievementinfo: {
           type: Object,
           value: () => {
             return {
-              username: '',
-              userpicture: '',
-              usergames: [],
-              userachievements: []
+              achievementname: '',
+              achievementpicture: ''
             }
           },
           notify: true,

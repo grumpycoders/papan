@@ -1,6 +1,7 @@
 <link rel="import" href="../bower_components/app-route/app-route.html">
 
 <link rel="import" href="gamebadge.html">
+<link rel="import" href="achievementbadge.html">
 <link rel="import" href="data/userinfo.html">
 
 <dom-module id="papan-user-profile">
@@ -21,16 +22,14 @@
     <div id="user-games-list">
       <div class="category">Games</div>
       <template is="dom-repeat" items="{{user.usergames}}">
-        <papan-game-badge gameid={{item}}></papan-game-badge>
+        <papan-game-badge gameid=[[item]]></papan-game-badge>
       </template>
     </div>
 
     <div id="user-achievements-list">
       <div class = "category">Achievements</div>
-      <template is="dom-repeat" items="{{achievements}}">
-        <div class="user-achievement">
-          <div class="pic">{{item.picture}}</div>{{item.name}}
-        </div>
+      <template is="dom-repeat" items="{{user.userachievements}}">
+        <papan-achievement-badge achievementid=[[item]]></papan-achievement-badge>
       </template>
     </div>
   </template>
