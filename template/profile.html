@@ -21,10 +21,7 @@
     <div id="user-games-list">
       <div class="category">Games</div>
       <template is="dom-repeat" items="{{user.usergames}}">
-        <a href="#/game/{{item.id}}">
-          <papan-game-badge gameid={{item}}></papan-game-badge>
-          </paper-card>
-        </a>
+        <papan-game-badge gameid={{item}}></papan-game-badge>
       </template>
     </div>
 
