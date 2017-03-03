@@ -1,0 +1,81 @@
+<link rel="import" href="../bower_components/app-route/app-route.html">
+<link rel="import" href="../bower_components/paper-button/paper-button.html">
+
+<link rel="import" href="data/gameinfo.html">
+
+<dom-module id="papan-lobby">
+  <link rel="import" type="css" href="lobby.css">
+  <script src="../util.js"></script>
+  <script>
+    'use strict'
+
+    let startGame
+    let toggleDebug
+
+    if (isElectron()) {
+      const electron = require('electron')
+      const ipc = electron.ipcRenderer
+      startGame = () => {
+        ipc.once('asynchronous-reply', (event, game) => {
+          const renderer = game.gamePath + '/' + game.gameData.webcomponent
+          let link = document.createElement('link')
+          link.setAttribute('rel', 'import')
+          link.setAttribute('href', renderer)
+          link.onload = () => {
+            let view = document.createElement('papan-main-board')
+            view.setAttribute('id', 'main-board')
+            view.addEventListener('view-ready', () => {
+              ipc.send('asynchronous-message', { type: 'refreshPublicScene' })
+            })
+            view.addEventListener('action', (event) => {
+              ipc.send('asynchronous-message', { type: 'action', data: event.detail })
+            })
+            document.getElementById('main-view').appendChild(view)
+          }
+          document.body.appendChild(link)
+        })
+        ipc.send('asynchronous-message', { type: 'startGame' })
+      }
+      toggleDebug = () => {
+        let gameData = electron.remote.getCurrentWindow().toggleDevTools()
+      }
+      ipc.on('publicSceneDelta', (event, { diff }) => {
+        document.getElementById('main-board').applyPublicDelta(diff)
+      })
+    } else {
+      startGame = () => {
+        alert("Browser support not implemented yet")
+      }
+    }
+  </script>
+
+  <template>
+    <app-route
+      route="{{route}}"
+      pattern="/:gameid"
+      data="{{routeData}}">
+    </app-route>
+    <game-info gameid={{routeData.gameid}} gameinfo={{game}}></game-info>
+
+    <div class="banner">
+      <img src$="{{bame.banner}}"/>
+      [[game.gamename]]
+      <paper-button ontap="startGame">Start game</paper-button>
+    </div>
+
+    <div id="main-view"></div>
+
+    <div id="chat">
+      <paper-input>
+        <div suffix><iron-icon icon="send" prefix></iron-icon></div>
+      </paper-input>
+    </div>
+
+  </template>
+
+  <script>
+    Polymer({
+      is: "papan-lobby"
+    })
+  </script>
+</dom-module>

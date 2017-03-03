@@ -6,54 +6,6 @@
     <script src="node_modules/deep-diff/releases/deep-diff-0.3.4.min.js"></script>
     <link rel="import" href="template/mainwindow.html">
 
-    <script>
-      'use strict'
-
-      function isElectron() {
-        let p = typeof(process) !== "undefined" && process
-        return !!p && !!p.versions && !!p.versions.electron
-      }
-
-      let startGame
-      let toggleDebug
-
-      if (isElectron()) {
-        const electron = require('electron')
-        const ipc = electron.ipcRenderer
-        startGame = () => {
-          ipc.once('asynchronous-reply', (event, game) => {
-            const renderer = game.gamePath + '/' + game.gameData.webcomponent
-            let link = document.createElement('link')
-            link.setAttribute('rel', 'import')
-            link.setAttribute('href', renderer)
-            link.onload = () => {
-              let view = document.createElement('papan-main-board')
-              view.setAttribute('id', 'main-board')
-              view.addEventListener('view-ready', () => {
-                ipc.send('asynchronous-message', { type: 'refreshPublicScene' })
-              })
-              view.addEventListener('action', (event) => {
-                ipc.send('asynchronous-message', { type: 'action', data: event.detail })
-              })
-              document.getElementById('main-view').appendChild(view)
-            }
-            document.body.appendChild(link)
-          })
-          ipc.send('asynchronous-message', { type: 'startGame' })
-        }
-        toggleDebug = () => {
-          let gameData = electron.remote.getCurrentWindow().toggleDevTools()
-        }
-        ipc.on('publicSceneDelta', (event, { diff }) => {
-          document.getElementById('main-board').applyPublicDelta(diff)
-        })
-      } else {
-        startGame = () => {
-          alert("Browser support not implemented yet")
-        }
-      }
-  </script>
-
   <style is="papan-style">
     html:not([style-scope]):not(.style-scope),body:not([style-scope]):not(.style-scope) {
       margin: 0;
@@ -68,6 +20,7 @@
     <papan-main-window></papan-main-window>
   </body>
 
+  <script src="util.js"></script>
   <script>
     'use strict'
 
