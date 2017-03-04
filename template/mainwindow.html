@@ -15,6 +15,7 @@
 <link rel="import" href="game.html">
 <link rel="import" href="profile.html">
 <link rel="import" href="lobby.html">
+<link rel="import" href="gamelist.html">
 <link rel="import" href="data/user.html">
 
 <dom-module id="papan-main-window">
@@ -76,7 +77,8 @@
     <iron-pages 
       id="content" 
       selected="[[routeData.view]]" 
-      attr-for-selected="id" 
+      attr-for-selected="id"
+      fallback-selection="games" 
       fallback="error">
       <papan-user-profile 
         id="profile"
@@ -87,7 +89,10 @@
         route="{{pagesRoute}}">
       </papan-game-page>
       <div id="friends">List of friends</div>
-      <div id="games">List of local games</div>
+      <papan-game-list
+         id="games"
+         user={{user}}>List of Games
+      </papan-game-list>
       <div id="servers">List of servers</div>
       <div id="main"></div>
       <papan-lobby 
