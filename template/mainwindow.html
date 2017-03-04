@@ -73,7 +73,11 @@
       user="{{user}}">
     </papan-drawer-menu>
 
-    <iron-pages id="content" selected="[[routeData.view]]" attr-for-selected="id" fallback="error">
+    <iron-pages 
+      id="content" 
+      selected="[[routeData.view]]" 
+      attr-for-selected="id" 
+      fallback="error">
       <papan-user-profile 
         id="profile"
         route="{{pagesRoute}}">
@@ -86,7 +90,10 @@
       <div id="games">List of local games</div>
       <div id="servers">List of servers</div>
       <div id="main"></div>
-      <papan-lobby id="lobby" route="{{pagesRoute}}"></papan-lobby>
+      <papan-lobby 
+        id="lobby" 
+        route="{{pagesRoute}}">
+      </papan-lobby>
       <div id="error">404</div>
     </iron-pages>
 
