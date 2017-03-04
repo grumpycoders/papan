@@ -5,14 +5,14 @@
 
 <dom-module id="papan-lobby">
   <link rel="import" type="css" href="lobby.css">
-  <script src="../util.js"></script>
+  <script src="../common/util.js"></script>
   <script>
     'use strict'
 
     let startGame
     let toggleDebug
 
-    if (isElectron()) {
+    if (PapanUtils.isElectron()) {
       const electron = require('electron')
       const ipc = electron.ipcRenderer
       startGame = () => {
