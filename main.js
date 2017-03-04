@@ -1,6 +1,8 @@
 'use strict'
 
-if (typeof (process.versions.electron) !== 'undefined') {
+const PapanUtils = require('./common/utils.js')
+
+if (PapanUtils.isElectron()) {
   const mainElectron = require('./main-electron.js')
   mainElectron.main()
 }
