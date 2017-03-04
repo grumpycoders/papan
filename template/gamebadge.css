@@ -6,10 +6,20 @@ paper-card {
   margin-right: 10px;
   transition: all .2s ease-in-out;
 
+  --paper-card-header-image-text: { 
+    background-color: rgba(255, 255, 255, 0.8);
+    width: 100%;
+  }
+
   --paper-card-header-image: {
     width: 200px;
     height: 160px;
     background-color: lightgray;
+  }
+
+  --iron-image-placeholder: {
+    background-repeat: no-repeat;
+    background-size: cover;
   }
 }
 

@@ -3,7 +3,7 @@
     "username": "Pixel",
     "userpicture": "pixel.jpg",
     "usergames": [
-        "tictactoe",
+        "tic_tac_toe",
         "chess",
         "poker"
     ],
@@ -16,7 +16,7 @@
     "username": "RackhamLeNoir",
     "userpicture": "tom.jpg",
     "usergames": [
-        "tictactoe",
+        "tic_tac_toe",
         "chess",
         "falken"
     ],
@@ -29,7 +29,7 @@
     "username": "Tania",
     "userpicture": "tania.jpg",
     "usergames": [
-        "tictactoe",
+        "tic_tac_toe",
         "poker",
         "falken"
     ],
@@ -42,7 +42,7 @@
     "username": "Murgatroid99",
     "userpicture": "murgatroid.jpg",
     "usergames": [
-        "tictactoe",
+        "tic_tac_toe",
         "chess",
         "poker"
     ],

@@ -7,7 +7,12 @@
   <template>
     <game-info gameid={{gameid}} gameinfo={{game}}></game-info>
 
-    <paper-card heading="{{game.gamename}}" image="{{game.gamethumb}}" elevation="4">
+    <paper-card 
+      heading="{{game.gamename}}" 
+      image="src/games/{{gameid}}/icon.svg" 
+      placeholder-image="pictures/gameicon.svg" 
+      preload-image
+      elevation="4">
       <div class="card-actions">
         <a href="#/game/{{gameid}}"><iron-icon icon="icons:info"></iron-icon></a>
         <a href="#/lobby/{{gameid}}">Play!</a>
