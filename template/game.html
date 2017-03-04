@@ -14,16 +14,18 @@
     <game-info gameid={{routeData.gameid}} gameinfo={{game}}></game-info>
 
     <div id="gameHeader" style$="background-image: [[game.banner]]">
-        [[game.gamename]]
+      [[game.gamename]]
     </div>
     <div id="gameInfos">
-        <iron-icon icon="supervisor-account"></iron-icon>[[game.players]]
-        <iron-icon icon="device:access-time"></iron-icon>[[game.duration]]
+      <iron-icon icon="supervisor-account"></iron-icon>[[game.players]]
+      <iron-icon icon="device:access-time"></iron-icon>[[game.duration]]
     </div>
     <div id="gameDescription">[[game.description]]</div>
   </template>
 
   <script>
+    'use strict'
+
     Polymer({
       is: "papan-game-page"
     })

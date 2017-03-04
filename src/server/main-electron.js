@@ -13,7 +13,7 @@ const ipc = electron.ipcMain
 const path = require('path')
 const url = require('url')
 
-const instance = require('./src/server/game-instance.js')
+const instance = require('./game-instance.js')
 
 exports.main = () => {
   const app = electron.app
@@ -26,7 +26,7 @@ exports.main = () => {
   function createWindow () {
     mainWindow = new BrowserWindow({'width': 1100, 'height': 800})
     mainWindow.loadURL(url.format({
-      'pathname': path.join(__dirname, 'index.html'),
+      'pathname': path.join(__dirname, '../..', 'index.html'),
       protocol: 'file:',
       slashes: true
     }))
