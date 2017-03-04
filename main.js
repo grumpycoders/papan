@@ -1,6 +1,6 @@
 'use strict'
 
-const PapanUtils = require('./common/utils.js')
+const PapanUtils = require('./common/util.js')
 
 if (PapanUtils.isElectron()) {
   const mainElectron = require('./main-electron.js')
