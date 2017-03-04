@@ -1,0 +1,43 @@
+<link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+
+<dom-module id="papan-chat">
+  <link rel="import" type="css" href="chat.css">
+    <template>
+      <div id="chat" class="layout vertical">
+        <div id="chattext" class="layout flex"></div>
+        <paper-input
+          class="layout end" 
+          value="{{text}}" 
+          on-keypress="_keyPressed">
+          <div suffix><paper-icon-button icon="send" on-tap="_localmessage"></paper-icon-button></div>
+        </paper-input>
+      </div>
+    </div>
+  </template>
+
+  <style include="iron-flex iron-flex-alignment">
+  </style>
+
+  <script>
+    Polymer({
+      is: "papan-chat",
+
+      sendMessage: function(user, message) {
+        if (message != '')
+          this.$.chattext.innerHTML += user + ': ' + message + '<br />'
+      },
+
+      _localmessage: function(){
+        var textbox = this.text
+        this.sendMessage(this.user, this.text)
+        this.text = ''
+      },
+
+      _keyPressed: function(e) {
+        if (e.charCode === 13)
+            this._localmessage();
+      }
+    })
+  </script>
+</dom-module>

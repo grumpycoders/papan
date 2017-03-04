@@ -4,6 +4,7 @@
 <link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
 
 <link rel="import" href="data/gameinfo.html">
+<link rel="import" href="chat.html">
 
 <dom-module id="papan-lobby">
   <link rel="import" type="css" href="lobby.css">
@@ -88,18 +89,12 @@
               <li><a href="#/profile/foo">foo</a></li>
               <li><a href="#/profile/bar">bar</a></li>
             </ul>
-            <paper-button on-tap="start">Start game</paper-button>
+            <paper-button on-tap="_start">Start game</paper-button>
           </div>
           <div id="main-view" name="board"></div>
         </iron-pages>
 
-        <div id="chat" class="layout vertical">
-          <div id="chattext" class="layout flex">
-            </div>
-          <paper-input class="layout end">
-            <div suffix><paper-icon-button icon="send" onclick=""></paper-icon-button></div>
-          </paper-input>
-        </div>
+        <papan-chat user={{user.username}}></papan-chat>
       </div>
     </div>
   </template>
@@ -111,7 +106,7 @@
     Polymer({
       is: "papan-lobby",
 
-      start: function() {
+      _start: function() {
         startGame()
         this.view = 'board'
         this.$.boardtab.disabled = false
