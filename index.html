@@ -20,11 +20,11 @@
     <papan-main-window></papan-main-window>
   </body>
 
-  <script src="util.js"></script>
+  <script src="common/util.js"></script>
   <script>
     'use strict'
 
-    if (isElectron()) {
+    if (PapanUtils.isElectron()) {
       require('./renderer.js')
       require('devtron').install()
     } else {
