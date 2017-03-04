@@ -8,12 +8,11 @@
 
 <dom-module id="papan-lobby">
   <link rel="import" type="css" href="lobby.css">
-  <script src="../common/utils.js"></script>
+  <script src="../src/common/utils.js"></script>
   <script>
     'use strict'
 
     let startGame
-    let toggleDebug
 
     if (PapanUtils.isElectron()) {
       const electron = require('electron')
@@ -38,9 +37,6 @@
           document.body.appendChild(link)
         })
         ipc.send('asynchronous-message', { type: 'startGame' })
-      }
-      toggleDebug = () => {
-        let gameData = electron.remote.getCurrentWindow().toggleDevTools()
       }
       ipc.on('publicSceneDelta', (event, { diff }) => {
         document.getElementById('main-board').applyPublicDelta(diff)
@@ -103,6 +99,8 @@
   </style>
 
   <script>
+    'use strict'
+
     Polymer({
       is: "papan-lobby",
 
