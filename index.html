@@ -3,160 +3,41 @@
   <head>
     <meta charset="UTF-8">
     <title>Papan</title>
-
-    <link rel="stylesheet" href="node_modules/material-design-icons/iconfont/material-icons.css">
-    <link rel="stylesheet" href="node_modules/material-design-lite/dist/material.deep_purple-amber.min.css">
-    <link rel="stylesheet" href="index.css">
-
     <script src="node_modules/deep-diff/releases/deep-diff-0.3.4.min.js"></script>
+    <script src="src/common/utils.js"></script>
+    <link rel="import" href="template/mainwindow.html">
 
-    <script src="node_modules/document-register-element/build/document-register-element.max.js"></script>
-    <link rel="import" href="node_modules/@polymer/polymer/polymer.html">
-    <link rel="import" href="src/games/tic_tac_toe/render/tic_tac_toe.html">
-    <link rel="import" href="template/profile.html">
-    <link rel="import" href="template/game.html">
-
-    <script>
-      'use strict'
-
-      function isElectron() {
-        let p = typeof(process) !== "undefined" && process
-        return !!p && !!p.versions && !!p.versions.electron
+    <style is="papan-style">
+      html:not([style-scope]):not(.style-scope),body:not([style-scope]):not(.style-scope) {
+        margin: 0;
+          font-family: 'Roboto', 'Noto', sans-serif;
+          -webkit-font-smoothing: antialiased;
+          background: #f1f1f1;
       }
 
-      let startGame
-      let toggleDebug
+      .js-off {
+        display: none;
+      }
+    </style>
 
-      if (isElectron()) {
-        const electron = require('electron')
-        const ipc = electron.ipcRenderer
-        startGame = () => {
-          ipc.once('asynchronous-reply', (event, game) => {
-            const renderer = game.gamePath + '/' + game.gameData.webcomponent
-            let link = document.createElement('link')
-            link.setAttribute('rel', 'import')
-            link.setAttribute('href', renderer)
-            link.onload = () => {
-              let view = document.createElement('papan-main-board')
-              view.setAttribute('id', 'main-board')
-              view.addEventListener('view-ready', () => {
-                ipc.send('asynchronous-message', { type: 'refreshPublicScene' })
-              })
-              view.addEventListener('action', (event) => {
-                ipc.send('asynchronous-message', { type: 'action', data: event.detail })
-              })
-              document.getElementById('main-view').appendChild(view)
-            }
-            document.body.appendChild(link)
-          })
-          ipc.send('asynchronous-message', { type: 'startGame' })
+    <noscript>
+      <style is="papan-js-off">
+        .js-on {
+          display: hidden;
         }
-        toggleDebug = () => {
-          let gameData = electron.remote.getCurrentWindow().toggleDevTools()
+
+        .js-off {
+          display: inline;
         }
-        ipc.on('publicSceneDelta', (event, { diff }) => {
-          document.getElementById('main-board').applyPublicDelta(diff)
-        })
-      } else {
-        startGame = () => {
-          alert("Browser support not implemented yet")
-        }
-      }
-
-      function closeMenu(){
-        let drawer = document.getElementById('menu');
-        drawer.classList.remove('is-visible');
-        let obfuscator = document.getElementsByClassName('mdl-layout__obfuscator')[0];
-        obfuscator.classList.remove('is-visible');
-      }
-
-      function closeMenuViews(){
-        let views = document.getElementsByClassName("user-page");
-        for (var i = 0; i < views.length; i++)
-          views[i].style.display = 'none';
-      }
-
-      function showProfile() {
-        closeMenuViews();
-        let view = document.getElementById('profile-view');
-        view.style.display = 'block';
-        closeMenu();
-      }
-
-      function showGame(event){
-        closeMenuViews();
-        let view = document.getElementById('game-view');
-        view.style.display = 'block';
-        view.setAttribute('name', event.name)
-        closeMenu();
-      }
-    </script>
-
+      </style>
+    </noscript>
   </head>
   <body>
-    <mdl-layout>
-
-      <mdl-drawer id="menu">
-        <span class="mdl-layout-title">Menu</span>
-        <mdl-navigation>
-          <a onclick="showProfile()">
-            <mdl-icon style="margin-right: 7px;" class="material-icons">account_circle</mdl-icon>Profile
-          </a>
-          <a>
-            <mdl-icon style="margin-right: 7px;" class="material-icons">contacts</mdl-icon>Friends
-          </a>
-          <a>
-            <mdl-icon style="margin-right: 7px;" class="material-icons">casino</mdl-icon>Games
-          </a>
-          <a>
-            <mdl-icon style="margin-right: 7px;" class="material-icons">dvr</mdl-icon>Servers
-          </a>
-        </mdl-navigation>
-      </mdl-drawer>
-
-      <mdl-header style="background-color: blue;">
-        <mdl-header-row>
-          <span class="mdl-layout-title" style="color: white;">Papan</span>
-          <mdl-spacer></mdl-spacer>
-          <mdl-navigation id="navigation">
-            <a onclick="toggleDebug()">
-              Debugger
-            </a>
-            <a href="https://github.com/grumpycoders.papan" style="display: none;" id="github-link">
-              <mdl-icon style="margin-right: 7px;" class="material-icons">link</mdl-icon>Github
-            </a>
-          </mdl-navigation>
-        </mdl-header-row>
-      </mdl-header>
-
-      <mdl-content>
-        <mdl-button onclick="startGame();">
-          Start Game
-        </mdl-button>
-        <div id="main-view">
-           <papan-user-profile id="profile-view" class="user-page" style="display: none"></papan-user-profile>
-           <papan-game-page id="game-view" class="user-page" style="display: none"></papan-game-page>
-        </div>
-      </mdl-content>
-    </mdl-layout>
+    <div class="js-on">
+      <papan-main-window></papan-main-window>
+    </div>
+    <div class="js-off">
+      <h2>Very sorry, but JavaScript is absolutely required here.</h2>
+    </div>
   </body>
-
-  <script src="node_modules/material-design-lite/dist/material.min.js"></script>
-  <script src="node_modules/webcomponent-mdl/dist/webcomponent-mdl.min.js"></script>
-  <script>
-    'use strict'
-
-    if (isElectron()) {
-      require('./renderer.js')
-      require('devtron').install()
-    } else {
-      document.getElementById('github-link').style.display = 'inline'
-    }
-
-    window.onload = () => { 
-      var view = document.getElementById('profile-view');
-      view.addEventListener('gameclicked', (event) => { showGame(event.detail) } );
-    }
-
-  </script>
 </html>

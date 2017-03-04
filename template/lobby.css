@@ -1,0 +1,19 @@
+#banner {
+  background-color: lightgrey;
+  height: 130px;
+  font-size: 20pt;
+  line-height: 200px;
+}
+
+#main-view {
+  background-color:#cccccc;
+}
+
+#chat{
+  width: 200px;
+  border: 1px solid grey;
+}
+
+#page{
+  height: calc(100vh - 64px);
+}

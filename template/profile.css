@@ -1,0 +1,31 @@
+.user-info {
+  width: auto;
+  height: 250px;
+}
+
+.user-info #nickname{
+  margin-top: 10px;
+  margin-left: 10px;
+  font-size: 20pt;
+}
+
+.user-info img {
+  margin-top: 10px;
+  margin-left: 10px;
+  width: 200px;
+  height: 200px;
+  background-color: lightgray;
+}
+
+.category {
+  font-size: 20pt;
+  border-bottom: 1px solid lightgrey;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  padding-bottom: 5px;
+}
+
+a {
+  color: black;
+  text-decoration: none;
+}

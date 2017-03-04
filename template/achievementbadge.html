@@ -1,0 +1,20 @@
+<link rel="import" href="data/achievementinfo.html">
+
+<dom-module id="papan-achievement-badge">
+  <link rel="import" type="css" href="achievementbadge.css">
+  <template>
+    <achievement-info achievementid={{achievementid}} achievementinfo={{achievement}}></achievement-info>
+
+    <div class="user-achievement">
+      <div class="pic">[[achievement.achievementpicture]]</div>[[achievement.achievementname]]
+    </div>
+  </template>
+
+  <script>
+    'use strict'
+
+    Polymer({
+      is: "papan-achievement-badge"
+    })
+  </script>
+</dom-module>

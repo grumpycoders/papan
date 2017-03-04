@@ -81,36 +81,33 @@
 
 <dom-module id="papan-main-board">
   <template>
-    <mdl-card class="board" shadow="4">
-      <table cellspacing="0px" cellpadding="0px">
-        <tr>
-          <td><ttt-square id="s00"></ttt-square></td>
-          <td><ttt-square id="s01"></ttt-square></td>
-          <td><ttt-square id="s02"></ttt-square></td>
-        </tr>
-        <tr>
-          <td><ttt-square id="s10"></ttt-square></td>
-          <td><ttt-square id="s11"></ttt-square></td>
-          <td><ttt-square id="s12"></ttt-square></td>
-        </tr>
-        <tr>
-          <td><ttt-square id="s20"></ttt-square></td>
-          <td><ttt-square id="s21"></ttt-square></td>
-          <td><ttt-square id="s22"></ttt-square></td>
-        </tr>
-      </table>
-      <mdl-card-actions border>
+    <paper-card class="board" shadow="4">
+      <paper-card-contents>
+        <table cellspacing="0px" cellpadding="0px">
+          <tr>
+            <td><ttt-square id="s00"></ttt-square></td>
+            <td><ttt-square id="s01"></ttt-square></td>
+            <td><ttt-square id="s02"></ttt-square></td>
+          </tr>
+          <tr>
+            <td><ttt-square id="s10"></ttt-square></td>
+            <td><ttt-square id="s11"></ttt-square></td>
+            <td><ttt-square id="s12"></ttt-square></td>
+          </tr>
+          <tr>
+            <td><ttt-square id="s20"></ttt-square></td>
+            <td><ttt-square id="s21"></ttt-square></td>
+            <td><ttt-square id="s22"></ttt-square></td>
+          </tr>
+        </table>
+      </paper-card-contents>
+      <paper-card-actions border>
         <span id="gameStatus"></span>
-      </mdl-card-actions>
-    </mdl-card>
+      </paper-card-actions>
+    </paper-card>
   </template>
 
   <style>
-    .board.mdl-card {
-      width: 400px;
-      height: 425px;
-    }
-
     table {
       border-collapse: collapse;
     }

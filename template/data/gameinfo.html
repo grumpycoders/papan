@@ -1,0 +1,48 @@
+<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
+
+<dom-module id="game-info">
+  <template>
+    <iron-ajax
+      id="ajax"
+      auto
+      url="gamelist.json"
+      handle-as="json"
+      last-response="{{gameinfo}}"
+      on-response="filter">
+    </iron-ajax>
+  </template>
+  <script>
+    Polymer({
+      is: 'game-info',
+
+      filter: function(e) {
+        this.gameinfo = e.detail.response[this.gameid]
+      },
+
+      _updateGameInfo: function() {
+        this.$.ajax.generateRequest()
+      },
+
+      properties: {
+        gameid: {
+          type: String,
+          observer: "_updateGameInfo"
+        },
+        gameinfo: {
+          type: Object,
+          value: () => {
+            return {
+              gamename: '',
+              gamethumb: '',
+              banner: '',
+              players: '',
+              duration: '',
+              description: ''
+            }
+          },
+          notify: true,
+        }
+      }
+    })
+  </script>
+</dom-module>

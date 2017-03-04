@@ -1,0 +1,21 @@
+.user-achievement{
+  display: inline-block;
+  padding: 0 20px;
+  height: 40px;
+  font-size: 16px;
+  line-height: 40px;
+  border-radius: 20px;
+  background-color: lightgrey;
+  margin-left: 10px;
+}
+
+.user-achievement .pic {
+  float: left;
+  margin: 0 10px 0 -20px;
+  text-align: center;
+  height: 40px;
+  width: 40px;
+  border-radius: 50%;
+  background-color: #eebb00;
+  z-index: 10;
+}

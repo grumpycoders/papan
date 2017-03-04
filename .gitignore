@@ -1,4 +1,8 @@
+bower_components
 node_modules
 
 # Emacs temp files
 *~
+
+# MAC temp files
+.DS_Store

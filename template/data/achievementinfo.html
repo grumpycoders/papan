@@ -1,0 +1,44 @@
+<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
+
+<dom-module id="achievement-info">
+  <template>
+    <iron-ajax
+      id="ajax"
+      auto
+      url="achievementlist.json"
+      handle-as="json"
+      last-response="{{achievementinfo}}"
+      on-response="filter">
+    </iron-ajax>
+  </template>
+  <script>
+    Polymer({
+      is: 'achievement-info',
+
+      filter: function(e) {
+        this.achievementinfo = e.detail.response[this.achievementid]
+      },
+
+      _updateAchievementInfo: function() {
+        this.$.ajax.generateRequest()
+      },
+
+      properties: {
+        achievementid: {
+          type: String,
+          observer: "_updateAchievementInfo"
+        },
+        achievementinfo: {
+          type: Object,
+          value: () => {
+            return {
+              achievementname: '',
+              achievementpicture: ''
+            }
+          },
+          notify: true,
+        }
+      }
+    })
+  </script>
+</dom-module>

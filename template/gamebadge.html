@@ -1,0 +1,25 @@
+<link rel="import" href="../bower_components/paper-card/paper-card.html">
+
+<link rel="import" href="data/gameinfo.html">
+
+<dom-module id="papan-game-badge">
+  <link rel="import" type="css" href="gamebadge.css">
+  <template>
+    <game-info gameid={{gameid}} gameinfo={{game}}></game-info>
+
+    <paper-card heading="{{game.gamename}}" image="{{game.gamethumb}}" elevation="4">
+      <div class="card-actions">
+        <a href="#/game/{{gameid}}"><iron-icon icon="icons:info"></iron-icon></a>
+        <a href="#/lobby/{{gameid}}">Play!</a>
+      </div>
+    </paper-card>
+  </template>
+
+  <script>
+    'use strict'
+
+    Polymer({
+      is: "papan-game-badge"
+    })
+  </script>
+</dom-module>

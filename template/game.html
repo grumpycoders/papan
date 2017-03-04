@@ -1,63 +1,33 @@
+<link rel="import" href="../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../bower_components/iron-icons/device-icons.html">
+
+<link rel="import" href="data/gameinfo.html">
+
 <dom-module id="papan-game-page">
+  <link rel="import" type="css" href="game.css">
   <template>
-    <div id="gameHeader" style$="background-image: [[banner]]">
-        [[name]]
+    <app-route
+      route="{{route}}"
+      pattern="/:gameid"
+      data="{{routeData}}">
+    </app-route>
+    <game-info gameid={{routeData.gameid}} gameinfo={{game}}></game-info>
+
+    <div id="gameHeader" style$="background-image: [[game.banner]]">
+      [[game.gamename]]
     </div>
     <div id="gameInfos">
-        <mdl-icon style="margin-right: 7px;" class="material-icons">people</mdl-icon>2 players
-        <mdl-icon style="margin-right: 7px;" class="material-icons">access_time</mdl-icon>2 minutes
+      <iron-icon icon="supervisor-account"></iron-icon>[[game.players]]
+      <iron-icon icon="device:access-time"></iron-icon>[[game.duration]]
     </div>
-    <div id="gameDescription">
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-    </div>
+    <div id="gameDescription">[[game.description]]</div>
   </template>
 
-  <style>
-    #gameHeader {
-      width: auto;
-      height: 250px;
-      font-size: 20pt;
-      background-color: lightgrey;
-      margin-top: 10px;
-      margin-bottom: 10px;
-      padding-left: 10px;
-      padding-top: 10px;
-    }
-
-    #gameInfos {
-      margin-top: 10px;
-      margin-bottom: 10px;
-    }
-
-    #gameDescription {
-      margin-top: 10px;
-      margin-bottom: 10px;
-    }
-  </style>
-
   <script>
+    'use strict'
+
     Polymer({
-      is: "papan-game-page",
-
-      properties: {
-          gameid: String,
-          gamename: String,
-          banner: String,
-          description: String,
-      },
-
-      ready: function() {
-        this.games = [
-          {id: 'chess', name: 'Chess', picture: 'chess.png'}, 
-          {id: 'tictactoe', name: 'Tic Tac Toe', picture: 'tictactoe.png'}, 
-          {id: 'falken', name: 'Falken\'s Maze', picture: 'falken.png'}, 
-          {id: 'poker', name: 'Poker', picture: 'poker.png'}, 
-          ];
-      },
-
-      setBackgroundPicture: function(file) {
-        this.$.gameHeader.style.backgroundImage = file;
-      },
+      is: "papan-game-page"
     })
   </script>
 </dom-module>

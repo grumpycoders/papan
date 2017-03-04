@@ -1,115 +1,44 @@
+<link rel="import" href="../bower_components/app-route/app-route.html">
+
+<link rel="import" href="gamebadge.html">
+<link rel="import" href="achievementbadge.html">
+<link rel="import" href="data/userinfo.html">
+
 <dom-module id="papan-user-profile">
+  <link rel="import" type="css" href="profile.css">
   <template>
-    <mdl-card class="user-info">
-      <img src="" id="picture"/>
-      <mdl-card-title-tex id="nickname">
-        Nickname
-      </mdl-card-title-tex>
-    </mdl-card>
+    <app-route
+      route="{{route}}"
+      pattern="/:userid"
+      data="{{routeData}}">
+    </app-route>
+    <user-info userid={{routeData.userid}} userinfo={{user}}></user-info>
+
+    <div class="user-info">
+      <img src$="{{user.picture}}"/>
+      <div id="nickname">{{user.username}}</div>
+    </div>
 
     <div id="user-games-list">
       <div class="category">Games</div>
-      <template is="dom-repeat" items="{{games}}">
-        <mdl-card class="user-game" shadow="4" on-tap="showg" game="{{item.name}}">
-          <img src="{{item.picture}}" />
-          <mdl-card-title-text class="gameName">{{item.name}}</mdl-card-title-text>
-        </mdl-card>
+      <template is="dom-repeat" items="{{user.usergames}}">
+        <papan-game-badge gameid=[[item]]></papan-game-badge>
       </template>
     </div>
 
     <div id="user-achievements-list">
       <div class = "category">Achievements</div>
-      <template is="dom-repeat" items="{{achievements}}">
-      <mdl-chip class="user-achievement">
-        <mdl-chip-contact class="mdl-color--amber mdl-color-text--white user-achievement-image">{{item.picture}}</mdl-chip-contact>
-        <mdl-chip-text class="user-achievement-name">{{item.name}}</mdl-chip-text>
-      </mdl-chip>
+      <template is="dom-repeat" items="{{user.userachievements}}">
+        <papan-achievement-badge achievementid=[[item]]></papan-achievement-badge>
       </template>
     </div>
   </template>
 
-  <style>
-    .user-game.mdl-card {
-      width: 200px;
-      height: 200px;
-      display: inline-block;
-      margin-left: 10px;
-      margin-right: 10px;
-      transition: all .2s ease-in-out;
-    }
-
-    .user-game.mdl-card:hover { 
-      transform: scale(1.1);
-      cursor: pointer;
-    }
-
-    .user-game img {
-      width: 200px;
-      height: 150px;
-      background-color: lightgray;
-    }
-
-    .gameName{
-      margin-left: 10px;
-      margin-top: 10px;
-    }
-
-    .user-achievement{
-      margin-left: 10px;
-    }
-
-    .user-info {
-      width: auto;
-      height: 250px;
-    }
-
-    .user-info #nickname{
-      margin-top: 10px;
-      margin-left: 10px;
-      font-size: 20pt;
-    }
-
-    .user-info img {
-      margin-top: 10px;
-      margin-left: 10px;
-      width: 200px;
-      height: 200px;
-      background-color: lightgray;
-    }
-
-    .category {
-      font-size: 20pt;
-      border-bottom: 1px solid lightgrey;
-      margin-top: 10px;
-      margin-bottom: 10px;
-      padding-bottom: 5px;
-    }
-  </style>
-
   <script>
+    'use strict'
+
     Polymer({
-      is: "papan-user-profile",
-
-      ready: function() {
-        this.games = [
-          {id: 'chess', name: 'Chess', picture: 'chess.png'}, 
-          {id: 'tictactoe', name: 'Tic Tac Toe', picture: 'tictactoe.png'}, 
-          {id: 'falken', name: 'Falken\'s Maze', picture: 'falken.png'}, 
-          {id: 'poker', name: 'Poker', picture: 'poker.png'}, 
-          ];
-
-       this.achievements = [
-          { name: 'Gamer', picture: '⚄'}, 
-          { name: 'Master of nuggets', picture: '♨︎'},
-          { name: 'Killed em\' all', picture: '⚔'},
-          { name: 'Ace of Spades', picture: '♠︎'},
-        ];
-      },
-
-      showg: function(e){
-        var game = e.model.get('item.name');
-        this.fire('gameclicked', { name: game });
-      },
+      is: "papan-user-profile"
     })
   </script>
 </dom-module>

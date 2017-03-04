@@ -1,0 +1,114 @@
+<link rel="import" href="../bower_components/app-route/app-route.html">
+<link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../bower_components/paper-tabs/paper-tabs.html">
+<link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+
+<link rel="import" href="data/gameinfo.html">
+<link rel="import" href="chat.html">
+
+<dom-module id="papan-lobby">
+  <link rel="import" type="css" href="lobby.css">
+  <script src="../src/common/utils.js"></script>
+  <script>
+    'use strict'
+
+    let startGame
+
+    if (PapanUtils.isElectron()) {
+      const electron = require('electron')
+      const ipc = electron.ipcRenderer
+      startGame = () => {
+        ipc.once('asynchronous-reply', (event, game) => {
+          const renderer = game.gamePath + '/' + game.gameData.webcomponent
+          let link = document.createElement('link')
+          link.setAttribute('rel', 'import')
+          link.setAttribute('href', renderer)
+          link.onload = () => {
+            let view = document.createElement('papan-main-board')
+            view.setAttribute('id', 'main-board')
+            view.addEventListener('view-ready', () => {
+              ipc.send('asynchronous-message', { type: 'refreshPublicScene' })
+            })
+            view.addEventListener('action', (event) => {
+              ipc.send('asynchronous-message', { type: 'action', data: event.detail })
+            })
+            document.getElementById('main-view').appendChild(view)
+          }
+          document.body.appendChild(link)
+        })
+        ipc.send('asynchronous-message', { type: 'startGame' })
+      }
+      ipc.on('publicSceneDelta', (event, { diff }) => {
+        document.getElementById('main-board').applyPublicDelta(diff)
+      })
+    } else {
+      startGame = () => {
+        alert("Browser support not implemented yet")
+      }
+    }
+  </script>
+
+  <template>
+    <app-route
+      route="{{route}}"
+      pattern="/:gameid"
+      data="{{routeData}}">
+    </app-route>
+    <game-info gameid={{routeData.gameid}} gameinfo={{game}}></game-info>
+
+    <div id="page" class="layout vertical">
+      <div id="banner">
+        <img src$="{{game.banner}}" />
+        [[game.gamename]]
+      </div>
+
+      <paper-tabs 
+        id="tabs" 
+        selected="{{view}}" 
+        attr-for-selected="name" 
+        hide-scroll-buttons
+        fit-container 
+        scrollable>
+        <paper-tab name="lobby">Lobby</paper-tab>
+        <paper-tab name="board" id="boardtab" disabled>Board</paper-tab>
+      </paper-tabs>
+
+      <div id="lobbycontent" class="layout flex horizontal">
+        <iron-pages 
+          selected="{{view}}" 
+          attr-for-selected="name" 
+          fallback-selection="lobby"
+          class="layout flex">
+          <div name="lobby">
+            Connected:
+            <ul>
+              <li><a href="#/profile/foo">foo</a></li>
+              <li><a href="#/profile/bar">bar</a></li>
+            </ul>
+            <paper-button on-tap="_start">Start game</paper-button>
+          </div>
+          <div id="main-view" name="board"></div>
+        </iron-pages>
+
+        <papan-chat user={{user.username}}></papan-chat>
+      </div>
+    </div>
+  </template>
+
+  <style include="iron-flex iron-flex-alignment">
+  </style>
+
+  <script>
+    'use strict'
+
+    Polymer({
+      is: "papan-lobby",
+
+      _start: function() {
+        startGame()
+        this.view = 'board'
+        this.$.boardtab.disabled = false
+      }
+    })
+  </script>
+</dom-module>
