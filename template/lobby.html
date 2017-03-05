@@ -101,14 +101,20 @@
     </div>
   </template>
 
-  <style include="iron-flex iron-flex-alignment">
-  </style>
+  <style include="iron-flex iron-flex-alignment"></style>
 
   <script>
     'use strict'
 
     Polymer({
       is: "papan-lobby",
+
+      properties: {
+        language: {
+          value: 'en',
+          type: String,
+        },
+      },
 
       behaviors: [
         PapanLocalize

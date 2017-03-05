@@ -1,3 +1,4 @@
+<link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
 <link rel="import" href="../bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="../bower_components/iron-icons/communication-icons.html">
 <link rel="import" href="../bower_components/iron-icons/device-icons.html">
@@ -6,6 +7,7 @@
 <link rel="import" href="../bower_components/paper-menu/paper-menu.html">
 <link rel="import" href="../bower_components/paper-item/paper-item.html">
 <link rel="import" href="../bower_components/paper-item/paper-icon-item.html">
+<link rel="import" href="../bower_components/paper-toggle-button/paper-toggle-button.html">
 <link rel="import" href="../bower_components/app-layout/app-drawer-layout/app-drawer-layout.html">
 <link rel="import" href="../bower_components/app-layout/app-drawer/app-drawer.html">
 <link rel="import" href="../bower_components/app-layout/app-scroll-effects/app-scroll-effects.html">
@@ -33,9 +35,16 @@
           </a>
         </paper-icon-item>
         <paper-item class="appmenuitem" name="main" style="display: none;">Main</paper-item>
+      <div class="layout horizontal" style="width: 100%; margin: auto">
+        <span>🇬🇧</span>
+        <paper-toggle-button on-change="_toggle" id="switch"></paper-toggle-button>
+        <span>🇫🇷</span>
+      </div>
       </paper-menu>
-     </app-drawer>
-    </template>
+    </app-drawer>
+  </template>
+
+  <style include="iron-flex iron-flex-alignment"></style>
 
   <script>
     'use strict'
@@ -47,9 +56,21 @@
         'iron-select': '_itemSelected'
       },
 
+      properties: {
+        language: {
+          value: 'en',
+          type: String,
+          notify: true
+        },
+      },
+
       behaviors: [
         PapanLocalize
       ],
+
+      _toggle: function() {
+        this.language = this.$.switch.checked ? 'fr' : 'en';
+      },
 
       _itemSelected: function() {
         this.$.drawermenu.close()

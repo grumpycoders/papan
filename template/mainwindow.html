@@ -71,7 +71,8 @@
     <papan-drawer-menu
       id="appdrawer"
       view="{{routeData.view}}"
-      user="{{user}}">
+      user="{{user}}"
+      language="{{language}}">
     </papan-drawer-menu>
 
     <iron-pages 
@@ -82,23 +83,27 @@
       fallback="error">
       <papan-user-profile 
         id="profile"
-        route="{{pagesRoute}}">
+        route="{{pagesRoute}}"
+        language="{{language}}">
       </papan-user-profile>
       <papan-game-page 
         id="game" 
-        route="{{pagesRoute}}">
+        route="{{pagesRoute}}"
+        language="{{language}}">
       </papan-game-page>
       <div id="friends">List of friends</div>
       <papan-game-list
          id="games"
-         user={{user}}>List of Games
+         user={{user}}
+         language="{{language}}">
       </papan-game-list>
       <div id="servers">List of servers</div>
       <div id="main"></div>
       <papan-lobby 
         id="lobby" 
         route="{{pagesRoute}}"
-        user={{user}}>
+        user={{user}}
+        language="{{language}}">
       </papan-lobby>
       <div id="error">404</div>
     </iron-pages>
@@ -119,6 +124,13 @@
 
       toggleDebug: function() {
 
+      },
+
+      properties: {
+        language: {
+          value: 'en',
+          type: String
+        },
       },
 
       behaviors: [

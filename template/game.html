@@ -40,6 +40,10 @@
       is: "papan-game-page",
 
       properties: {
+        language: {
+          value: 'en',
+          type: String,
+        },
         numPlayers: {
           type: String,
           computed: '_numberOfPlayers(localize, game.minplayers, game.maxplayers)'

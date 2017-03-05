@@ -41,6 +41,13 @@
     Polymer({
       is: "papan-user-profile",
 
+      properties: {
+        language: {
+          value: 'en',
+          type: String,
+        },
+      },
+
       behaviors: [
         PapanLocalize
       ]
