@@ -1,13 +1,16 @@
 {
   "name": "papan",
   "dependencies": {
+    "app-localize-behavior": "PolymerElements/app-localize-behavior#^0.10.1",
     "app-layout": "PolymerElements/app-layout#^0.10.0",
     "app-route": "PolymerElements/app-route#^0.9.3",
     "app-storage": "PolymerELements/app-storage#^0.9.8",
     "iron-ajax": "PolymerElements/iron-ajax#^1.4.3",
     "iron-flex-layout": "PolymerElements/iron-flex-layout#^1.0.0",
+    "iron-icon": "PolymerElements/iron-icon#^1.0.12",
     "iron-icons": "PolymerElements/iron-icons#^1.0.0",
     "iron-iconset-svg": "PolymerElements/iron-iconset-svg#^1.0.0",
+    "iron-image": "PolymerElements/iron-image#^1.2.5",
     "iron-pages": "PolymerElements/iron-pages#^1.0.0",
     "iron-selector": "PolymerElements/iron-selector#^1.0.0",
     "paper-button": "PolymerElements/paper-button#^1.0.14",
@@ -19,6 +22,7 @@
     "paper-item": "PolymerElements/paper-item#^1.2.1",
     "paper-menu": "PolymerElements/paper-menu#^1.2.2",
     "paper-tabs": "PolymerElements/paper-tabs#^1.8.0",
+    "paper-toggle-button": "PolymerElements/paper-toggle-button#^1.3.0",
     "polymer": "Polymer/polymer#^1.6.0"
   },
   "private": true

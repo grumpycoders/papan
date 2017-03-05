@@ -1,34 +1,38 @@
 {
-  "tictactoe": {
+  "tic_tac_toe": {
     "gamename": "Tic Tac Toe",
-    "gamethumb": "tictactoe-thumb.png",
-    "banner": "tictactoe-banner.png",
-    "players": "2 players",
-    "duration": "1 minute",
+    "icon": "src/games/tic_tac_toe/icon.svg",
+    "banner": "src/games/tic_tac_toe/banner.svg",
+    "minplayers": 2,
+    "maxplayers": 2,
+    "duration": 1,
     "description": "Two players alternatively select a cell of the board. The winner is the one who owns three cells in a row, column or diagonal."
   },
   "poker": {
     "gamename": "Poker",
-    "gamethumb": "poker-thumb.png",
-    "banner": "poker-banner.png",
-    "players": "> 2 players",
-    "duration": "hours",
+    "icon": "src/games/poker/icon.svg",
+    "banner": "src/games/poker/banner.svg",
+    "minplayers": 2,
+    "maxplayers": 0,
+    "duration": 120,
     "description": "Players have to have the best hand, or at least pretend so in order to get other players' chips."
   },
   "falken": {
     "gamename": "Falken's Maze",
-    "gamethumb": "falken-thumb.png",
-    "banner": "falken-banner.png",
-    "players": "1 player",
-    "duration": "?",
+    "icon": "src/games/falken/icon.svg",
+    "banner": "src/games/falken/banner.svg",
+    "minplayers": 1,
+    "maxplayers": 1,
+    "duration": 2,
     "description": "The objective is unknown. Probably a sort of maze."
   },
   "chess": {
     "gamename": "Chess",
-    "gamethumb": "chess-thumb.png",
-    "banner": "chess-banner.png",
-    "players": "2 players",
-    "duration": "1 hour",
+    "icon": "src/games/chess/icon.svg",
+    "banner": "src/games/chess/banner.svg",
+    "minplayers": 2,
+    "maxplayers": 2,
+    "duration": 60,
     "description": "Two players alternatively make a move. The objective it to take the opponent's kind piece."
   }
 }

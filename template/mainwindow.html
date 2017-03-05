@@ -16,6 +16,7 @@
 <link rel="import" href="profile.html">
 <link rel="import" href="lobby.html">
 <link rel="import" href="gamelist.html">
+<link rel="import" href="data/localize.html">
 <link rel="import" href="data/user.html">
 
 <dom-module id="papan-main-window">
@@ -50,13 +51,13 @@
             <iron-icon icon="account-circle"></iron-icon>
           </div>
           <paper-button on-tap="signout">
-            Sign Out
+            [[localize('signout')]]
           </paper-button>
         </template>
         <template is="dom-if" if="{{!user.islogged}}">
           <div id="login">
             <paper-button on-tap="showlogin">
-              Log In / Sign In
+              [[localize('loginsignin')]]
             </paper-button>
           </div>
         </template>
@@ -70,7 +71,8 @@
     <papan-drawer-menu
       id="appdrawer"
       view="{{routeData.view}}"
-      user="{{user}}">
+      user="{{user}}"
+      language="{{language}}">
     </papan-drawer-menu>
 
     <iron-pages 
@@ -81,32 +83,36 @@
       fallback="error">
       <papan-user-profile 
         id="profile"
-        route="{{pagesRoute}}">
+        route="{{pagesRoute}}"
+        language="{{language}}">
       </papan-user-profile>
       <papan-game-page 
         id="game" 
-        route="{{pagesRoute}}">
+        route="{{pagesRoute}}"
+        language="{{language}}">
       </papan-game-page>
       <div id="friends">List of friends</div>
       <papan-game-list
          id="games"
-         user={{user}}>List of Games
+         user={{user}}
+         language="{{language}}">
       </papan-game-list>
       <div id="servers">List of servers</div>
       <div id="main"></div>
       <papan-lobby 
         id="lobby" 
         route="{{pagesRoute}}"
-        user={{user}}>
+        user={{user}}
+        language="{{language}}">
       </papan-lobby>
       <div id="error">404</div>
     </iron-pages>
 
     <paper-dialog id="dbglogindata" modal>
       <div>DBG:USEREDIT</div>
-      <paper-input name="username" label="Username" value="{{user.username}}"></paper-input>
-      <paper-checkbox name="logged" checked="{{user.islogged}}">Is Logged in</paper-checkbox>
-      <paper-button dialog-confirm autofocus>Close</paper-button>
+      <paper-input name="username" label="[[localize('username')]]" value="{{user.username}}"></paper-input>
+      <paper-checkbox name="logged" checked="{{user.islogged}}">[[localize('logged')]]</paper-checkbox>
+      <paper-button dialog-confirm autofocus>[[localize('close')]]</paper-button>
     </paper-dialog>
   </template>
 
@@ -119,6 +125,17 @@
       toggleDebug: function() {
 
       },
+
+      properties: {
+        language: {
+          value: 'en',
+          type: String
+        },
+      },
+
+      behaviors: [
+        PapanLocalize
+      ],
 
       attached: function() {
         if (PapanUtils.isElectron()) {

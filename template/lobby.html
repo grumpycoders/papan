@@ -1,9 +1,11 @@
 <link rel="import" href="../bower_components/app-route/app-route.html">
+<link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+<link rel="import" href="../bower_components/iron-image/iron-image.html">
 <link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../bower_components/paper-tabs/paper-tabs.html">
-<link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
 
 <link rel="import" href="data/gameinfo.html">
+<link rel="import" href="data/localize.html">
 <link rel="import" href="chat.html">
 
 <dom-module id="papan-lobby">
@@ -58,8 +60,12 @@
 
     <div id="page" class="layout vertical">
       <div id="banner">
-        <img src$="{{game.banner}}" />
-        [[game.gamename]]
+        <iron-image 
+          src="[[game.banner]]"
+          placeholder="pictures/gamebanner.svg"
+          preload>
+        </iron-image>
+        <div id="bannertitle">[[game.gamename]]</div>
       </div>
 
       <paper-tabs 
@@ -69,8 +75,8 @@
         hide-scroll-buttons
         fit-container 
         scrollable>
-        <paper-tab name="lobby">Lobby</paper-tab>
-        <paper-tab name="board" id="boardtab" disabled>Board</paper-tab>
+        <paper-tab name="lobby">[[localize('lobby')]]</paper-tab>
+        <paper-tab name="board" id="boardtab" disabled>[[localize('board')]]</paper-tab>
       </paper-tabs>
 
       <div id="lobbycontent" class="layout flex horizontal">
@@ -80,29 +86,39 @@
           fallback-selection="lobby"
           class="layout flex">
           <div name="lobby">
-            Connected:
+            [[localize('connectedtitle')]]
             <ul>
               <li><a href="#/profile/foo">foo</a></li>
               <li><a href="#/profile/bar">bar</a></li>
             </ul>
-            <paper-button on-tap="_start">Start game</paper-button>
+            <paper-button raised on-tap="_start">[[localize('startgame')]]</paper-button>
           </div>
           <div id="main-view" name="board"></div>
         </iron-pages>
 
-        <papan-chat user={{user.username}}></papan-chat>
+        <papan-chat user=[[user.username]]></papan-chat>
       </div>
     </div>
   </template>
 
-  <style include="iron-flex iron-flex-alignment">
-  </style>
+  <style include="iron-flex iron-flex-alignment"></style>
 
   <script>
     'use strict'
 
     Polymer({
       is: "papan-lobby",
+
+      properties: {
+        language: {
+          value: 'en',
+          type: String,
+        },
+      },
+
+      behaviors: [
+        PapanLocalize
+      ],
 
       _start: function() {
         startGame()

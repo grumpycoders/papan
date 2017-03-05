@@ -12,12 +12,22 @@ paper-icon-item {
 }
 
 app-header {
-  background-color: #00897B;
+  background-color: royalblue;
   color: #fff;
 }
 
 app-header paper-icon-button {
   --paper-icon-button-ink-color: white;
+}
+
+app-header a {
+  color: white;
+  text-decoration: none
+}
+
+app-header a:hover {
+  color: lightgrey;
+  text-decoration: none
 }
 
 app-drawer {
