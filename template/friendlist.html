@@ -1,0 +1,27 @@
+<link rel="import" href="userbadge.html">
+<link rel="import" href="data/userinfo.html">
+
+<dom-module id="papan-friend-list">
+  <link rel="import" type="css" href="friendlist.css">
+  <template>
+    <template is="dom-if" if="{{user.islogged}}">
+      <user-info userid={{user.username}} userinfo={{userinfo}}></user-info>
+      <div id="user-friend-list">
+        <template is="dom-repeat" items="[[userinfo.friends]]">
+          <papan-user-badge userid=[[item]]></papan-user-badge>
+        </template>
+      </div>
+    </template>
+    <template is="dom-if" if="{{!user.islogged}}">
+      You have to login
+    </template>
+  </template>
+
+  <script>
+    'use strict'
+
+    Polymer({
+      is: "papan-friend-list"
+    })
+  </script>
+</dom-module>
