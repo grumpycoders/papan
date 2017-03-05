@@ -1,7 +1,8 @@
 <link rel="import" href="../bower_components/app-route/app-route.html">
+<link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+<link rel="import" href="../bower_components/iron-image/iron-image.html">
 <link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../bower_components/paper-tabs/paper-tabs.html">
-<link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
 
 <link rel="import" href="data/gameinfo.html">
 <link rel="import" href="chat.html">
@@ -58,8 +59,12 @@
 
     <div id="page" class="layout vertical">
       <div id="banner">
-        <img src$="{{game.banner}}" />
-        [[game.gamename]]
+        <iron-image 
+          src="{{game.banner}}"
+          placeholder="pictures/gamebanner.svg"
+          preload>
+        </iron-image>
+        <div id="bannertitle">[[game.gamename]]</div>
       </div>
 
       <paper-tabs 

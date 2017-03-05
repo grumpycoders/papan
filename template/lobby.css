@@ -1,8 +1,29 @@
 #banner {
   background-color: lightgrey;
   height: 130px;
+  display: block;
+}
+
+#banner iron-image {
+  display: block;
+  height: 130px;
+  width: 100%;
+  --iron-image-width: 100%;
+}
+
+#bannertitle {
+  display: block;
+  position: absolute;
+  top: 154px;
+  height: 40px;
+  width: 100%;
   font-size: 20pt;
-  line-height: 200px;
+  background-color: rgba(255, 255, 255, 0.7)
+}
+
+#tabs {
+  background-color: royalblue;
+  color: white;
 }
 
 #main-view {
