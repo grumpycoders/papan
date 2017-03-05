@@ -16,20 +16,20 @@
     <user-info userid={{routeData.userid}} userinfo={{user}}></user-info>
 
     <div class="user-info">
-      <img src$="{{user.picture}}"/>
+      <img src$="[[user.picture]]"/>
       <div id="nickname">{{user.username}}</div>
     </div>
 
     <div id="user-games-list">
       <div class="category">[[localize('games')]]</div>
-      <template is="dom-repeat" items="{{user.usergames}}">
+      <template is="dom-repeat" items="[[user.usergames]]">
         <papan-game-badge gameid=[[item]]></papan-game-badge>
       </template>
     </div>
 
     <div id="user-achievements-list">
       <div class = "category">[[localize('achievements')]]</div>
-      <template is="dom-repeat" items="{{user.userachievements}}">
+      <template is="dom-repeat" items="[[user.userachievements]]">
         <papan-achievement-badge achievementid=[[item]]></papan-achievement-badge>
       </template>
     </div>
