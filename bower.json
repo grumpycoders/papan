@@ -1,6 +1,7 @@
 {
   "name": "papan",
   "dependencies": {
+    "app-localize-behavior": "PolymerElements/app-localize-behavior#^0.10.1",
     "app-layout": "PolymerElements/app-layout#^0.10.0",
     "app-route": "PolymerElements/app-route#^0.9.3",
     "app-storage": "PolymerELements/app-storage#^0.9.8",

@@ -10,6 +10,8 @@
 <link rel="import" href="../bower_components/app-layout/app-drawer/app-drawer.html">
 <link rel="import" href="../bower_components/app-layout/app-scroll-effects/app-scroll-effects.html">
 
+<link rel="import" href="data/localize.html">
+
 <dom-module id="papan-drawer-menu">
   <link rel="import" type="css" href="drawermenu.css">
   <template>
@@ -17,17 +19,17 @@
       <paper-menu selected="{{view}}" attr-for-selected="name">
         <paper-icon-item class="appmenuitem" name="friends">
           <a href="#/friends">
-            <iron-icon icon="communication:contacts"></iron-icon>Friends
+            <iron-icon icon="communication:contacts"></iron-icon>[[localize('friends')]]
           </a>
         </paper-icon-item>
         <paper-icon-item class="appmenuitem" name="games">
           <a href="#/games">
-            <iron-icon icon="places:casino"></iron-icon>Games
+            <iron-icon icon="places:casino"></iron-icon>[[localize('games')]]
           </a>
         </paper-icon-item>
         <paper-icon-item class="appmenuitem" name="servers">
           <a href="#/servers">
-            <iron-icon icon="device:dvr"></iron-icon>Servers
+            <iron-icon icon="device:dvr"></iron-icon>[[localize('servers')]]
           </a>
         </paper-icon-item>
         <paper-item class="appmenuitem" name="main" style="display: none;">Main</paper-item>
@@ -44,6 +46,10 @@
       listeners: {
         'iron-select': '_itemSelected'
       },
+
+      behaviors: [
+        PapanLocalize
+      ],
 
       _itemSelected: function() {
         this.$.drawermenu.close()

@@ -1,0 +1,18 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/app-localize-behavior/app-localize-behavior.html">
+
+<script>
+  PapanLocalizeImpl = {
+    properties: {
+      language: {
+        value: 'fr'
+      }
+    },
+    
+    attached: function() {
+      this.loadResources(this.resolveUrl('../locales.json'));
+    },
+  };
+
+  PapanLocalize = [PapanLocalizeImpl, Polymer.AppLocalizeBehavior]; 
+</script>

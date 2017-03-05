@@ -4,6 +4,7 @@
 <link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
 
 <link rel="import" href="data/gameinfo.html">
+<link rel="import" href="data/localize.html">
 
 <dom-module id="papan-game-page">
   <link rel="import" type="css" href="game.css">
@@ -25,8 +26,8 @@
     </div>
 
     <div id="gameInfos">
-      <iron-icon icon="supervisor-account"></iron-icon>[[game.players]]
-      <iron-icon icon="device:access-time"></iron-icon>[[game.duration]]
+      <iron-icon icon="supervisor-account"></iron-icon>[[numPlayers]]
+      <iron-icon icon="device:access-time"></iron-icon>[[duration]]
       <a href="#/lobby/[[gameid]]" tabindex="-1"><paper-icon-button icon="av:play-circle-filled"></paper-icon-button></a>
     </div>
     <div id="gameDescription">[[game.description]]</div>
@@ -36,7 +37,38 @@
     'use strict'
 
     Polymer({
-      is: "papan-game-page"
+      is: "papan-game-page",
+
+      properties: {
+        numPlayers: {
+          type: String,
+          computed: '_numberOfPlayers(localize, game.minplayers, game.maxplayers)'
+        },
+        duration: {
+          type: String,
+          computed: '_gameDuration(localize, game.duration)'
+        }
+      },
+
+      behaviors: [
+        PapanLocalize
+      ],
+
+      _numberOfPlayers: function(localize, min,max){
+        if (max < min) return min + ' ' + localize('players')
+        else if (min == 1 && max == 1) return '1 ' + localize('player')
+        else if (min == max) return min + ' ' + localize('players')
+        else return min + ' - ' + max + ' ' + localize('players');
+      },
+
+      _gameDuration: function(localize, duration){
+        if (duration == 1) return '1 ' + localize('minute')
+        else if (duration < 60) return duration + ' ' + localize('minutes')
+        else if (duration == 60) return '1 ' + localize('hour')
+        else if (duration < 120) return '1 ' + localize('hour') + (duration - 60) + ' ' + localize('minutes')
+        else if (duration % 60 == 0) return (duration / 60) + localize('hours')
+        return (duration / 60) + localize('hours') + (duration % 60) + ' ' + localize('minutes')
+      }
     })
   </script>
 </dom-module>

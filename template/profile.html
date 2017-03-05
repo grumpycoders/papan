@@ -2,6 +2,7 @@
 
 <link rel="import" href="gamebadge.html">
 <link rel="import" href="achievementbadge.html">
+<link rel="import" href="data/localize.html">
 <link rel="import" href="data/userinfo.html">
 
 <dom-module id="papan-user-profile">
@@ -20,14 +21,14 @@
     </div>
 
     <div id="user-games-list">
-      <div class="category">Games</div>
+      <div class="category">[[localize('games')]]</div>
       <template is="dom-repeat" items="{{user.usergames}}">
         <papan-game-badge gameid=[[item]]></papan-game-badge>
       </template>
     </div>
 
     <div id="user-achievements-list">
-      <div class = "category">Achievements</div>
+      <div class = "category">[[localize('achievements')]]</div>
       <template is="dom-repeat" items="{{user.userachievements}}">
         <papan-achievement-badge achievementid=[[item]]></papan-achievement-badge>
       </template>
@@ -38,7 +39,11 @@
     'use strict'
 
     Polymer({
-      is: "papan-user-profile"
+      is: "papan-user-profile",
+
+      behaviors: [
+        PapanLocalize
+      ]
     })
   </script>
 </dom-module>

@@ -3,32 +3,36 @@
     "gamename": "Tic Tac Toe",
     "icon": "src/games/tic_tac_toe/icon.svg",
     "banner": "src/games/tic_tac_toe/banner.svg",
-    "players": "2 players",
-    "duration": "1 minute",
+    "minplayers": 2,
+    "maxplayers": 2,
+    "duration": 1,
     "description": "Two players alternatively select a cell of the board. The winner is the one who owns three cells in a row, column or diagonal."
   },
   "poker": {
     "gamename": "Poker",
     "icon": "src/games/poker/icon.svg",
     "banner": "src/games/poker/banner.svg",
-    "players": "> 2 players",
-    "duration": "hours",
+    "minplayers": 2,
+    "maxplayers": 0,
+    "duration": 120,
     "description": "Players have to have the best hand, or at least pretend so in order to get other players' chips."
   },
   "falken": {
     "gamename": "Falken's Maze",
     "icon": "src/games/falken/icon.svg",
     "banner": "src/games/falken/banner.svg",
-    "players": "1 player",
-    "duration": "?",
+    "minplayers": 1,
+    "maxplayers": 1,
+    "duration": 2,
     "description": "The objective is unknown. Probably a sort of maze."
   },
   "chess": {
     "gamename": "Chess",
     "icon": "src/games/chess/icon.svg",
     "banner": "src/games/chess/banner.svg",
-    "players": "2 players",
-    "duration": "1 hour",
+    "minplayers": 2,
+    "maxplayers": 2,
+    "duration": 60,
     "description": "Two players alternatively make a move. The objective it to take the opponent's kind piece."
   }
 }
