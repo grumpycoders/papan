@@ -1,5 +1,7 @@
+<link rel="import" href="../bower_components/iron-icons/av-icons.html">
 <link rel="import" href="../bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="../bower_components/iron-icons/device-icons.html">
+<link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
 
 <link rel="import" href="data/gameinfo.html">
 
@@ -13,12 +15,19 @@
     </app-route>
     <game-info gameid={{routeData.gameid}} gameinfo={{game}}></game-info>
 
-    <div id="gameHeader" style$="background-image: [[game.banner]]">
-      [[game.gamename]]
+    <div id="banner">
+      <iron-image 
+        src="[[game.banner]]"
+        placeholder="pictures/gamebanner.svg"
+        preload>
+      </iron-image>
+      <div id="bannertitle">[[game.gamename]]</div>
     </div>
+
     <div id="gameInfos">
       <iron-icon icon="supervisor-account"></iron-icon>[[game.players]]
       <iron-icon icon="device:access-time"></iron-icon>[[game.duration]]
+      <a href="#/lobby/[[gameid]]" tabindex="-1"><paper-icon-button icon="av:play-circle-filled"></paper-icon-button></a>
     </div>
     <div id="gameDescription">[[game.description]]</div>
   </template>

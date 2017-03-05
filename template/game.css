@@ -1,12 +1,26 @@
-#gameHeader {
-  width: auto;
-  height: 250px;
-  font-size: 20pt;
+#banner {
   background-color: lightgrey;
-  margin-top: 10px;
-  margin-bottom: 10px;
-  padding-left: 10px;
+  height: 200px;
+  display: block;
+}
+
+#banner iron-image {
+  display: block;
+  height: 200px;
+  width: 100%;
+  --iron-image-width: 100%;
+}
+
+#bannertitle {
+  display: block;
+  position: absolute;
+  top: 214px;
+  height: 40px;
+  width: 100%;
   padding-top: 10px;
+  padding-left: 10px;
+  font-size: 20pt;
+  background-color: rgba(255, 255, 255, 0.7)
 }
 
 #gameInfos {
@@ -17,4 +31,14 @@
 #gameDescription {
   margin-top: 10px;
   margin-bottom: 10px;
+}
+
+a {
+  color: black;
+  text-decoration: none;
+  margin-left: 10px;
+}
+
+a :hover {
+  color: #555599;
 }

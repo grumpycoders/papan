@@ -60,7 +60,7 @@
     <div id="page" class="layout vertical">
       <div id="banner">
         <iron-image 
-          src="{{game.banner}}"
+          src="[[game.banner]]"
           placeholder="pictures/gamebanner.svg"
           preload>
         </iron-image>
@@ -90,12 +90,12 @@
               <li><a href="#/profile/foo">foo</a></li>
               <li><a href="#/profile/bar">bar</a></li>
             </ul>
-            <paper-button on-tap="_start">Start game</paper-button>
+            <paper-button raised on-tap="_start">Start game</paper-button>
           </div>
           <div id="main-view" name="board"></div>
         </iron-pages>
 
-        <papan-chat user={{user.username}}></papan-chat>
+        <papan-chat user=[[user.username]]></papan-chat>
       </div>
     </div>
   </template>

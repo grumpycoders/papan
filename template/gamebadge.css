@@ -23,9 +23,17 @@ paper-card {
   }
 }
 
+paper-card .card-actions {
+  padding: 0;
+}
+
 paper-card:hover {
   transform: scale(1.1);
   cursor: pointer;
+}
+
+paper-button {
+  height: 15px;
 }
 
 a {
