@@ -1,7 +1,7 @@
 {
   "pixel": {
     "username": "Pixel",
-    "userpicture": "pixel.jpg",
+    "picture": "pixel.jpg",
     "usergames": [
         "tic_tac_toe",
         "chess",
@@ -10,11 +10,16 @@
     "userachievements": [
       "gamer",
       "acespades"
+    ],
+    "friends": [
+      "tom",
+      "tania",
+      "murgatroid"
     ]
   },
   "tom": {
     "username": "RackhamLeNoir",
-    "userpicture": "tom.jpg",
+    "picture": "tom.jpg",
     "usergames": [
         "tic_tac_toe",
         "chess",
@@ -23,11 +28,15 @@
     "userachievements": [
       "masternuggets",
       "acespades"
+    ],
+    "friends": [
+      "pixel",
+      "tania"
     ]
   },
   "tania": {
     "username": "Tania",
-    "userpicture": "tania.jpg",
+    "picture": "tania.jpg",
     "usergames": [
         "tic_tac_toe",
         "poker",
@@ -36,11 +45,16 @@
     "userachievements": [
       "gamer",
       "killem"
+    ],
+    "friends": [
+      "pixel",
+      "tom",
+      "murgatroid"
     ]
   },
   "murgatroid": {
     "username": "Murgatroid99",
-    "userpicture": "murgatroid.jpg",
+    "picture": "murgatroid.jpg",
     "usergames": [
         "tic_tac_toe",
         "chess",
@@ -49,6 +63,10 @@
     "userachievements": [
       "killem",
       "acespades"
+    ],
+    "friends": [
+      "tania",
+      "murgatroid"
     ]
   }
 }

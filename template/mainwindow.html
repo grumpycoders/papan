@@ -11,13 +11,15 @@
 <link rel="import" href="../bower_components/app-layout/app-header-layout/app-header-layout.html">
 <link rel="import" href="../bower_components/app-layout/app-toolbar/app-toolbar.html">
 
+<link rel="import" href="data/localize.html">
+<link rel="import" href="data/user.html">
+
 <link rel="import" href="drawermenu.html">
 <link rel="import" href="game.html">
 <link rel="import" href="profile.html">
 <link rel="import" href="lobby.html">
+<link rel="import" href="friendlist.html">
 <link rel="import" href="gamelist.html">
-<link rel="import" href="data/localize.html">
-<link rel="import" href="data/user.html">
 
 <dom-module id="papan-main-window">
   <link rel="import" type="css" href="mainwindow.css">
@@ -91,7 +93,11 @@
         route="{{pagesRoute}}"
         language="{{language}}">
       </papan-game-page>
-      <div id="friends">List of friends</div>
+      <papan-friend-list
+         id="friends"
+         user={{user}}
+         language="{{language}}">
+      </papan-friend-list>
       <papan-game-list
          id="games"
          user={{user}}
