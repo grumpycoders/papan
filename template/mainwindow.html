@@ -20,6 +20,8 @@
 <link rel="import" href="lobby.html">
 <link rel="import" href="friendlist.html">
 <link rel="import" href="gamelist.html">
+<link rel="import" href="server.html">
+<link rel="import" href="serverlist.html">
 
 <dom-module id="papan-main-window">
   <link rel="import" type="css" href="mainwindow.css">
@@ -79,9 +81,9 @@
 
     <iron-pages 
       id="content" 
-      selected="[[routeData.view]]" 
+      selected="[[routeData.view]]"
       attr-for-selected="id"
-      fallback-selection="games" 
+      fallback-selection="games"
       fallback="error">
       <papan-user-profile 
         id="profile"
@@ -89,7 +91,7 @@
         language="{{language}}">
       </papan-user-profile>
       <papan-game-page 
-        id="game" 
+        id="game"
         route="{{pagesRoute}}"
         language="{{language}}">
       </papan-game-page>
@@ -103,10 +105,17 @@
          user={{user}}
          language="{{language}}">
       </papan-game-list>
-      <div id="servers">List of servers</div>
-      <div id="main"></div>
-      <papan-lobby 
-        id="lobby" 
+      <papan-server-list
+        id="serverlist"
+        language="{{language}}">
+      </papan-server-list>
+      <papan-server-page
+        id="server"
+        route="{{pagesRoute}}"
+        language="{{language}}">
+      </papan-server-page>
+      <papan-lobby
+        id="lobby"
         route="{{pagesRoute}}"
         user={{user}}
         language="{{language}}">

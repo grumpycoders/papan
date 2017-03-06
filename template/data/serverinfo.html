@@ -1,0 +1,51 @@
+<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
+
+<dom-module id="server-info">
+  <template>
+    <iron-ajax
+      id="ajax"
+      auto
+      url="serverlist.json"
+      handle-as="json"
+      last-response="{{serverinfo}}"
+      on-response="filter">
+    </iron-ajax>
+  </template>
+  <script>
+    Polymer({
+      is: 'server-info',
+
+      filter: function(e) {
+        this.serverinfo = e.detail.response[this.serverid]
+        this.serverlist = e.detail.response["list"]
+      },
+
+      _updateServerInfo: function() {
+        this.$.ajax.generateRequest()
+      },
+
+      properties: {
+        serverid: {
+          type: String,
+          observer: "_updateServerInfo"
+        },
+        serverlist : {
+          type : Array,
+          value: [],
+          notify: true
+        },
+        serverinfo: {
+          type: Object,
+          value: () => {
+            return {
+              servername: '',
+              games: [],
+              usersonline: []
+            }
+          },
+          notify: true
+        }
+      }
+    })
+  </script>
+</dom-module>

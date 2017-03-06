@@ -1,0 +1,23 @@
+<link rel="import" href="data/serverinfo.html">
+
+<dom-module id="papan-server-list">
+  <link rel="import" type="css" href="serverlist.css">
+  <template>
+    <server-info serverlist={{serverlist}}></server-info>
+    <div id="server-list">
+      <template is="dom-repeat" items="[[serverlist]]">
+        <a href="#/server/[[item]]" tabindex="-1"><div class="server">[[item]]</div></a>
+      </template>
+    </div>
+  </template>
+
+  <script>
+    'use strict'
+
+    Polymer({
+      is: "papan-server-list"
+    })
+  </script>
+</dom-module>
+
+

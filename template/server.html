@@ -1,0 +1,41 @@
+<link rel="import" href="../bower_components/app-route/app-route.html">
+
+<link rel="import" href="data/localize.html">
+<link rel="import" href="data/serverinfo.html">
+
+<dom-module id="papan-server-page">
+  <link rel="import" type="css" href="server.css">
+  <template>
+    <app-route
+      route="{{route}}"
+      pattern="/:serverid"
+      data="{{routeData}}">
+    </app-route>
+    <server-info serverid={{routeData.serverid}} serverinfo={{serverinfo}}></server-info>
+    <div id="servertitle">[[serverinfo.servername]]</div>
+    <div id="game-list">
+      <div class="category">[[localize('games')]]</div>
+      <template is="dom-repeat" items="[[serverinfo.games]]">
+        <papan-game-badge gameid=[[item]]></papan-game-badge>
+      </template>
+    </div>
+    <div id="users-list">
+      <div class="category">[[localize('onlineusers')]]</div>
+      <template is="dom-repeat" items="[[serverinfo.usersonline]]">
+        <papan-user-badge userid=[[item]]></papan-user-badge>
+      </template>
+    </div>
+  </template>
+
+  <script>
+    'use strict'
+
+    Polymer({
+      is: "papan-server-page",
+
+      behaviors: [
+        PapanLocalize
+      ]
+    })
+  </script>
+</dom-module>

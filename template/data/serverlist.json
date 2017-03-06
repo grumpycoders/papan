@@ -1,0 +1,28 @@
+{
+  "list": ["grumpy", "papan"],
+  "grumpy": {
+    "servername": "Grumpy server",
+    "games": [
+      "tic_tac_toe",
+      "poker"
+    ],
+    "usersonline": [
+      "pixel",
+      "tom"
+    ]
+  },
+  "papan": {
+    "servername": "Papan Official",
+    "games": [
+      "tic_tac_toe",
+      "poker",
+      "chess"
+    ],
+    "usersonline": [
+      "pixel",
+      "tom",
+      "tania",
+      "murgatroid"
+    ]
+  }
+}
