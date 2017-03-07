@@ -1,0 +1,16 @@
+.server {
+  width: 100%;
+  background-color: lightblue;
+  font-size: 15pt;
+  margin: 10px;
+  padding:10px;
+}
+
+a {
+  color: black;
+  text-decoration: none;
+}
+
+a :hover {
+  color: #555599;
+}

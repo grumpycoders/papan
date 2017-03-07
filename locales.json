@@ -18,7 +18,8 @@
     "minutes": "minutes",
     "hour": "hour",
     "hours": "hours",
-    "achievements": "Achievements"
+    "achievements": "Achievements",
+    "onlineusers": "Online users"
   },
   "fr": { 
     "close": "Fermer",
@@ -39,6 +40,7 @@
     "minutes": "minutes",
     "hour": "heure",
     "hours": "heures",
-    "achievements": "Réalisations"
+    "achievements": "Réalisations",
+    "onlineusers": "Utilisateurs connectés"
   }
 }
