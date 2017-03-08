@@ -9,19 +9,19 @@
     <app-route
       route="{{route}}"
       pattern="/:serverid"
-      data="{{routeData}}">
+      data="{{_routeData}}">
     </app-route>
-    <server-info serverid={{routeData.serverid}} serverinfo={{serverinfo}}></server-info>
-    <div id="servertitle">[[serverinfo.servername]]</div>
+    <server-info serverid=[[_routeData.serverid]] serverinfo={{_serverinfo}}></server-info>
+    <div id="servertitle">[[_serverinfo.servername]]</div>
     <div id="game-list">
       <div class="category">[[localize('games')]]</div>
-      <template is="dom-repeat" items="[[serverinfo.games]]">
+      <template is="dom-repeat" items="[[_serverinfo.games]]">
         <papan-game-badge gameid=[[item]]></papan-game-badge>
       </template>
     </div>
     <div id="users-list">
       <div class="category">[[localize('onlineusers')]]</div>
-      <template is="dom-repeat" items="[[serverinfo.usersonline]]">
+      <template is="dom-repeat" items="[[_serverinfo.usersonline]]">
         <papan-user-badge userid=[[item]]></papan-user-badge>
       </template>
     </div>
@@ -32,6 +32,15 @@
 
     Polymer({
       is: "papan-server-page",
+
+      properties: {
+        /*
+          Subroute
+        */
+        route: {
+          type: Object
+        },
+      },
 
       behaviors: [
         PapanLocalize

@@ -54,23 +54,23 @@
     <app-route
       route="{{route}}"
       pattern="/:gameid"
-      data="{{routeData}}">
+      data="{{_routeData}}">
     </app-route>
-    <game-info gameid={{routeData.gameid}} gameinfo={{game}}></game-info>
+    <game-info gameid=[[_routeData.gameid]] gameinfo={{_game}}></game-info>
 
     <div id="page" class="layout vertical">
       <div id="banner">
         <iron-image 
-          src="[[game.banner]]"
+          src="[[_game.banner]]"
           placeholder="pictures/gamebanner.svg"
           preload>
         </iron-image>
-        <div id="bannertitle">[[game.gamename]]</div>
+        <div id="bannertitle">[[_game.gamename]]</div>
       </div>
 
       <paper-tabs 
         id="tabs" 
-        selected="{{view}}" 
+        selected="{{_view}}" 
         attr-for-selected="name" 
         hide-scroll-buttons
         fit-container 
@@ -81,7 +81,7 @@
 
       <div id="lobbycontent" class="layout flex horizontal">
         <iron-pages 
-          selected="{{view}}" 
+          selected="{{_view}}" 
           attr-for-selected="name" 
           fallback-selection="lobby"
           class="layout flex">
@@ -109,13 +109,22 @@
     Polymer({
       is: "papan-lobby",
 
+      properties: {
+        /*
+          User connected to the lobby
+        */
+        user: {
+          type: Object
+        }
+      },
+
       behaviors: [
         PapanLocalize
       ],
 
       _start: function() {
         startGame()
-        this.view = 'board'
+        this._view = 'board'
         this.$.boardtab.disabled = false
       }
     })

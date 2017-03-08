@@ -4,10 +4,10 @@
 <dom-module id="papan-friend-list">
   <link rel="import" type="css" href="friendlist.css">
   <template>
-    <template is="dom-if" if="{{user.islogged}}">
-      <user-info userid={{user.username}} userinfo={{userinfo}}></user-info>
+    <template is="dom-if" if="[[user.islogged]]">
+      <user-info userid=[[user.username]] userinfo={{_userinfo}}></user-info>
       <div id="user-friend-list">
-        <template is="dom-repeat" items="[[userinfo.friends]]">
+        <template is="dom-repeat" items="[[_userinfo.friends]]">
           <papan-user-badge userid=[[item]]></papan-user-badge>
         </template>
       </div>
@@ -21,7 +21,16 @@
     'use strict'
 
     Polymer({
-      is: "papan-friend-list"
+      is: "papan-friend-list",
+
+      properties: {
+        /*
+          User for which we would display the friends
+        */
+        user: {
+          type: Object
+        }
+      }
     })
   </script>
 </dom-module>

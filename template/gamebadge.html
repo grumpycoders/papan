@@ -8,11 +8,11 @@
 <dom-module id="papan-game-badge">
   <link rel="import" type="css" href="gamebadge.css">
   <template>
-    <game-info gameid={{gameid}} gameinfo={{game}}></game-info>
+    <game-info gameid=[[gameid]] gameinfo={{_game}}></game-info>
 
     <paper-card 
-      heading="[[game.gamename]]" 
-      image="[[game.icon]]" 
+      heading="[[_game.gamename]]" 
+      image="[[_game.icon]]" 
       placeholder-image="pictures/gameicon.svg" 
       preload-image
       elevation="4">
@@ -27,7 +27,16 @@
     'use strict'
 
     Polymer({
-      is: "papan-game-badge"
+      is: "papan-game-badge",
+
+      properties: {
+        /*
+          ID of the game to be displayed
+        */
+        gameid: {
+          type: String
+        }
+      }
     })
   </script>
 </dom-module>

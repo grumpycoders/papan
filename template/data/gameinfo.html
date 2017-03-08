@@ -24,10 +24,16 @@
       },
 
       properties: {
+        /*
+          ID of the game we would like to get
+        */
         gameid: {
           type: String,
           observer: "_updateGameInfo"
         },
+        /*
+          game data from the DB
+        */
         gameinfo: {
           type: Object,
           value: () => {

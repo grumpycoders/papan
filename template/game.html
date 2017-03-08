@@ -12,25 +12,25 @@
     <app-route
       route="{{route}}"
       pattern="/:gameid"
-      data="{{routeData}}">
+      data="{{_routeData}}">
     </app-route>
-    <game-info gameid={{routeData.gameid}} gameinfo={{game}}></game-info>
+    <game-info gameid=[[_routeData.gameid]] gameinfo={{_game}}></game-info>
 
     <div id="banner">
       <iron-image 
-        src="[[game.banner]]"
+        src="[[_game.banner]]"
         placeholder="pictures/gamebanner.svg"
         preload>
       </iron-image>
-      <div id="bannertitle">[[game.gamename]]</div>
+      <div id="bannertitle">[[_game.gamename]]</div>
     </div>
 
     <div id="gameInfos">
-      <iron-icon icon="supervisor-account"></iron-icon>[[numPlayers]]
-      <iron-icon icon="device:access-time"></iron-icon>[[duration]]
-      <a href="#/lobby/[[gameid]]" tabindex="-1"><paper-icon-button icon="av:play-circle-filled"></paper-icon-button></a>
+      <iron-icon icon="supervisor-account"></iron-icon>[[_numPlayers]]
+      <iron-icon icon="device:access-time"></iron-icon>[[_duration]]
+      <a href="#/lobby/[[_routeData.gameid]]" tabindex="-1"><paper-icon-button icon="av:play-circle-filled"></paper-icon-button></a>
     </div>
-    <div id="gameDescription">[[game.description]]</div>
+    <div id="gameDescription">[[_game.description]]</div>
   </template>
 
   <script>
@@ -40,13 +40,25 @@
       is: "papan-game-page",
 
       properties: {
-        numPlayers: {
-          type: String,
-          computed: '_numberOfPlayers(localize, game.minplayers, game.maxplayers)'
+        /*
+          Subroute
+        */
+        route: {
+          type: Object
         },
-        duration: {
+        /*
+          Computed string for the number of players
+        */
+        _numPlayers: {
           type: String,
-          computed: '_gameDuration(localize, game.duration)'
+          computed: '_numberOfPlayers(localize, _game.minplayers, _game.maxplayers)'
+        },
+        /*
+          Computed string for the duration of the game
+        */
+        _duration: {
+          type: String,
+          computed: '_gameDuration(localize, _game.duration)'
         }
       },
 

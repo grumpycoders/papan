@@ -24,10 +24,16 @@
       },
 
       properties: {
+        /*
+          ID of the user we would like to get
+        */
         userid: {
           type: String,
           observer: "_updateUserInfo"
         },
+        /*
+          user data from the DB
+        */
         userinfo: {
           type: Object,
           value: () => {
