@@ -24,10 +24,16 @@
       },
 
       properties: {
+        /*
+          ID of the achievement we would like to get
+        */
         achievementid: {
           type: String,
           observer: "_updateAchievementInfo"
         },
+        /*
+          achievement data from the DB
+        */
         achievementinfo: {
           type: Object,
           value: () => {

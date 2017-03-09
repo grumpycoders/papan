@@ -20,21 +20,15 @@
     <app-drawer id="drawermenu" swipe-open>
       <paper-menu selected="{{view}}" attr-for-selected="name">
         <paper-icon-item class="appmenuitem" name="friends">
-          <a href="#/friends">
-            <iron-icon icon="communication:contacts"></iron-icon>[[localize('friends')]]
-          </a>
+          <iron-icon icon="communication:contacts"></iron-icon>[[localize('friends')]]
         </paper-icon-item>
         <paper-icon-item class="appmenuitem" name="games">
-          <a href="#/games">
-            <iron-icon icon="places:casino"></iron-icon>[[localize('games')]]
-          </a>
+          <iron-icon icon="places:casino"></iron-icon>[[localize('games')]]
         </paper-icon-item>
         <paper-icon-item class="appmenuitem" name="serverlist">
-          <a href="#/serverlist">
-            <iron-icon icon="device:dvr"></iron-icon>[[localize('servers')]]
-          </a>
+          <iron-icon icon="device:dvr"></iron-icon>[[localize('servers')]]
         </paper-icon-item>
-      <div class="layout horizontal" style="width: 100%; margin: auto">
+      <div class="layout horizontal" style="margin: auto">
         <span>🇬🇧</span>
         <paper-toggle-button on-change="_toggle" id="switch"></paper-toggle-button>
         <span>🇫🇷</span>
@@ -56,11 +50,21 @@
       },
 
       properties: {
+        /*
+          Language to be set in the menu
+        */
         language: {
           value: 'en',
           type: String,
           notify: true
         },
+        /*
+          View to be set in the menu
+        */
+        view: {
+          type: String,
+          notify: true
+        }
       },
 
       behaviors: [

@@ -3,9 +3,9 @@
 <dom-module id="papan-server-list">
   <link rel="import" type="css" href="serverlist.css">
   <template>
-    <server-info serverlist={{serverlist}}></server-info>
+    <server-info serverlist={{_serverlist}}></server-info>
     <div id="server-list">
-      <template is="dom-repeat" items="[[serverlist]]">
+      <template is="dom-repeat" items="[[_serverlist]]">
         <a href="#/server/[[item]]" tabindex="-1"><div class="server">[[item]]</div></a>
       </template>
     </div>

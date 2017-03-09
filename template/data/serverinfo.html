@@ -25,15 +25,25 @@
       },
 
       properties: {
+        /*
+          ID of the server we would like to get
+        */
         serverid: {
           type: String,
           observer: "_updateServerInfo"
         },
+        /*
+          list of servers from the DB
+          no need to give a serverid for this one
+        */
         serverlist : {
           type : Array,
           value: [],
           notify: true
         },
+        /*
+          server data from the DB
+        */
         serverinfo: {
           type: Object,
           value: () => {

@@ -29,16 +29,16 @@
   <template>
     <app-location
       use-hash-as-path
-      route="{{route}}">
+      route="{{_route}}">
     </app-location>
     <papan-user-data
-      user="{{user}}">
+      user="{{_user}}">
     </papan-user-data>
     <app-route
-      route="{{route}}"
+      route="{{_route}}"
       pattern="/:view"
-      data="{{routeData}}"
-      tail="{{pagesRoute}}">
+      data="{{_routeData}}"
+      tail="{{_pagesRoute}}">
     </app-route>
 
     <app-header reveals>
@@ -49,24 +49,24 @@
         <a href="https://github.com/grumpycoders/papan" style="display: none;" id="github-link">
           <paper-icon-button icon="link"></paper-icon-button>
         </a>
-        <template is="dom-if" if="{{user.islogged}}">
+        <template is="dom-if" if="{{_user.islogged}}">
           <div>
-            <a href="#/profile/{{user.username}}">[[user.username]]</a>
+            <a href="#/profile/[[_user.username]]">[[_user.username]]</a>
             <iron-icon icon="account-circle"></iron-icon>
           </div>
-          <paper-button on-tap="signout">
+          <paper-button on-tap="_signout">
             [[localize('signout')]]
           </paper-button>
         </template>
-        <template is="dom-if" if="{{!user.islogged}}">
+        <template is="dom-if" if="{{!_user.islogged}}">
           <div id="login">
-            <paper-button on-tap="showlogin">
+            <paper-button on-tap="_showlogin">
               [[localize('loginsignin')]]
             </paper-button>
           </div>
         </template>
         <div id="fakelogin">
-          <paper-button on-tap="showuserdata">
+          <paper-button on-tap="_showuserdata">
             DBG:USEREDIT
           </paper-button>
         </div>
@@ -74,35 +74,35 @@
     </app-header>
     <papan-drawer-menu
       id="appdrawer"
-      view="{{routeData.view}}"
-      user="{{user}}"
+      view="{{_routeData.view}}"
+      user="{{_user}}"
       language="{{language}}">
     </papan-drawer-menu>
 
     <iron-pages 
       id="content" 
-      selected="[[routeData.view]]"
+      selected="[[_routeData.view]]"
       attr-for-selected="id"
       fallback-selection="games"
       fallback="error">
       <papan-user-profile 
         id="profile"
-        route="{{pagesRoute}}"
+        route="{{_pagesRoute}}"
         language="{{language}}">
       </papan-user-profile>
       <papan-game-page 
         id="game"
-        route="{{pagesRoute}}"
+        route="{{_pagesRoute}}"
         language="{{language}}">
       </papan-game-page>
       <papan-friend-list
          id="friends"
-         user={{user}}
+         user={{_user}}
          language="{{language}}">
       </papan-friend-list>
       <papan-game-list
          id="games"
-         user={{user}}
+         user={{_user}}
          language="{{language}}">
       </papan-game-list>
       <papan-server-list
@@ -111,13 +111,13 @@
       </papan-server-list>
       <papan-server-page
         id="server"
-        route="{{pagesRoute}}"
+        route="{{_pagesRoute}}"
         language="{{language}}">
       </papan-server-page>
       <papan-lobby
         id="lobby"
-        route="{{pagesRoute}}"
-        user={{user}}
+        route="{{_pagesRoute}}"
+        user={{_user}}
         language="{{language}}">
       </papan-lobby>
       <div id="error">404</div>
@@ -125,8 +125,8 @@
 
     <paper-dialog id="dbglogindata" modal>
       <div>DBG:USEREDIT</div>
-      <paper-input name="username" label="[[localize('username')]]" value="{{user.username}}"></paper-input>
-      <paper-checkbox name="logged" checked="{{user.islogged}}">[[localize('logged')]]</paper-checkbox>
+      <paper-input name="username" label="[[localize('username')]]" value="{{_user.username}}"></paper-input>
+      <paper-checkbox name="logged" checked="{{_user.islogged}}">[[localize('logged')]]</paper-checkbox>
       <paper-button dialog-confirm autofocus>[[localize('close')]]</paper-button>
     </paper-dialog>
   </template>
@@ -137,17 +137,13 @@
     Polymer({
       is: "papan-main-window",
 
-      toggleDebug: function() {
-
-      },
-
       behaviors: [
         PapanLocalize
       ],
 
       attached: function() {
         if (PapanUtils.isElectron()) {
-          this.toggleDebug = () => {
+          this._toggleDebug = () => {
             const electron = require('electron')
             electron.remote.getCurrentWindow().toggleDevTools()
           }
@@ -156,15 +152,18 @@
         }
       },
 
-      showuserdata: function() {
+      _toggleDebug: function() {
+      },
+
+      _showuserdata: function() {
         this.$.dbglogindata.open()
       },
 
-      showlogin: function() {
+      _showlogin: function() {
 
       },
 
-      signout: function() {
+      _signout: function() {
         
       }
     })

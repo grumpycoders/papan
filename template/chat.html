@@ -8,7 +8,7 @@
         <div id="chattext" class="layout flex"></div>
         <paper-input
           class="layout end" 
-          value="{{text}}" 
+          value="{{_text}}" 
           on-keypress="_keyPressed">
           <div suffix><paper-icon-button icon="send" on-tap="_localmessage"></paper-icon-button></div>
         </paper-input>
@@ -25,15 +25,24 @@
     Polymer({
       is: "papan-chat",
 
+      properties: {
+        /*
+          Name of the user writing in the chat box
+        */
+        user : {
+          type: String
+        }
+      },
+
       sendMessage: function(user, message) {
         if (message != '')
           this.$.chattext.innerHTML += user + ': ' + message + '<br />'
       },
 
       _localmessage: function(){
-        var textbox = this.text
-        this.sendMessage(this.user, this.text)
-        this.text = ''
+        var textbox = this._text
+        this.sendMessage(this.user, this._text)
+        this._text = ''
       },
 
       _keyPressed: function(e) {

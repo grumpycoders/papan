@@ -7,11 +7,11 @@
 <dom-module id="papan-user-badge">
   <link rel="import" type="css" href="userbadge.css">
   <template>
-    <user-info userid={{userid}} userinfo={{userinfo}}></user-info>
+    <user-info userid=[[userid]] userinfo={{_userinfo}}></user-info>
 
     <paper-card 
-      heading="[[userinfo.username]]" 
-      image="[[userinfo.picture]]" 
+      heading="[[_userinfo.username]]" 
+      image="[[_userinfo.picture]]" 
       placeholder-image="pictures/userpicture.svg" 
       preload-image
       elevation="4">
@@ -25,7 +25,16 @@
     'use strict'
 
     Polymer({
-      is: "papan-user-badge"
+      is: "papan-user-badge",
+
+      properties: {
+        /*
+          ID of the user to be displayed
+        */
+        userid : {
+          type: String
+        }
+      }
     })
   </script>
 </dom-module>

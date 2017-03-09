@@ -3,10 +3,10 @@
 <dom-module id="papan-achievement-badge">
   <link rel="import" type="css" href="achievementbadge.css">
   <template>
-    <achievement-info achievementid={{achievementid}} achievementinfo={{achievement}}></achievement-info>
+    <achievement-info achievementid=[[achievementid]] achievementinfo={{_achievement}}></achievement-info>
 
     <div class="user-achievement">
-      <div class="pic">[[achievement.achievementpicture]]</div>[[achievement.achievementname]]
+      <div class="pic">[[_achievement.achievementpicture]]</div>[[_achievement.achievementname]]
     </div>
   </template>
 
@@ -14,7 +14,16 @@
     'use strict'
 
     Polymer({
-      is: "papan-achievement-badge"
+      is: "papan-achievement-badge",
+
+      properties: {
+        /*
+          ID of the achievement to be displayed
+        */
+        achievementid : {
+          type: String
+        }
+      }
     })
   </script>
 </dom-module>
