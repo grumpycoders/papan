@@ -1,0 +1,16 @@
+#header {
+  text-align: center;
+}
+
+#settings {
+  text-align: center;
+}
+
+#language {
+  display: flex;
+  height: 25px;
+}
+
+paper-toggle-button {
+  margin: 10px;
+}

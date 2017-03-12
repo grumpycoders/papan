@@ -1,0 +1,33 @@
+#header{
+  font-size: 50pt;
+  font-variant: small-caps;
+  height: 200px;
+  padding-top: 100px;
+  text-align: center;
+  background-color: lightskyblue;
+}
+
+#menulist{
+  margin: auto;
+  text-align: center;
+}
+
+ul {
+  list-style: none;
+  padding: 0;
+}
+
+.menubutton{
+  width: 400px;
+  margin: 20px;
+}
+
+a {
+  color: black;
+  text-decoration: none;
+  font-size: 20pt;
+}
+
+a :hover {
+  color: grey;
+}

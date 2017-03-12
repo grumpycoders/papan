@@ -1,5 +1,6 @@
 <link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
 <link rel="import" href="../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../bower_components/iron-icons/action-icons.html">
 <link rel="import" href="../bower_components/iron-icons/communication-icons.html">
 <link rel="import" href="../bower_components/iron-icons/device-icons.html">
 <link rel="import" href="../bower_components/iron-icons/places-icons.html">
@@ -7,7 +8,6 @@
 <link rel="import" href="../bower_components/paper-menu/paper-menu.html">
 <link rel="import" href="../bower_components/paper-item/paper-item.html">
 <link rel="import" href="../bower_components/paper-item/paper-icon-item.html">
-<link rel="import" href="../bower_components/paper-toggle-button/paper-toggle-button.html">
 <link rel="import" href="../bower_components/app-layout/app-drawer-layout/app-drawer-layout.html">
 <link rel="import" href="../bower_components/app-layout/app-drawer/app-drawer.html">
 <link rel="import" href="../bower_components/app-layout/app-scroll-effects/app-scroll-effects.html">
@@ -19,6 +19,9 @@
   <template>
     <app-drawer id="drawermenu" swipe-open>
       <paper-menu selected="{{view}}" attr-for-selected="name">
+        <paper-icon-item class="appmenuitem" name="startupscreen">
+          <iron-icon icon="home"></iron-icon>[[localize('home')]]
+        </paper-icon-item>
         <paper-icon-item class="appmenuitem" name="friends">
           <iron-icon icon="communication:contacts"></iron-icon>[[localize('friends')]]
         </paper-icon-item>
@@ -28,11 +31,6 @@
         <paper-icon-item class="appmenuitem" name="serverlist">
           <iron-icon icon="device:dvr"></iron-icon>[[localize('servers')]]
         </paper-icon-item>
-      <div class="layout horizontal" style="margin: auto">
-        <span>🇬🇧</span>
-        <paper-toggle-button on-change="_toggle" id="switch"></paper-toggle-button>
-        <span>🇫🇷</span>
-      </div>
       </paper-menu>
     </app-drawer>
   </template>
@@ -50,17 +48,6 @@
       },
 
       properties: {
-        /*
-          Language to be set in the menu
-        */
-        language: {
-          value: 'en',
-          type: String,
-          notify: true
-        },
-        /*
-          View to be set in the menu
-        */
         view: {
           type: String,
           notify: true
@@ -71,16 +58,15 @@
         PapanLocalize
       ],
 
-      _toggle: function() {
-        this.language = this.$.switch.checked ? 'fr' : 'en';
+      /*
+        Toggle the drawer visibility
+      */
+      toggle: function() {
+        this.$.drawermenu.toggle()
       },
 
       _itemSelected: function() {
         this.$.drawermenu.close()
-      },
-
-      toggle: function() {
-        this.$.drawermenu.toggle()
       }
     })
   </script>
