@@ -93,7 +93,7 @@
       </papan-startup-screen>
       <papan-client-settings
         id="clientsettings"
-        language="{{language}}">
+        language="{{_user.language}}">
       </papan-client-settings>
       <papan-friend-list
          id="friends"
@@ -147,6 +147,10 @@
     Polymer({
       is: "papan-main-window",
 
+      observers: [
+        '_updateLanguage(_user.language)'
+      ],
+
       behaviors: [
         PapanLocalize
       ],
@@ -175,6 +179,10 @@
 
       _signout: function() {
         
+      },
+
+      _updateLanguage(language) {
+        this.language = language
       }
     })
 
