@@ -41,7 +41,7 @@
     <app-header reveals>
       <app-toolbar>
         <paper-icon-button icon="menu" onclick="appdrawer.toggle()"></paper-icon-button>
-        <div main-title>Papan</div>
+        <div main-title>[[_title]]</div>
         <paper-icon-button icon="bug-report" on-tap="_toggleDebug"></paper-icon-button>
         <a href="https://github.com/grumpycoders/papan" style="display: none;" id="github-link">
           <paper-icon-button icon="link"></paper-icon-button>
@@ -96,6 +96,7 @@
         route="{{_pagesRoute}}"
         language="{{language}}"
         server={{_server}}
+        serverinfo={{_serverinfo}}
         user={{_user}}>
       </papan-server-page>
       <papan-server-list
@@ -119,14 +120,9 @@
     Polymer({
       is: "papan-main-window",
 
-      _properties: {
-        _server: {
-          type: String
-        }
-      },
-
       observers: [
-        '_updateLanguage(_user.language)'
+        '_updateLanguage(_user.language)',
+        '_updateServer(_serverinfo.servername)'
       ],
 
       behaviors: [
@@ -159,7 +155,14 @@
         
       },
 
-      _updateLanguage(language) {
+      _updateServer: function(server) {
+        if (!server || server == '')
+          this._title = 'Papan'
+        else
+          this._title = server
+      },
+
+      _updateLanguage: function(language) {
         this.language = language
       }
     })

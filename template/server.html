@@ -24,7 +24,7 @@
       data="{{_subrouteData}}"
       tail="{{_subsubRoute}}">
     </app-route>
-    <server-info serverid=[[_routeData.serverid]] serverinfo={{_serverinfo}}></server-info>
+    <server-info serverid=[[_routeData.serverid]] serverinfo={{serverinfo}}></server-info>
 
     <iron-pages
       id="servercontent" 
@@ -32,16 +32,16 @@
       attr-for-selected="viewname"
       fallback-selection="home">
       <div viewname="home">
-        <div id="servertitle">[[_serverinfo.servername]]</div>
+        <div id="servertitle">[[serverinfo.servername]]</div>
         <div id="game-list">
           <div class="category">[[localize('games')]]</div>
-          <template is="dom-repeat" items="[[_serverinfo.games]]">
-            <papan-game-badge gameid=[[item]]></papan-game-badge>
+          <template is="dom-repeat" items="[[serverinfo.games]]">
+            <papan-game-badge gameid=[[item]] server=[[_routeData.serverid]]></papan-game-badge>
           </template>
         </div>
         <div id="users-list">
           <div class="category">[[localize('onlineusers')]]</div>
-          <template is="dom-repeat" items="[[_serverinfo.usersonline]]">
+          <template is="dom-repeat" items="[[serverinfo.usersonline]]">
             <papan-user-badge userid=[[item]]></papan-user-badge>
           </template>
         </div>
@@ -95,6 +95,14 @@
         server: {
           type: String,
           value: 'local',
+          notify: true
+        },
+
+        /*
+          server name where the game is hosted
+        */
+        serverinfo: {
+          type: Object,
           notify: true
         },
 
