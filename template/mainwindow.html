@@ -73,7 +73,8 @@
       id="appdrawer"
       view="{{_routeData.view}}"
       user="{{_user}}"
-      language="{{language}}">
+      language="{{language}}"
+      server={{_server}}>
     </papan-drawer-menu>
 
     <iron-pages 
@@ -93,7 +94,9 @@
       <papan-server-page
         id="server"
         route="{{_pagesRoute}}"
-        language="{{language}}">
+        language="{{language}}"
+        server={{_server}}
+        user={{_user}}>
       </papan-server-page>
       <papan-server-list
         id="serverlist"
@@ -115,6 +118,12 @@
 
     Polymer({
       is: "papan-main-window",
+
+      _properties: {
+        _server: {
+          type: String
+        }
+      },
 
       observers: [
         '_updateLanguage(_user.language)'

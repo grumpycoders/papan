@@ -25,12 +25,13 @@
       tail="{{_subsubRoute}}">
     </app-route>
     <server-info serverid=[[_routeData.serverid]] serverinfo={{_serverinfo}}></server-info>
+
     <iron-pages
       id="servercontent" 
       selected="[[_subrouteData.view]]"
-      attr-for-selected="name"
+      attr-for-selected="viewname"
       fallback-selection="home">
-      <div name="home">
+      <div viewname="home">
         <div id="servertitle">[[_serverinfo.servername]]</div>
         <div id="game-list">
           <div class="category">[[localize('games')]]</div>
@@ -46,28 +47,28 @@
         </div>
       </div>
       <papan-friend-list
-         name="friends"
-         user={{_user}}
+         viewname="friends"
+         user={{user}}
          language="{{language}}">
       </papan-friend-list>
       <papan-game-page 
-        name="game"
+        viewname="game"
         route="{{_subsubRoute}}"
         language="{{language}}">
       </papan-game-page>
       <papan-game-list
-         name="games"
-         user={{_user}}
+         viewname="games"
+         user={{user}}
          language="{{language}}">
       </papan-game-list>
       <papan-lobby
-        name="lobby"
+        viewname="lobby"
         route="{{_subsubRoute}}"
-        user={{_user}}
+        user={{user}}
         language="{{language}}">
       </papan-lobby>
       <papan-user-profile 
-        name="profile"
+        viewname="profile"
         route="{{_subsubRoute}}"
         language="{{language}}">
       </papan-user-profile>
@@ -87,11 +88,36 @@
         route: {
           type: Object
         },
+        
+        /*
+          server where the game is hosted
+        */
+        server: {
+          type: String,
+          value: 'local',
+          notify: true
+        },
+
+        /*
+          User connected
+        */
+        user: {
+          type: Object
+        }
+
       },
+
+      observers: [
+        '_updateServer(_routeData.serverid)'
+      ],
 
       behaviors: [
         PapanLocalize
-      ]
+      ],
+
+      _updateServer: function(serverid) {
+          this.server = serverid
+      }
     })
   </script>
 </dom-module>

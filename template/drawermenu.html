@@ -21,12 +21,16 @@
         <paper-icon-item class="appmenuitem" name="startupscreen">
           <iron-icon icon="home"></iron-icon>[[localize('home')]]
         </paper-icon-item>
-        <paper-icon-item class="appmenuitem" name="friends">
-          <iron-icon icon="communication:contacts"></iron-icon>[[localize('friends')]]
-        </paper-icon-item>
-        <paper-icon-item class="appmenuitem" name="games">
-          <iron-icon icon="places:casino"></iron-icon>[[localize('games')]]
-        </paper-icon-item>
+        <a href="#/server/[[server]]/friends" tabindex="-1" name="friends">
+          <paper-icon-item class="appmenuitem">
+            <iron-icon icon="communication:contacts"></iron-icon>[[localize('friends')]]
+          </paper-icon-item>
+        </a>
+        <a href="#/server/[[server]]/games" tabindex="-1" name="games">
+          <paper-icon-item class="appmenuitem">
+            <iron-icon icon="places:casino"></iron-icon>[[localize('games')]]
+          </paper-icon-item>
+        </a>
         <paper-icon-item class="appmenuitem" name="serverlist">
           <iron-icon icon="device:dvr"></iron-icon>[[localize('servers')]]
         </paper-icon-item>
@@ -47,9 +51,19 @@
       },
 
       properties: {
+        /*
+          active viev
+        */
         view: {
           type: String,
           notify: true
+        },
+        
+        /*
+          server where the game is hosted
+        */
+        server: {
+          type: String
         }
       },
 
