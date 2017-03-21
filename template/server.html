@@ -1,5 +1,11 @@
 <link rel="import" href="../bower_components/app-route/app-route.html">
+<link rel="import" href="../bower_components/iron-pages/iron-pages.html">
 
+<link rel="import" href="friendlist.html">
+<link rel="import" href="game.html">
+<link rel="import" href="gamelist.html">
+<link rel="import" href="lobby.html">
+<link rel="import" href="profile.html">
 <link rel="import" href="data/localize.html">
 <link rel="import" href="data/serverinfo.html">
 
@@ -9,22 +15,63 @@
     <app-route
       route="{{route}}"
       pattern="/:serverid"
-      data="{{_routeData}}">
+      data="{{_routeData}}"
+      tail="{{_subRoute}}">
+    </app-route>
+    <app-route
+      route="{{_subRoute}}"
+      pattern="/:view"
+      data="{{_subrouteData}}"
+      tail="{{_subsubRoute}}">
     </app-route>
     <server-info serverid=[[_routeData.serverid]] serverinfo={{_serverinfo}}></server-info>
-    <div id="servertitle">[[_serverinfo.servername]]</div>
-    <div id="game-list">
-      <div class="category">[[localize('games')]]</div>
-      <template is="dom-repeat" items="[[_serverinfo.games]]">
-        <papan-game-badge gameid=[[item]]></papan-game-badge>
-      </template>
-    </div>
-    <div id="users-list">
-      <div class="category">[[localize('onlineusers')]]</div>
-      <template is="dom-repeat" items="[[_serverinfo.usersonline]]">
-        <papan-user-badge userid=[[item]]></papan-user-badge>
-      </template>
-    </div>
+    <iron-pages
+      id="servercontent" 
+      selected="[[_subrouteData.view]]"
+      attr-for-selected="name"
+      fallback-selection="home">
+      <div name="home">
+        <div id="servertitle">[[_serverinfo.servername]]</div>
+        <div id="game-list">
+          <div class="category">[[localize('games')]]</div>
+          <template is="dom-repeat" items="[[_serverinfo.games]]">
+            <papan-game-badge gameid=[[item]]></papan-game-badge>
+          </template>
+        </div>
+        <div id="users-list">
+          <div class="category">[[localize('onlineusers')]]</div>
+          <template is="dom-repeat" items="[[_serverinfo.usersonline]]">
+            <papan-user-badge userid=[[item]]></papan-user-badge>
+          </template>
+        </div>
+      </div>
+      <papan-friend-list
+         name="friends"
+         user={{_user}}
+         language="{{language}}">
+      </papan-friend-list>
+      <papan-game-page 
+        name="game"
+        route="{{_subsubRoute}}"
+        language="{{language}}">
+      </papan-game-page>
+      <papan-game-list
+         name="games"
+         user={{_user}}
+         language="{{language}}">
+      </papan-game-list>
+      <papan-lobby
+        name="lobby"
+        route="{{_subsubRoute}}"
+        user={{_user}}
+        language="{{language}}">
+      </papan-lobby>
+      <papan-user-profile 
+        name="profile"
+        route="{{_subsubRoute}}"
+        language="{{language}}">
+      </papan-user-profile>
+    </iron-pages>
   </template>
 
   <script>
