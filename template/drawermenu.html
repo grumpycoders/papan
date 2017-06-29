@@ -4,7 +4,7 @@
 <link rel="import" href="../bower_components/iron-icons/device-icons.html">
 <link rel="import" href="../bower_components/iron-icons/places-icons.html">
 <link rel="import" href="../bower_components/iron-selector/iron-selectable.html">
-<link rel="import" href="../bower_components/paper-menu/paper-menu.html">
+<link rel="import" href="../bower_components/paper-listbox/paper-listbox.html">
 <link rel="import" href="../bower_components/paper-item/paper-item.html">
 <link rel="import" href="../bower_components/paper-item/paper-icon-item.html">
 <link rel="import" href="../bower_components/paper-toggle-button/paper-toggle-button.html">
@@ -18,7 +18,7 @@
   <link rel="import" type="css" href="drawermenu.css">
   <template>
     <app-drawer id="drawermenu" swipe-open>
-      <paper-menu selected="{{view}}" attr-for-selected="name">
+      <paper-listbox selected="{{view}}" attr-for-selected="name">
         <paper-icon-item class="appmenuitem" name="friends">
           <iron-icon icon="communication:contacts"></iron-icon>[[localize('friends')]]
         </paper-icon-item>
@@ -33,7 +33,7 @@
         <paper-toggle-button on-change="_toggle" id="switch"></paper-toggle-button>
         <span>🇫🇷</span>
       </div>
-      </paper-menu>
+      </paper-listbox
     </app-drawer>
   </template>
 

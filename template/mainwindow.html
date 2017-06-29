@@ -141,18 +141,22 @@
         PapanLocalize
       ],
 
-      attached: function() {
+      ready: function() {
         if (PapanUtils.isElectron()) {
           this._toggleDebug = () => {
             const electron = require('electron')
             electron.remote.getCurrentWindow().toggleDevTools()
           }
         } else {
-          document.getElementById('github-link').style.display = 'inline'
+          var githublink = this.$['github-link'].style.display = 'inline'
         }
       },
 
       _toggleDebug: function() {
+      },
+
+      toggleDebug: function() {
+        this._toggleDebug()
       },
 
       _showuserdata: function() {
