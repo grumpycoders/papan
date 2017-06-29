@@ -34,7 +34,9 @@
             view.addEventListener('action', (event) => {
               ipc.send('asynchronous-message', { type: 'action', data: event.detail })
             })
-            document.getElementById('main-view').appendChild(view)
+            let mainview = document.getElementById('main-view')
+            while (mainview.hasChildNodes()) mainview.removeChild(mainview.lastChild);
+            mainview.appendChild(view)
           }
           document.body.appendChild(link)
         })

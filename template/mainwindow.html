@@ -1,3 +1,6 @@
+<link rel="import" href="../bower_components/app-layout/app-header/app-header.html">
+<link rel="import" href="../bower_components/app-layout/app-header-layout/app-header-layout.html">
+<link rel="import" href="../bower_components/app-layout/app-toolbar/app-toolbar.html">
 <link rel="import" href="../bower_components/app-route/app-route.html">
 <link rel="import" href="../bower_components/app-route/app-location.html">
 <link rel="import" href="../bower_components/iron-icons/iron-icons.html">
@@ -7,21 +10,15 @@
 <link rel="import" href="../bower_components/paper-dialog/paper-dialog.html">
 <link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../bower_components/paper-input/paper-input.html">
-<link rel="import" href="../bower_components/app-layout/app-header/app-header.html">
-<link rel="import" href="../bower_components/app-layout/app-header-layout/app-header-layout.html">
-<link rel="import" href="../bower_components/app-layout/app-toolbar/app-toolbar.html">
 
 <link rel="import" href="data/localize.html">
 <link rel="import" href="data/user.html">
 
+<link rel="import" href="clientsettings.html">
 <link rel="import" href="drawermenu.html">
-<link rel="import" href="game.html">
-<link rel="import" href="profile.html">
-<link rel="import" href="lobby.html">
-<link rel="import" href="friendlist.html">
-<link rel="import" href="gamelist.html">
 <link rel="import" href="server.html">
 <link rel="import" href="serverlist.html">
+<link rel="import" href="startupscreen.html">
 
 <dom-module id="papan-main-window">
   <link rel="import" type="css" href="mainwindow.css">
@@ -44,14 +41,14 @@
     <app-header reveals>
       <app-toolbar>
         <paper-icon-button icon="menu" onclick="appdrawer.toggle()"></paper-icon-button>
-        <div main-title>Papan</div>
-        <paper-icon-button icon="bug-report" on-tap="toggleDebug"></paper-icon-button>
+        <div main-title>[[_title]]</div>
+        <paper-icon-button icon="bug-report" on-tap="_toggleDebug"></paper-icon-button>
         <a href="https://github.com/grumpycoders/papan" style="display: none;" id="github-link">
           <paper-icon-button icon="link"></paper-icon-button>
         </a>
         <template is="dom-if" if="{{_user.islogged}}">
           <div>
-            <a href="#/profile/[[_user.username]]">[[_user.username]]</a>
+            <a href="#/server/local/profile/[[_user.username]]">[[_user.username]]</a>
             <iron-icon icon="account-circle"></iron-icon>
           </div>
           <paper-button on-tap="_signout">
@@ -76,50 +73,36 @@
       id="appdrawer"
       view="{{_routeData.view}}"
       user="{{_user}}"
-      language="{{language}}">
+      language="{{language}}"
+      server={{_server}}>
     </papan-drawer-menu>
 
     <iron-pages 
       id="content" 
       selected="[[_routeData.view]]"
       attr-for-selected="id"
-      fallback-selection="games"
+      fallback-selection="startupscreen"
       fallback="error">
-      <papan-user-profile 
-        id="profile"
-        route="{{_pagesRoute}}"
+      <papan-startup-screen 
+        id="startupscreen"
         language="{{language}}">
-      </papan-user-profile>
-      <papan-game-page 
-        id="game"
+      </papan-startup-screen>
+      <papan-client-settings
+        id="clientsettings"
+        language="{{_user.language}}">
+      </papan-client-settings>
+      <papan-server-page
+        id="server"
         route="{{_pagesRoute}}"
-        language="{{language}}">
-      </papan-game-page>
-      <papan-friend-list
-         id="friends"
-         user={{_user}}
-         language="{{language}}">
-      </papan-friend-list>
-      <papan-game-list
-         id="games"
-         user={{_user}}
-         language="{{language}}">
-      </papan-game-list>
+        language="{{language}}"
+        server={{_server}}
+        serverinfo={{_serverinfo}}
+        user={{_user}}>
+      </papan-server-page>
       <papan-server-list
         id="serverlist"
         language="{{language}}">
       </papan-server-list>
-      <papan-server-page
-        id="server"
-        route="{{_pagesRoute}}"
-        language="{{language}}">
-      </papan-server-page>
-      <papan-lobby
-        id="lobby"
-        route="{{_pagesRoute}}"
-        user={{_user}}
-        language="{{language}}">
-      </papan-lobby>
       <div id="error">404</div>
     </iron-pages>
 
@@ -136,6 +119,11 @@
 
     Polymer({
       is: "papan-main-window",
+
+      observers: [
+        '_updateLanguage(_user.language)',
+        '_updateServer(_serverinfo.servername)'
+      ],
 
       behaviors: [
         PapanLocalize
@@ -165,6 +153,17 @@
 
       _signout: function() {
         
+      },
+
+      _updateServer: function(server) {
+        if (!server || server == '')
+          this._title = 'Papan'
+        else
+          this._title = server
+      },
+
+      _updateLanguage: function(language) {
+        this.language = language
       }
     })
 

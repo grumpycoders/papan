@@ -1,5 +1,11 @@
 <link rel="import" href="../bower_components/app-route/app-route.html">
+<link rel="import" href="../bower_components/iron-pages/iron-pages.html">
 
+<link rel="import" href="friendlist.html">
+<link rel="import" href="game.html">
+<link rel="import" href="gamelist.html">
+<link rel="import" href="lobby.html">
+<link rel="import" href="profile.html">
 <link rel="import" href="data/localize.html">
 <link rel="import" href="data/serverinfo.html">
 
@@ -9,22 +15,64 @@
     <app-route
       route="{{route}}"
       pattern="/:serverid"
-      data="{{_routeData}}">
+      data="{{_routeData}}"
+      tail="{{_subRoute}}">
     </app-route>
-    <server-info serverid=[[_routeData.serverid]] serverinfo={{_serverinfo}}></server-info>
-    <div id="servertitle">[[_serverinfo.servername]]</div>
-    <div id="game-list">
-      <div class="category">[[localize('games')]]</div>
-      <template is="dom-repeat" items="[[_serverinfo.games]]">
-        <papan-game-badge gameid=[[item]]></papan-game-badge>
-      </template>
-    </div>
-    <div id="users-list">
-      <div class="category">[[localize('onlineusers')]]</div>
-      <template is="dom-repeat" items="[[_serverinfo.usersonline]]">
-        <papan-user-badge userid=[[item]]></papan-user-badge>
-      </template>
-    </div>
+    <app-route
+      route="{{_subRoute}}"
+      pattern="/:view"
+      data="{{_subrouteData}}"
+      tail="{{_subsubRoute}}">
+    </app-route>
+    <server-info serverid=[[_routeData.serverid]] serverinfo={{serverinfo}}></server-info>
+
+    <iron-pages
+      id="servercontent" 
+      selected="[[_subrouteData.view]]"
+      attr-for-selected="viewname"
+      fallback-selection="home">
+      <div viewname="home">
+        <div id="servertitle">[[serverinfo.servername]]</div>
+        <div id="game-list">
+          <div class="category">[[localize('games')]]</div>
+          <template is="dom-repeat" items="[[serverinfo.games]]">
+            <papan-game-badge gameid=[[item]] server=[[_routeData.serverid]]></papan-game-badge>
+          </template>
+        </div>
+        <div id="users-list">
+          <div class="category">[[localize('onlineusers')]]</div>
+          <template is="dom-repeat" items="[[serverinfo.usersonline]]">
+            <papan-user-badge userid=[[item]]></papan-user-badge>
+          </template>
+        </div>
+      </div>
+      <papan-friend-list
+         viewname="friends"
+         user={{user}}
+         language="{{language}}">
+      </papan-friend-list>
+      <papan-game-page 
+        viewname="game"
+        route="{{_subsubRoute}}"
+        language="{{language}}">
+      </papan-game-page>
+      <papan-game-list
+         viewname="games"
+         user={{user}}
+         language="{{language}}">
+      </papan-game-list>
+      <papan-lobby
+        viewname="lobby"
+        route="{{_subsubRoute}}"
+        user={{user}}
+        language="{{language}}">
+      </papan-lobby>
+      <papan-user-profile 
+        viewname="profile"
+        route="{{_subsubRoute}}"
+        language="{{language}}">
+      </papan-user-profile>
+    </iron-pages>
   </template>
 
   <script>
@@ -40,11 +88,44 @@
         route: {
           type: Object
         },
+        
+        /*
+          server where the game is hosted
+        */
+        server: {
+          type: String,
+          value: 'local',
+          notify: true
+        },
+
+        /*
+          server name where the game is hosted
+        */
+        serverinfo: {
+          type: Object,
+          notify: true
+        },
+
+        /*
+          User connected
+        */
+        user: {
+          type: Object
+        }
+
       },
+
+      observers: [
+        '_updateServer(_routeData.serverid)'
+      ],
 
       behaviors: [
         PapanLocalize
-      ]
+      ],
+
+      _updateServer: function(serverid) {
+          this.server = serverid
+      }
     })
   </script>
 </dom-module>

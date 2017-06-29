@@ -8,7 +8,7 @@
       <user-info userid=[[user.username]] userinfo={{_userinfo}}></user-info>
       <div id="user-games-list">
         <template is="dom-repeat" items="[[_userinfo.usergames]]">
-          <papan-game-badge gameid=[[item]]></papan-game-badge>
+          <papan-game-badge gameid=[[item]] server="local"></papan-game-badge>
         </template>
       </div>
     </template>
@@ -24,6 +24,9 @@
       is: "papan-game-list",
 
       properties: {
+        /*
+          user who owns the games
+        */
         user: {
           type: Object
         }

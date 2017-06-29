@@ -17,8 +17,8 @@
       preload-image
       elevation="4">
       <div class="card-actions">
-        <a href="#/game/[[gameid]]" tabindex="-1"><paper-icon-button icon="icons:info"></paper-icon-button></a>
-        <a href="#/lobby/[[gameid]]" tabindex="-1"><paper-icon-button icon="av:play-circle-filled"></paper-icon-button></a>
+        <a href="#/server/{{server}}/game/[[gameid]]" tabindex="-1"><paper-icon-button icon="icons:info"></paper-icon-button></a>
+        <a href="#/server/{{server}}/lobby/[[gameid]]" tabindex="-1"><paper-icon-button icon="av:play-circle-filled"></paper-icon-button></a>
       </div>
     </paper-card>
   </template>
@@ -34,6 +34,13 @@
           ID of the game to be displayed
         */
         gameid: {
+          type: String
+        },
+        
+        /*
+          server where the game is hosted
+        */
+        server: {
           type: String
         }
       }

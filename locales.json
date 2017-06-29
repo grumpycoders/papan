@@ -1,12 +1,17 @@
 {
-  "en": { 
+  "en": {
+    "english": "English",
+    "french": "French",
     "close": "Close",
     "signout": "Sign out",
     "loginsignin": "Log In / Sign In",
+    "settings": "Settings",
+    "home": "Home",
     "username": "Username",
     "logged": "Logged",
     "friends": "Friends",
     "games": "Games",
+    "mygames": "My games",
     "servers": "Servers",
     "connectedtitle": "Connected:",
     "startgame": "Start Game",
@@ -21,14 +26,19 @@
     "achievements": "Achievements",
     "onlineusers": "Online users"
   },
-  "fr": { 
+  "fr": {
+    "english": "Anglais",
+    "french": "Français",
     "close": "Fermer",
     "signout": "Déconnecter",
     "loginsignin": "Connexion / Enregistrement",
+    "settings": "Paramètres",
+    "home": "Accueil",
     "username": "Pseudo",
     "logged": "Connecté",
     "friends": "Amis",
     "games": "Jeux",
+    "mygames": "Mes jeux",
     "servers": "Serveurs",
     "connectedtitle": "Connecté :",
     "startgame": "Démarrer le jeu",

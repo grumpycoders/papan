@@ -1,0 +1,35 @@
+<link rel="import" href="../bower_components/paper-button/paper-button.html">
+
+<link rel="import" href="data/localize.html">
+
+<dom-module id="papan-startup-screen">
+  <link rel="import" type="css" href="startupscreen.css">
+  <template>
+    <div id="header">Papan</div>
+    <div id="menulist">
+      <ul>
+        <li><a href="#/server/local/games" tabindex="-1">
+          <paper-button raised class="menubutton">[[localize('mygames')]]</paper-button>
+        </a></li>
+        <li><a href="#/serverlist" tabindex="-1">
+          <paper-button raised class="menubutton">[[localize('servers')]]</paper-button>
+        </a></li>
+        <li><a href="#/clientsettings" tabindex="-1">
+          <paper-button raised class="menubutton">[[localize('settings')]]</paper-button>
+        </a></li>
+      </ul>
+    </div>
+  </template>
+
+  <script>
+    'use strict'
+
+    Polymer({
+      is: "papan-startup-screen",
+
+      behaviors: [
+        PapanLocalize
+      ]
+    })
+  </script>
+</dom-module>
