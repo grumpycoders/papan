@@ -28,7 +28,7 @@
     <div id="gameInfos">
       <iron-icon icon="supervisor-account"></iron-icon>[[_numPlayers]]
       <iron-icon icon="device:access-time"></iron-icon>[[_duration]]
-      <a href="#/lobby/[[_routeData.gameid]]" tabindex="-1"><paper-icon-button icon="av:play-circle-filled"></paper-icon-button></a>
+      <a href="#/server/{{server}}/lobby/[[_routeData.gameid]]" tabindex="-1"><paper-icon-button icon="av:play-circle-filled"></paper-icon-button></a>
     </div>
     <div id="gameDescription">[[_game.description]]</div>
   </template>
@@ -46,6 +46,14 @@
         route: {
           type: Object
         },
+
+        /*
+          server where the game is hosted
+        */
+        server: {
+          type: String
+        },
+
         /*
           Computed string for the number of players
         */
@@ -53,6 +61,7 @@
           type: String,
           computed: '_numberOfPlayers(localize, _game.minplayers, _game.maxplayers)'
         },
+
         /*
           Computed string for the duration of the game
         */

@@ -34,6 +34,9 @@
         }
       },
 
+      /*
+        writes a message in the chat box.
+      */
       sendMessage: function(user, message) {
         if (message != '')
           this.$.chattext.innerHTML += user + ': ' + message + '<br />'

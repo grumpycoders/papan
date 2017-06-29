@@ -1,0 +1,49 @@
+<link rel="import" href="../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../bower_components/paper-radio-group/paper-radio-group.html">
+<link rel="import" href="../bower_components/paper-radio-button/paper-radio-button.html">
+
+<link rel="import" href="data/localize.html">
+
+<dom-module id="papan-client-settings">
+  <link rel="import" type="css" href="clientsettings.css">
+  <template>
+    <div id="header">Client Settings</div>
+
+    <div id="settings">
+      <paper-radio-group selected={{language}}>
+        <paper-radio-button name="en">🇬🇧 [[localize('english')]]</paper-radio-button>
+        <paper-radio-button name="fr">🇫🇷 [[localize('french')]]</paper-radio-button>
+      </paper-radio-group>
+
+      <div id="close">
+        <a href="#/" tabindex="-1"><paper-button raised>[[localize('close')]]</paper-button></a>
+      </div>
+    </div>
+  </template>
+
+  <script>
+    'use strict'
+
+    Polymer({
+      is: "papan-client-settings",
+
+      properties: {
+        /*
+          Language to be set in the menu
+        */
+        language: {
+          type: String,
+          notify: true
+        }
+      },
+
+      behaviors: [
+        PapanLocalize
+      ],
+
+      _toggle: function() {
+        this.language = this.$.switch.checked ? 'fr' : 'en';
+      }
+    })
+  </script>
+</dom-module>
