@@ -7,7 +7,7 @@ const redux = require('redux')
 
 let registry = {}
 
-const baseDir = path.join(__dirname, '..', '..')
+const baseDir = path.join(__dirname, '..', '..', '..')
 
 exports.registerGame = (gameId, gamePath) => {
   let dataPath = path.join(baseDir, gamePath, 'game.json')

@@ -13,7 +13,7 @@ const ipc = electron.ipcMain
 const path = require('path')
 const url = require('url')
 
-const instance = require('./game-instance.js')
+const instance = require('./game/game-instance.js')
 
 exports.main = () => {
   const app = electron.app
