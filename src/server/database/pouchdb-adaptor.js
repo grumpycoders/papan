@@ -38,4 +38,7 @@ class PouchAdaptor {
   }
 }
 
-exports.create = () => new PouchAdaptor
+exports.create = () => {
+  console.log('Using PouchDB adaptor')
+  return new PouchAdaptor()
+}

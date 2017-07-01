@@ -32,10 +32,10 @@ class MongoCollectionAdaptor {
 class MongoAdaptor {
   table (name) {
     let collection = this.db.collection(name)
-    return MongoCollectionAdaptor(collection)
+    return new MongoCollectionAdaptor(collection)
   }
 
-  connect (url = 'http://localhost/') {
+  connect (url = 'mongodb://localhost/') {
     return new Promise((resolve, reject) => {
       MongoClient.connect(url, (err, db) => {
         if (err === null) {
@@ -49,4 +49,7 @@ class MongoAdaptor {
   }
 }
 
-exports.create = () => new MongoAdaptor()
+exports.create = () => {
+  console.log('Using MongoDB adaptor')
+  return new MongoAdaptor()
+}

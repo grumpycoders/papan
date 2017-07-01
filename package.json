@@ -11,7 +11,7 @@
 
     "lint": "standard | snazzy",
     "node_test": "./node_modules/.bin/mocha ./test/common",
-    "electron_test": "./node_modules/.bin/mocha ./test/common",
+    "electron_test": "./node_modules/.bin/electron-mocha ./test/common",
     "test": "npm run node_test && npm run electron_test && npm run lint",
     "postinstall": "bower install"
   },

@@ -6,7 +6,9 @@ describe('Database', function () {
   it('should create a table', function (done) {
     let db = Database.create()
 
-    db.connect()
-    db.table('test')
+    db.connect().then(() => {
+      db.table('test')
+      done()
+    })
   })
 })
