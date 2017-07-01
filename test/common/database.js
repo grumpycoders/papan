@@ -35,7 +35,7 @@ describe('Database', function () {
     table.get(42)).then((doc) => {
       assert.equal(doc._id, 42)
       assert.equal(doc.data, 'barfoo')
-      table.remove(doc).then(() => { done() })
-    })
+      return table.remove(doc)
+    }).then(() => { done() })
   })
 })
