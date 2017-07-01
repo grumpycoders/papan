@@ -3,7 +3,7 @@
 const MongoClient = require('mongodb').MongoClient
 
 class MongoCollectionAdaptor {
-  constructor (db, collection) {
+  constructor (collection) {
     this.collection = collection
   }
 
@@ -27,12 +27,18 @@ class MongoCollectionAdaptor {
   update (doc) {
     return this.collection.findOneAndReplace({'_id': doc._id}, doc)
   }
+
+  remove (doc) {
+    return this.collection.findAndRemove({'_id': doc._id})
+  }
 }
 
 class MongoAdaptor {
   table (name) {
-    let collection = this.db.collection(name)
-    return new MongoCollectionAdaptor(collection)
+    return new Promise((resolve, reject) => {
+      let collection = this.db.collection(name)
+      resolve(new MongoCollectionAdaptor(collection))
+    })
   }
 
   connect (url = 'mongodb://localhost/') {
