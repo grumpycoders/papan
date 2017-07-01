@@ -83,7 +83,4 @@ class LevelAdaptor {
   }
 }
 
-exports.create = () => {
-  console.log('Using LevelUp adaptor')
-  return new LevelAdaptor()
-}
+exports.create = () => new LevelAdaptor()

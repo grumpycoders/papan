@@ -55,7 +55,4 @@ class MongoAdaptor {
   }
 }
 
-exports.create = () => {
-  console.log('Using MongoDB adaptor')
-  return new MongoAdaptor()
-}
+exports.create = () => new MongoAdaptor()
