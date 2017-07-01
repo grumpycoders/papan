@@ -14,7 +14,7 @@
       "program": "${workspaceRoot}/main.js"
     },
     {
-      "name": "Debug mocha tests",
+      "name": "Debug Mocha tests",
       "type": "node",
       "request": "launch",
       "args": ["test/common"],
@@ -24,6 +24,19 @@
         "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/mocha.cmd"
       },
       "program": "${workspaceRoot}/main.js"
+    },
+    {
+      "name": "Debug Electron Mocha tests",
+      "type": "node",
+      "request": "launch",
+      "preLaunchTask": "install",
+      "cwd": "${workspaceRoot}",
+      "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron",
+      "windows": {
+        "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron.cmd"
+      },
+      "program": "${workspaceRoot}/node_modules/electron-mocha/index.js",
+      "args": ["test/common"]
     }
   ]
 }
