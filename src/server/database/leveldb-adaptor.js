@@ -1,7 +1,7 @@
 'use strict'
 
 const levelup = require('levelup')
-const fs = require('fs')
+const PapanUtils = require('../utils.js')
 
 class LevelCollectionAdaptor {
   constructor (db) {
@@ -72,8 +72,8 @@ class LevelAdaptor {
     }
 
     return new Promise((resolve, reject) => {
-      fs.mkdir(this.url, (err) => {
-        if (err && err.code !== 'EEXIST') {
+      PapanUtils.mkdirRec(this.url, (err) => {
+        if (err) {
           reject(err)
         } else {
           resolve(this)
