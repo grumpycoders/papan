@@ -11,46 +11,6 @@
 <dom-module id="papan-lobby">
   <link rel="import" type="css" href="lobby.css">
   <script src="../src/common/utils.js"></script>
-  <script>
-    'use strict'
-
-    let startGame
-
-    if (PapanUtils.isElectron()) {
-      const electron = require('electron')
-      const ipc = electron.ipcRenderer
-      startGame = () => {
-        ipc.once('asynchronous-reply', (event, game) => {
-          const renderer = game.gamePath + '/' + game.gameData.webcomponent
-          let link = document.createElement('link')
-          link.setAttribute('rel', 'import')
-          link.setAttribute('href', renderer)
-          link.onload = () => {
-            let view = document.createElement('papan-main-board')
-            view.setAttribute('id', 'main-board')
-            view.addEventListener('view-ready', () => {
-              ipc.send('asynchronous-message', { type: 'refreshPublicScene' })
-            })
-            view.addEventListener('action', (event) => {
-              ipc.send('asynchronous-message', { type: 'action', data: event.detail })
-            })
-            let mainview = document.getElementById('main-view')
-            while (mainview.hasChildNodes()) mainview.removeChild(mainview.lastChild);
-            mainview.appendChild(view)
-          }
-          document.body.appendChild(link)
-        })
-        ipc.send('asynchronous-message', { type: 'startGame' })
-      }
-      ipc.on('publicSceneDelta', (event, { diff }) => {
-        document.getElementById('main-board').applyPublicDelta(diff)
-      })
-    } else {
-      startGame = () => {
-        alert("Browser support not implemented yet")
-      }
-    }
-  </script>
 
   <template>
     <app-route
@@ -125,7 +85,34 @@
       ],
 
       _start: function() {
-        startGame()
+        if (PapanUtils.isElectron()) {
+          const electron = require('electron')
+          const ipc = electron.ipcRenderer
+          ipc.once('asynchronous-reply', (event, game) => {
+            const renderer = game.gamePath + '/' + game.gameData.webcomponent
+            let link = document.createElement('link')
+            link.setAttribute('rel', 'import')
+            link.setAttribute('href', renderer)
+            link.onload = () => {
+              let view = document.createElement('papan-main-board')
+              view.setAttribute('id', 'main-board')
+              view.addEventListener('view-ready', () => {
+                ipc.send('asynchronous-message', { type: 'refreshPublicScene' })
+              })
+              view.addEventListener('action', (event) => {
+                ipc.send('asynchronous-message', { type: 'action', data: event.detail })
+              })
+              this.$['main-view'].appendChild(view)
+            }
+            document.body.appendChild(link)
+          })
+          ipc.send('asynchronous-message', { type: 'startGame' })
+          ipc.on('publicSceneDelta', (event, { diff }) => {
+            this.$['main-view'].children[0].applyPublicDelta(diff)
+          })
+        } else {
+          alert("Browser support not implemented yet")
+        }
         this._view = 'board'
         this.$.boardtab.disabled = false
       }
