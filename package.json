@@ -10,9 +10,15 @@
     "start-headless": "node .",
 
     "lint": "standard | snazzy",
-    "test": "npm run lint",
-
+    "node_test": "./node_modules/.bin/mocha ./test/common",
+    "electron_test": "./node_modules/.bin/mocha ./test/common",
+    "test": "npm run node_test && npm run electron_test && npm run lint",
     "postinstall": "bower install"
+  },
+  "standard": {
+    "env": [
+      "mocha"
+    ]
   },
   "repository": {
     "type": "git",
@@ -32,8 +38,10 @@
     "standard": "^8.6.0",
     "snazzy": "^6.0.0"
   },
-  
+
   "dependencies": {
+    "chai": "^4.0.2",
+    "chai-as-promised": "^7.0.0",
     "command-line-args": "^4.0.1",
     "deep-diff": "^0.3.4",
     "electron-mocha": "^4.0.0",

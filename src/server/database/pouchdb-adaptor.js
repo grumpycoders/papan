@@ -2,7 +2,7 @@
 
 const PouchDB = require('pouchdb')
 
-class PouchCollectionAdapter {
+class PouchCollectionAdaptor {
   constructor (db) {
     this.db = db
   }
@@ -20,24 +20,22 @@ class PouchCollectionAdapter {
   }
 }
 
-class PouchAdapter {
-  constructor (url) {
+class PouchAdaptor {
+  table (name) {
+    let fullURL = this.url + name
+    let db = new PouchDB(fullURL)
+    return new PouchCollectionAdaptor(db)
+  }
+
+  connect (url = '') {
     if (!url.endsWith('/') && url.length !== 0) {
       this.url = url + '/'
     } else {
       this.url = url
     }
-  }
 
-  table (name) {
-    let fullURL = this.url + name
-    let db = new PouchDB(fullURL)
-    return new PouchCollectionAdapter(db)
+    return new Promise((resolve, reject) => resolve(this))
   }
 }
 
-exports.connect = (url = '') => {
-  return new Promise((resolve, reject) => {
-    return resolve(new PouchAdapter(url))
-  })
-}
+exports.create = () => new PouchAdaptor

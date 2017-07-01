@@ -30,24 +30,23 @@ class MongoCollectionAdaptor {
 }
 
 class MongoAdaptor {
-  constructor (db) {
-    this.db = db
-  }
-
   table (name) {
     let collection = this.db.collection(name)
     return MongoCollectionAdaptor(collection)
   }
+
+  connect (url = 'http://localhost/') {
+    return new Promise((resolve, reject) => {
+      MongoClient.connect(url, (err, db) => {
+        if (err === null) {
+          this.db = db
+          resolve(this)
+        } else {
+          reject(err)
+        }
+      })
+    })
+  }
 }
 
-exports.connect = (url = '') => {
-  return new Promise((resolve, reject) => {
-    MongoClient.connect(url, (err, db) => {
-      if (err === null) {
-        resolve(MongoAdaptor(db))
-      } else {
-        reject(err)
-      }
-    })
-  })
-}
+exports.create = () => new MongoAdaptor()
