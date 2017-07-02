@@ -56,6 +56,10 @@ class LevelCollectionAdaptor {
 }
 
 class LevelAdaptor {
+  constructor () {
+    this.url = ''
+  }
+
   table (name) {
     return new Promise((resolve, reject) => {
       let fullURL = this.url.concat(name, '.json')
