@@ -7,9 +7,8 @@ describe('Database', () => {
   it('should create a table', (done) => {
     let db = Database.create()
 
-    db.connect().then(() => {
-      db.table('test').then(() => { done() })
-    })
+    db.connect().then(() =>
+    db.table('test')).then(() => { done() })
   })
 })
 
