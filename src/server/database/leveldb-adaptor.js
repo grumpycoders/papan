@@ -58,7 +58,7 @@ class LevelCollectionAdaptor {
 class LevelAdaptor {
   table (name) {
     return new Promise((resolve, reject) => {
-      let fullURL = this.url + name + '.json'
+      let fullURL = this.url.concat(name, '.json')
       let db = levelup(fullURL, { db: require('jsondown') })
       resolve(new LevelCollectionAdaptor(db))
     })
