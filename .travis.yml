@@ -7,6 +7,9 @@ before_script:
   - sh -e /etc/init.d/xvfb start
   - sleep 3
 
+services:
+  - mongodb
+
 script:
   - npm test
 

@@ -1,8 +1,14 @@
-bower_components
-node_modules
+/bower_components
+/node_modules
 
 # Emacs temp files
 *~
 
 # MAC temp files
 .DS_Store
+
+# The levelup, jsondown local database
+/database
+
+# Log failures from Mocha
+*.log
