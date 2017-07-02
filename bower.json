@@ -25,7 +25,11 @@
     "paper-radio-button": "PolymerElements/paper-radio-button#^2.0.0",
     "paper-tabs": "PolymerElements/paper-tabs#^2.0.0",
     "paper-toggle-button": "PolymerElements/paper-toggle-button#^2.0.0",
-    "polymer": "Polymer/polymer#^2.0.0"
+    "polymer": "Polymer/polymer#^2.0.1"
+  },
+  "resolutions": {
+    "polymer": "^2.0.1",
+    "webcomponentsjs": "^v1.0.0"
   },
   "devDependencies": {
     "web-component-tester": "^6.0.0"
