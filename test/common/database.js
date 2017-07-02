@@ -13,7 +13,7 @@ describe('Database', () => {
   })
 })
 
-describe('Database', function () {
+describe('Database', () => {
   it('should put, get, update and remove a document properly', (done) => {
     let db = Database.create()
     let table
