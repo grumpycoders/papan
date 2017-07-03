@@ -1,6 +1,9 @@
 'use strict'
 
-exports.processRequest = (req, res, config) => {
-  res.writeHead(403)
-  res.end('Unauthorized')
+function root (req, res, config) {
+  res.send('Papan Auth')
+}
+
+exports.registerServer = (app, config) => {
+  app.get('/', (req, res) => root(req, res, config))
 }

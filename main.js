@@ -13,8 +13,9 @@ mainNode.main()
 
 if (argv.auth_server) {
   let config = {}
-  const http = require('http')
+  const express = require('express')
   const papanAuth = require('./src/server/auth/server.js')
-
-  http.createServer((req, res) => papanAuth.processRequest(req, res, config)).listen(8081)
+  let app = express()
+  papanAuth.registerServer(app, config)
+  app.listen(8081)
 }
