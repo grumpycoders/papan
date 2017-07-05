@@ -15,7 +15,7 @@ mainNode.main()
 function readJSON (filename) {
   return new Promise((resolve, reject) => {
     fs.readFile(filename, (err, data) => {
-      if (err) reject(err)
+      if (err) resolve({})
       resolve(JSON.parse(data))
     })
   })
