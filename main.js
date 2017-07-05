@@ -1,6 +1,7 @@
 'use strict'
 
 const PapanUtils = require('./src/common/utils.js')
+const fs = require('fs')
 const argv = require('minimist')(process.argv.slice(2))
 
 if (PapanUtils.isElectron()) {
@@ -11,11 +12,29 @@ if (PapanUtils.isElectron()) {
 const mainNode = require('./src/server/main-node.js')
 mainNode.main()
 
+function readJSON (filename) {
+  return new Promise((resolve, reject) => {
+    fs.readFile(filename, (err, data) => {
+      if (err) reject(err)
+      resolve(JSON.parse(data))
+    })
+  })
+}
+
 if (argv.auth_server) {
-  let config = {}
-  const express = require('express')
-  const papanAuth = require('./src/server/auth/server.js')
-  let app = express()
-  papanAuth.registerServer(app, config)
-  app.listen(8081)
+  let googleAuthConfig = {}
+  readJSON('config/google-auth-config.json').then((googleAuthConfigRead) => {
+    googleAuthConfig = googleAuthConfigRead
+    return readJSON('config/pg-config.json')
+  }).then((pgConfig) => {
+    const config = {
+      googleAuthConfig: googleAuthConfig,
+      pgConfig: pgConfig
+    }
+
+    const express = require('express')
+    const papanAuth = require('./src/server/auth/server.js')
+    let app = express()
+    papanAuth.registerServer(app, config).then(() => app.listen(8081))
+  })
 }

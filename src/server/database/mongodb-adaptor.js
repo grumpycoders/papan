@@ -8,7 +8,9 @@ class MongoCollectionAdaptor {
   }
 
   put (doc) {
-    return this.collection.insertOne(doc)
+    return new Promise((resolve, reject) => {
+      this.collection.insertOne(doc).then(() => resolve(doc)).catch((err) => reject(err))
+    })
   }
 
   get (key) {

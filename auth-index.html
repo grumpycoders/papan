@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Papan</title>
+    <script src="node_modules/deep-diff/releases/deep-diff-0.3.4.min.js"></script>
+    <script src="src/common/utils.js"></script>
+    <script src="bower_components/webcomponentsjs/webcomponents-lite.js"></script>
+    <link rel="import" href="template/auth-mainwindow.html">
+
+    <style is="papan-style">
+      html:not([style-scope]):not(.style-scope),body:not([style-scope]):not(.style-scope) {
+        margin: 0;
+          font-family: 'Roboto', 'Noto', sans-serif;
+          -webkit-font-smoothing: antialiased;
+          background: #f1f1f1;
+      }
+
+      .js-off {
+        display: none;
+      }
+    </style>
+
+    <noscript>
+      <style is="papan-js-off">
+        .js-on {
+          display: hidden;
+        }
+
+        .js-off {
+          display: inline;
+        }
+      </style>
+    </noscript>
+  </head>
+  <body>
+    <div class="js-on">
+      <auth-main-window></auth-main-window>
+    </div>
+    <div class="js-off">
+      <h2>Very sorry, but JavaScript is absolutely required here.</h2>
+    </div>
+  </body>
+</html>

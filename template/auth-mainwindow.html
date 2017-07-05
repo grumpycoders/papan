@@ -1,0 +1,46 @@
+<link rel="import" href="../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../bower_components/paper-card/paper-card.html">
+<link rel="import" href="../bower_components/paper-input/paper-input.html">
+
+<script src="../bower_components/js-cookie/src/js.cookie.js"></script>
+
+<dom-module id="auth-main-window">
+  <link rel="import" type="css" href="auth-mainwindow.css">
+
+  <template>
+    <paper-card>
+      <div>Papan auth server</div>
+    <paper-card>
+    <iron-form allowRedirect="true">
+      <form method="post" action="/auth/login">
+        <paper-input name="username" label="username"></paper-input>
+        <paper-input name="password" label="password" type="password"></paper-input>
+        <button>Login using Papan Auth</button>
+      </form>
+    </iron-form>
+    <iron-form allowRedirect="true">
+      <form method="post" action="/auth/create">
+        <paper-input name="username" label="username"></paper-input>
+        <paper-input name="password" label="password" type="password"></paper-input>
+        <button>Create account using Papan Auth</button>
+      </form>
+    </iron-form>
+    <iron-form allowRedirect="true">
+      <form method="post" action="/auth/google-login">
+        <button>Login using Google Auth</button>
+      </form>
+    </iron-form>
+  </template>
+  <script>
+    'use strict'
+
+    Polymer({
+      is: 'auth-main-window',
+
+      ready: function() {
+        console.log('Reading cookies')
+        console.log(Cookies.get())
+      }
+    })
+  </script>
+</dom-module>
