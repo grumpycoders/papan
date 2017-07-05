@@ -22,9 +22,9 @@ Most (only the Google auth callback would be the exception) of the Auth server a
 
 The database schema would be something along these lines:
 
-username: string - PK
-email: string - not null
-auth: string - not null - piece of json (or serialized proto... ?) from
+- username: string - PK
+- email: string - not null
+- auth: string - not null - piece of json (or serialized proto... ?) from
 ```
 enum PapanPasswordMethod {
   // Mapping the methods to the same as /etc/shadow (or the crypt() function basically)
@@ -45,4 +45,4 @@ message PapanAuth {
   }
 }
 ```
-secret: string - not null
+- secret: string - not null
