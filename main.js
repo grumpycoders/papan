@@ -16,6 +16,5 @@ if (argv.auth_server) {
   const express = require('express')
   const papanAuth = require('./src/server/auth/server.js')
   let app = express()
-  papanAuth.registerServer(app, config)
-  app.listen(8081)
+  papanAuth.registerServer(app, config).then(app.listen(8081))
 }
