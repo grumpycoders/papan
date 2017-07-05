@@ -19,3 +19,30 @@ In all cases, creating an account means generating one secure private token. The
 When a lobby server wants to authenticate a user, the lobby server sends a proof request to the user, which is basically a cryptographically-secure nonce. The user replies with its username, and a HMAC::256 of the nonce using its private token. As a final step, the lobby server sends a request to the auth server to verify the user. Since only the auth server knows about the secret token, it can achieve the verification, and return a single boolean.
 
 Most (only the Google auth callback would be the exception) of the Auth server actions would be AJAX-based, so that they can work as iron-ajax forms from the web page, or work from inside the Desktop client.
+
+The database schema would be something along these lines:
+
+username: string - PK
+email: string - not null
+auth: string - not null - piece of json (or serialized proto... ?) from
+```
+enum PapanPasswordMethod {
+  // Mapping the methods to the same as /etc/shadow (or the crypt() function basically)
+  ...
+}
+message PapanPassword {
+  PapanPasswordMethod method = 1;
+  string salt = 2;
+  string digest = 3;
+}
+message GoogleAuth {
+  string jwt_token = 1;
+}
+message PapanAuth {
+  oneof auth {
+    PapanPassword password = 1;
+    GoogleAuth google_auth = 2;
+  }
+}
+```
+secret: string - not null
