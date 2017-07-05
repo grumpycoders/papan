@@ -1,4 +1,4 @@
-The Auth server (on https://auth.papan.online) is the only piece that isn't distributable. The point is still to make it optional in the process. One shouldn't have to authenticate to use Papan. But a lobby server might request that its users are authenticated. That single server, with its SSL certificate, is to be trusted by the clients using it.
+The Auth server (on https://auth.papan.online) is the only piece that isn't distributable. The point is still to make it optional in the process. One shouldn't have to authenticate to use Papan. But a lobby server might request that its users are authenticated. A lobby server that isn't requiering its users to be authenticated wouldn't need the auth server at all. It'd simply accept usernames blindly. That single server, with its SSL certificate, is to be trusted by the clients using it.
 
 We would still distribute the code for the auth server, if anyone wants to create an alternative authoritative source for the authentication on their own separate network.
 
@@ -6,7 +6,7 @@ The idea is to have a registry of registered users. We would use a strong relati
 
 We would begin with two big types of users. Actual registrations on the website, where we would be responsible for keeping the users' passwords, and the Google sign in mechanism.
 
-Both would still get unique usernames across the system. Users aren't allowed to change their usernames once created. We might ask for their e-mail address to be able to reset their passwords.
+Both would still get unique usernames across the system. Users aren't allowed to change their usernames once created. We might ask for their e-mail address to be able to reset their passwords. The Google sign in would give us the additional benefit of storing things into their account - basically using their Google Drive - for things like replays or so. A user might be able to upgrade their account later to a Google sign in account.
 
 The Papan registration screen would request a username, an e-mail, and a password. Account creation would be done through an AJAX request, so that either the website or the static app could submit an account creation request.
 
