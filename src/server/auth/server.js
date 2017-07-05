@@ -5,5 +5,5 @@ function root (req, res, config) {
 }
 
 exports.registerServer = (app, config) => {
-  app.get('/', (req, res) => root(req, res, config))
+  return new Promise((resolve, reject) => resolve(app.get('/', (req, res) => root(req, res, config))))
 }
