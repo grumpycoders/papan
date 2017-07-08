@@ -139,14 +139,6 @@ class Users {
       id: {
         type: Sequelize.STRING,
         primaryKey: true
-      }
-    })
-    this.User.ProvidedAuths = this.User.hasMany(this.ProvidedAuth)
-
-    this.TemporaryCode = this.sequelize.define('temporaryCodes', {
-      id: {
-        type: Sequelize.STRING,
-        primaryKey: true
       },
       screenName: {
         type: Sequelize.STRING,
@@ -155,6 +147,14 @@ class Users {
       avatarURL: {
         type: Sequelize.STRING,
         allowNull: true
+      }
+    })
+    this.User.ProvidedAuths = this.User.hasMany(this.ProvidedAuth)
+
+    this.TemporaryCode = this.sequelize.define('temporaryCodes', {
+      id: {
+        type: Sequelize.STRING,
+        primaryKey: true
       }
     })
     this.User.TemporaryCodes = this.User.hasMany(this.TemporaryCode)

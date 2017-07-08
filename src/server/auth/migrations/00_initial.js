@@ -24,14 +24,6 @@ module.exports = {
       id: {
         type: Sequelize.STRING,
         primaryKey: true
-      }
-    })
-    User.ProvidedAuths = User.hasMany(ProvidedAuth)
-
-    const TemporaryCode = sequelize.define('temporaryCodes', {
-      id: {
-        type: Sequelize.STRING,
-        primaryKey: true
       },
       screenName: {
         type: Sequelize.STRING,
@@ -40,6 +32,14 @@ module.exports = {
       avatarURL: {
         type: Sequelize.STRING,
         allowNull: true
+      }
+    })
+    User.ProvidedAuths = User.hasMany(ProvidedAuth)
+
+    const TemporaryCode = sequelize.define('temporaryCodes', {
+      id: {
+        type: Sequelize.STRING,
+        primaryKey: true
       }
     })
     User.TemporaryCodes = User.hasMany(TemporaryCode)
