@@ -39,10 +39,14 @@ class Users {
           screenName: user.screenName,
           avatarURL: user.avatarURL,
           providedAuths: [{
-            id: providerId
+            id: providerId,
+            screenName: user.screenName,
+            avatarURL: user.avatarURL
           }]
         }, {
-          include: [ this.User.ProvidedAuths ]
+          include: [
+            this.User.ProvidedAuths
+          ]
         }).then(user => {
           done(null, user)
         }).catch(err => done(err, false))
