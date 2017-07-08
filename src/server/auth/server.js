@@ -144,6 +144,10 @@ exports.registerServer = (app, config) => {
       src: './providers/facebook-auth.js'
     },
     {
+      configName: 'twitterAuthConfig',
+      src: './providers/twitter-auth.js'
+    },
+    {
       configName: 'steamAuthConfig',
       src: './providers/steam-auth.js'
     }
