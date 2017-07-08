@@ -35,7 +35,7 @@ class Users {
       if (result.length === 1) {
         return this.deserialize({ id: result[0].dataValues.userId })
       } else {
-        this.User.create({
+        return this.User.create({
           screenName: user.screenName,
           avatarURL: user.avatarURL,
           providedAuths: [{
