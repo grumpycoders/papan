@@ -15,26 +15,30 @@ mainNode.main()
 function readJSON (filename) {
   return new Promise((resolve, reject) => {
     fs.readFile(filename, (err, data) => {
-      if (err) resolve({})
-      resolve(JSON.parse(data))
+      resolve(err ? undefined : JSON.parse(data))
     })
   })
 }
 
 if (argv.auth_server) {
-  let googleAuthConfig = {}
-  readJSON('config/google-auth-config.json').then((googleAuthConfigRead) => {
-    googleAuthConfig = googleAuthConfigRead
-    return readJSON('config/pg-config.json')
-  }).then((pgConfig) => {
+  Promise.all([
+    readJSON('config/google-auth-config.json'),
+    readJSON('config/steam-auth-config.json'),
+    readJSON('config/pg-config.json'),
+    readJSON('config/http-config.json')
+  ]).then(values => {
     const config = {
-      googleAuthConfig: googleAuthConfig,
-      pgConfig: pgConfig
+      googleAuthConfig: values[0],
+      steamAuthConfig: values[1],
+      pgConfig: values[2],
+      httpConfig: values[3]
     }
-
     const express = require('express')
     const papanAuth = require('./src/server/auth/server.js')
     let app = express()
-    papanAuth.registerServer(app, config).then(() => app.listen(8081))
+    papanAuth.registerServer(app, config).then(() => app.listen(8081)).catch(err => {
+      console.log('Not starting Auth server:')
+      console.log(err)
+    })
   })
 }
