@@ -40,9 +40,9 @@
 
     <app-header reveals>
       <app-toolbar>
-        <paper-icon-button icon="menu" onclick="appdrawer.toggle()"></paper-icon-button>
+        <paper-icon-button icon="menu" on-tap="_toggleMenu"></paper-icon-button>
         <div main-title>[[_title]]</div>
-        <paper-icon-button icon="bug-report" on-tap="_toggleDebug"></paper-icon-button>
+        <paper-icon-button icon="bug-report"></paper-icon-button>
         <a href="https://github.com/grumpycoders/papan" style="display: none;" id="github-link">
           <paper-icon-button icon="link"></paper-icon-button>
         </a>
@@ -140,11 +140,8 @@
         }
       },
 
-      _toggleDebug: function() {
-      },
-
-      toggleDebug: function() {
-        this._toggleDebug()
+      _toggleMenu: function() {
+        this.$.appdrawer.toggle()
       },
 
       _showuserdata: function() {
