@@ -23,15 +23,17 @@ function readJSON (filename) {
 if (argv.auth_server) {
   Promise.all([
     readJSON('config/google-auth-config.json'),
+    readJSON('config/facebook-auth-config.json'),
     readJSON('config/steam-auth-config.json'),
     readJSON('config/pg-config.json'),
     readJSON('config/http-config.json')
   ]).then(values => {
     const config = {
       googleAuthConfig: values[0],
-      steamAuthConfig: values[1],
-      pgConfig: values[2],
-      httpConfig: values[3]
+      facebookAuthConfig: values[1],
+      steamAuthConfig: values[2],
+      pgConfig: values[3],
+      httpConfig: values[4]
     }
     const express = require('express')
     const papanAuth = require('./src/server/auth/server.js')

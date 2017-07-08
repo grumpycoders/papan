@@ -140,6 +140,10 @@ exports.registerServer = (app, config) => {
       src: './providers/google-auth.js'
     },
     {
+      configName: 'facebookAuthConfig',
+      src: './providers/facebook-auth.js'
+    },
+    {
       configName: 'steamAuthConfig',
       src: './providers/steam-auth.js'
     }
