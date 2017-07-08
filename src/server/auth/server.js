@@ -53,8 +53,8 @@ exports.registerServer = (app, config) => {
   app.use(passport.initialize())
   app.use(passport.session())
 
-  passport.serializeUser((err, done) => users.serialize(err, done))
-  passport.deserializeUser((err, done) => users.deserialize(err, done))
+  passport.serializeUser((err, done) => users.serialize(err).then(user => done(null, user)).catch(err => done(err, false)))
+  passport.deserializeUser((err, done) => users.deserialize(err).then(user => done(null, user)).catch(err => done(err, false)))
   passport.authenticated = returnURL => {
     return (req, res, next) => {
       if (req.isAuthenticated()) return next()
@@ -126,11 +126,10 @@ exports.registerServer = (app, config) => {
         middleware(req, res, next)
       },
       (req, res, next) => {
-        users.addProviderAccount(req.user, req.account, (err, user) => {
-          if (err) return next(err)
+        users.addProviderAccount(req.user, req.account).then(user => {
           req.logIn(user, err => { if (err) return next(err) })
           res.redirect(getReturnURL(req))
-        })
+        }).catch(err => next(err))
       }
     )
   }

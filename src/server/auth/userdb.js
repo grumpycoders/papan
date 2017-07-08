@@ -8,12 +8,12 @@ class Users {
     this.pgConfig = config
   }
 
-  serialize (user, done) {
-    done(null, { id: user.dataValues.id })
+  serialize (user) {
+    return Promise.resolve({ id: user.dataValues.id })
   }
 
-  deserialize (user, done) {
-    this.User.findAll({
+  deserialize (user) {
+    return this.User.findAll({
       where: {
         id: user.id
       },
@@ -21,19 +21,19 @@ class Users {
         model: this.ProvidedAuth
       }]
     }).then(result => {
-      done(null, result.length === 0 ? false : result[0])
+      return Promise.resolve(result.length === 0 ? false : result[0])
     })
   }
 
-  findOrCreate (user, done) {
+  findOrCreate (user) {
     const providerId = `${user.provider}#${user.id}`
-    this.ProvidedAuth.findAll({
+    return this.ProvidedAuth.findAll({
       where: {
         id: providerId
       }
     }).then(result => {
       if (result.length === 1) {
-        this.deserialize({ id: result[0].dataValues.userId }, done)
+        return this.deserialize({ id: result[0].dataValues.userId })
       } else {
         this.User.create({
           screenName: user.screenName,
@@ -47,41 +47,39 @@ class Users {
           include: [
             this.User.ProvidedAuths
           ]
-        }).then(user => {
-          done(null, user)
-        }).catch(err => done(err, false))
+        })
       }
-    }).catch(err => done(err, false))
+    })
   }
 
-  find (user, done) {
+  find (user) {
     const providerId = `${user.provider}#${user.id}`
-    this.ProvidedAuth.findAll({
+    return this.ProvidedAuth.findAll({
       where: {
         id: providerId
       }
     }).then(result => {
       if (result.length === 1) {
-        this.deserialize({ id: result[0].dataValues.userId }, done)
+        this.deserialize({ id: result[0].dataValues.userId })
       } else {
-        done(null, false)
+        return Promise.resolve(false)
       }
-    }).catch(err => done(err, false))
+    })
   }
 
-  addProviderAccount (user, account, done) {
+  addProviderAccount (user, account) {
     const providerId = `${account.provider}#${account.id}`
     const userId = user.dataValues.id
-    this.ProvidedAuth.findAll({
+    return this.ProvidedAuth.findAll({
       where: {
         id: providerId
       }
     }).then(result => {
       if (result.length !== 0) {
         if (result[0].dataValues.userId === userId) {
-          done(null, user)
+          return Promise.resolve(user)
         } else {
-          done('Account already connected by someone else', false)
+          return Promise.reject('Account already connected by someone else')
         }
       } else {
         return this.ProvidedAuth.create({
@@ -92,8 +90,8 @@ class Users {
         })
       }
     }).then(() => {
-      this.deserialize({ id: userId }, done)
-    }).catch(err => done(err, false))
+      this.deserialize({ id: userId })
+    })
   }
 
   initialize () {

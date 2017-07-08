@@ -8,11 +8,11 @@ class Provider {
   }
 
   registerStrategies (users, factory) {
-    factory(this.create, (user, done) => {
-      users.findOrCreate(user, done)
+    factory(this.create, (user) => {
+      return users.findOrCreate(user)
     })
-    factory(this.connect, (user, done) => {
-      done(null, user)
+    factory(this.connect, (user) => {
+      return Promise.resolve(user)
     })
   }
 }

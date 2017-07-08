@@ -22,7 +22,7 @@ exports.register = (passport, users, config) => {
           avatarURL: userinfo.picture,
           screenName: userinfo.name
         }
-        dbCallback(user, done)
+        dbCallback(user).then(user => done(null, user)).catch(err => done(err, false))
       }))
     })
 
