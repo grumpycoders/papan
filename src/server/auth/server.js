@@ -53,8 +53,8 @@ exports.registerServer = (app, config) => {
   app.use(passport.initialize())
   app.use(passport.session())
 
-  passport.serializeUser((err, done) => users.serialize(err).then(user => done(null, user)).catch(err => done(err, false)))
-  passport.deserializeUser((err, done) => users.deserialize(err).then(user => done(null, user)).catch(err => done(err, false)))
+  passport.serializeUser((user, done) => users.serialize(user).then(id => done(null, id)).catch(err => done(err, false)))
+  passport.deserializeUser((id, done) => users.deserialize(id).then(user => done(null, user)).catch(err => done(err, false)))
   passport.authenticated = returnURL => {
     return (req, res, next) => {
       if (req.isAuthenticated()) return next()
@@ -110,7 +110,18 @@ exports.registerServer = (app, config) => {
         const isConnecting = req.isAuthenticated()
         let middleware
         if (isConnecting) {
-          middleware = passport.authorize(provider.connect)
+          middleware = passport.authorize(
+            provider.connect,
+            (err, account) => {
+              if (err) return next(err)
+              users.addProviderAccount(req.user, account).then(user => {
+                req.logIn(user, err => {
+                  if (err) return next(err)
+                  res.redirect(getReturnURL(req))
+                })
+              }).catch(err => next(err))
+            }
+          )
         } else {
           middleware = passport.authenticate(
             provider.create,
@@ -118,18 +129,14 @@ exports.registerServer = (app, config) => {
               if (err) return next(err)
               if (!user) return res.redirect('/login')
 
-              req.logIn(user, err => { if (err) return next(err) })
-              res.redirect(getReturnURL(req))
+              req.logIn(user, err => {
+                if (err) return next(err)
+                res.redirect(getReturnURL(req))
+              })
             }
           )
         }
         middleware(req, res, next)
-      },
-      (req, res, next) => {
-        users.addProviderAccount(req.user, req.account).then(user => {
-          req.logIn(user, err => { if (err) return next(err) })
-          res.redirect(getReturnURL(req))
-        }).catch(err => next(err))
       }
     )
   }

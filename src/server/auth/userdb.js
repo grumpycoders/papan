@@ -20,9 +20,7 @@ class Users {
       include: [{
         model: this.ProvidedAuth
       }]
-    }).then(result => {
-      return Promise.resolve(result.length === 0 ? false : result[0])
-    })
+    }).then(result => Promise.resolve(result.length === 0 ? false : result[0]))
   }
 
   findOrCreate (user) {
@@ -60,7 +58,7 @@ class Users {
       }
     }).then(result => {
       if (result.length === 1) {
-        this.deserialize({ id: result[0].dataValues.userId })
+        return this.deserialize({ id: result[0].dataValues.userId })
       } else {
         return Promise.resolve(false)
       }
@@ -90,7 +88,7 @@ class Users {
         })
       }
     }).then(() => {
-      this.deserialize({ id: userId })
+      return this.deserialize({ id: userId })
     })
   }
 
