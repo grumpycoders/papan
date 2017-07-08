@@ -157,10 +157,15 @@ exports.registerServer = (app, config) => {
     ))
   })
 
-  // And finally, logout
+  // Logout
   app.get('/logout', (req, res) => {
     req.logOut()
     res.redirect('/')
+  })
+
+  // And finally, catch-all error 500, for future expansion.
+  app.use((err, req, res, next) => {
+    res.status(500).send(err)
   })
 
   return Promise.all(promises)
