@@ -82,6 +82,8 @@ class Users {
       } else {
         return this.ProvidedAuth.create({
           id: providerId,
+          screenName: account.screenName,
+          avatarURL: account.avatarURL,
           userId: userId
         })
       }
@@ -104,8 +106,7 @@ class Users {
 
       migrations: {
         params: [
-          this.sequelize.getQueryInterface(),
-          this.sequelize.constructor
+          this.sequelize
         ],
         path: './src/server/auth/migrations',
         pattern: /\.js$/
@@ -144,6 +145,14 @@ class Users {
       id: {
         type: Sequelize.STRING,
         primaryKey: true
+      },
+      screenName: {
+        type: Sequelize.STRING,
+        allowNull: false
+      },
+      avatarURL: {
+        type: Sequelize.STRING,
+        allowNull: true
       }
     })
     this.User.TemporaryCodes = this.User.hasMany(this.TemporaryCode)
