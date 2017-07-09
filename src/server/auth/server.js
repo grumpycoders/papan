@@ -36,7 +36,7 @@ const authProviders =
   ]
 
 exports.registerServer = (app, config) => {
-  let authentications
+  let authentications = {}
   let users
   let registerProvider
 
