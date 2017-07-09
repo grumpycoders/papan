@@ -43,7 +43,8 @@ if (argv.auth_server) {
     papanAuth.registerServer(app, config)
       .then(() => {
         console.log('Starting Auth server...')
-        app.listen(8081)
+        const httpConfig = config.httpConfig || []
+        app.listen(httpConfig.port || 8081)
       }).catch(err => {
         console.log('Not starting Auth server:')
         console.log(err)
