@@ -8,8 +8,6 @@
 <link rel="import" href="auth-login.html">
 <link rel="import" href="auth-profile.html">
 
-<script src="../bower_components/js-cookie/src/js.cookie.js"></script>
-
 <dom-module id="auth-main-window">
   <link rel="import" type="css" href="auth-mainwindow.css">
 
@@ -41,11 +39,6 @@
 
     Polymer({
       is: 'auth-main-window',
-
-      ready: function() {
-        console.log('Reading cookies')
-        console.log(Cookies.get())
-      }
     })
   </script>
 </dom-module>

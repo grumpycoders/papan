@@ -104,7 +104,7 @@ exports.registerServer = (app, config) => {
     app.get('/profile/data', (req, res) => res.json(
       req.isAuthenticated() ? req.user.dataValues : {}
     ))
-    app.get('/auth/available', (req, res) => res.json(authentications))
+    app.get('/auth/available', (req, res) => res.json({ items: authentications }))
     app.get('/info', (req, res) => res.json({
       authenticated: req.isAuthenticated()
     }))

@@ -3,11 +3,10 @@
 <dom-module id="auth-login">
   <link rel="import" type="css" href="auth-login.css">
   <template>
-    Login form
-    <auth-available authavailable={{_authavailable}}></auth-available>
-    <!--{"steam":{"loginPath":"/auth/steam/login","connectPath":"/auth/steam/connect"}}-->
-    <template is="dom-repeat" items="[[_authavailable]]">
-      + <a href="[[item.loginPath]]">[[item]]</a>
+    <auth-available auth-available="{{_authAvailable}}"></auth-available>
+    Log in using:
+    <template is="dom-repeat" items="[[_authAvailable]]">
+      + <a href="[[item.loginPath]]">[[item.provider]]</a>
     </template>
   </template>
 
@@ -16,26 +15,6 @@
 
     Polymer({
       is: "auth-login",
-
-      properties: {
-        /*
-          achievement data from the DB
-        */
-        _authavailable: {
-          type: Object,
-          value: () => {
-            return {
-              loginPath: '',
-              connectPath: ''
-            }
-          },
-          notify: true,
-        }
-      },
-      filter: function(e) {
-        this._authavailable = e.detail.response[this._authavailable]
-      },
-
     })
   </script>
 </dom-module>
