@@ -41,6 +41,10 @@ exports.registerServer = (app, config) => {
   let registerProvider
 
   return new Promise((resolve, reject) => {
+    // We need the database initialized before anything else.
+    users = userDB.create(config.pgConfig)
+    return users.initialize()
+  }).then(() => new Promise((resolve, reject) => {
     // logger
     app.use(expressWinston.logger({
       transports: [
@@ -66,7 +70,6 @@ exports.registerServer = (app, config) => {
     }))
 
     // user management
-    users = userDB.create(config.pgConfig)
 
     // we'll do ajax
     app.use(bodyParser.json())
@@ -175,11 +178,10 @@ exports.registerServer = (app, config) => {
     })
 
     resolve()
-  }).then(() => {
+  })).then(() => {
     // Contruction of all the promises we're going to wait for to start the server.
     const promises = []
     try {
-      promises.push(users.initialize())
       authProviders.forEach(providerValues => {
         if (!config[providerValues.configName]) return
         const registerPromise = require(providerValues.src).register(passport, users, config)

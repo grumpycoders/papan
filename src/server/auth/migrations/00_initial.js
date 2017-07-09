@@ -1,5 +1,17 @@
 'use strict'
 
+const readFile = path => new Promise((resolve, reject) =>
+  require('fs').readFile(path, 'ascii',
+    (err, data) => {
+      if (err) {
+        reject(err)
+      } else {
+        resolve(data)
+      }
+    }
+  )
+)
+
 module.exports = {
   up: function (sequelize) {
     const Sequelize = sequelize.constructor
@@ -44,12 +56,22 @@ module.exports = {
     })
     User.TemporaryCodes = User.hasMany(TemporaryCode)
 
-    return sequelize.sync()
+    return Promise.all([
+      readFile('node_modules/connect-pg-simple/table.sql')
+        .then(sessionsQuery => sequelize.query(sessionsQuery)),
+      sequelize.sync()
+    ])
   },
 
   down: function (sequelize) {
-    // Note: because of the foreign key, these need to be dropped in that order.
     const query = sequelize.getQueryInterface()
-    return Promise.all([query.dropTable('temporaryCode'), query.dropTable('providedAuth')]).then(() => query.dropTable('users'))
+    return Promise.all([
+      query.dropTable('sessions'),
+      // Note: because of the foreign key, these need to be dropped in that order.
+      Promise.all([
+        query.dropTable('temporaryCode'),
+        query.dropTable('providedAuth')
+      ]).then(() => query.dropTable('users'))
+    ])
   }
 }
