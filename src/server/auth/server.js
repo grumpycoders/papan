@@ -101,9 +101,9 @@ exports.registerServer = (app, config) => {
     app.get('/profile', (req, res) => sendRoot(res))
 
     // AJAX
-    app.get('/profile/data', passport.authenticated(), (req, res) => {
-      res.json(req.user.dataValues)
-    })
+    app.get('/profile/data', (req, res) => res.json(
+      req.isAuthenticated() ? req.user.dataValues : {}
+    ))
     app.get('/auth/available', (req, res) => res.json(authentications))
     app.get('/info', (req, res) => res.json({
       authenticated: req.isAuthenticated()
