@@ -189,7 +189,8 @@ exports.registerServer = (app, config) => {
         promises.push(
           registerPromise.then(provider => {
             authentications[provider.urlFragment] = {
-              loginPath: `/auth/${provider.urlFragment}/login`
+              loginPath: `/auth/${provider.urlFragment}/login`,
+              connectPath: `/auth/${provider.urlFragment}/connect`
             }
             registerProvider(provider)
             return Promise.resolve()
