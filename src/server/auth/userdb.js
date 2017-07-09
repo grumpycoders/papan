@@ -157,7 +157,13 @@ class Users {
     })
     this.User.TemporaryCodes = this.User.hasMany(this.TemporaryCode)
 
-    return this.sequelize.authenticate().then(() => umzug.up())
+    return this.sequelize.authenticate().then(() => {
+      const p = umzug.up()
+      return p.then(() => {
+        console.log('Database migration resolved')
+        return Promise.resolve()
+      })
+    })
   }
 }
 

@@ -40,9 +40,14 @@ if (argv.auth_server) {
     const express = require('express')
     const papanAuth = require('./src/server/auth/server.js')
     let app = express()
-    papanAuth.registerServer(app, config).then(() => app.listen(8081)).catch(err => {
-      console.log('Not starting Auth server:')
-      console.log(err)
-    })
+    papanAuth.registerServer(app, config)
+      .then(() => {
+        console.log('Starting Auth server...')
+        app.listen(8081)
+      }).catch(err => {
+        console.log('Not starting Auth server:')
+        console.log(err)
+      }
+    )
   })
 }

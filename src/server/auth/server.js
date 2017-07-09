@@ -15,7 +15,7 @@ const userDB = require('./userdb.js')
 
 const root = path.normalize(path.join(__dirname, '..', '..', '..'))
 
-const authProviders =
+const builtInAuthProviders =
   [
     {
       configName: 'googleAuthConfig',
@@ -40,9 +40,9 @@ exports.registerServer = (app, config) => {
   let users
   let registerProvider
 
-  return new Promise((resolve, reject) => {
-    // We need the database initialized before anything else.
-    users = userDB.create(config.pgConfig)
+  return Promise.resolve(userDB.create(config.pgConfig)).then(createdUsers => {
+    // We need to create and migrate the database first thing before going on with the rest of the work.
+    users = createdUsers
     return users.initialize()
   }).then(() => new Promise((resolve, reject) => {
     // logger
@@ -182,6 +182,7 @@ exports.registerServer = (app, config) => {
     // Contruction of all the promises we're going to wait for to start the server.
     const promises = []
     try {
+      const authProviders = builtInAuthProviders.concat(config.externalAuthProviders || [])
       authProviders.forEach(providerValues => {
         if (!config[providerValues.configName]) return
         const registerPromise = require(providerValues.src).register(passport, users, config)
