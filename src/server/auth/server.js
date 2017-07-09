@@ -69,8 +69,6 @@ exports.registerServer = (app, config) => {
       saveUninitialized: false
     }))
 
-    // user management
-
     // we'll do ajax
     app.use(bodyParser.json())
 
@@ -107,6 +105,9 @@ exports.registerServer = (app, config) => {
       res.json(req.user.dataValues)
     })
     app.get('/auth/available', (req, res) => res.json(authentications))
+    app.get('/info', (req, res) => res.json({
+      authenticated: req.isAuthenticated()
+    }))
 
     // Auth providers logic
     registerProvider = (provider) => {
