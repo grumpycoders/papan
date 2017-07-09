@@ -36,7 +36,7 @@ const builtInAuthProviders =
   ]
 
 exports.registerServer = (app, config) => {
-  let authentications = {}
+  let authentications = []
   let users
   let registerProvider
 
@@ -189,10 +189,11 @@ exports.registerServer = (app, config) => {
         const registerPromise = require(providerValues.src).register(passport, users, config)
         promises.push(
           registerPromise.then(provider => {
-            authentications[provider.urlFragment] = {
+            authentications.push({
+              name: provider.urlFragment,
               loginPath: `/auth/${provider.urlFragment}/login`,
               connectPath: `/auth/${provider.urlFragment}/connect`
-            }
+            })
             registerProvider(provider)
             return Promise.resolve()
           }
