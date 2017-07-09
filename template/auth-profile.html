@@ -1,0 +1,35 @@
+<link rel="import" href="../bower_components/app-route/app-route.html">
+
+<dom-module id="auth-profile">
+  <link rel="import" type="css" href="auth-profile.css">
+  <template>
+    <app-route
+      route="{{route}}"
+      pattern="/:userid"
+      data="{{_routeData}}">
+    </app-route>
+
+    Profile for [[_routeData.userid]]
+  </template>
+
+  <script>
+    'use strict'
+
+    Polymer({
+      is: "auth-profile",
+
+      properties: {
+        route : {
+          type: Object
+        },
+        /*
+          Name of the user writing in the chat box
+        */
+        user : {
+          type: String
+        }
+      },
+
+    })
+  </script>
+</dom-module>

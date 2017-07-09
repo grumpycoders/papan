@@ -1,6 +1,12 @@
+<link rel="import" href="../bower_components/app-route/app-location.html">
+<link rel="import" href="../bower_components/app-route/app-route.html">
+<link rel="import" href="../bower_components/iron-pages/iron-pages.html">
 <link rel="import" href="../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../bower_components/paper-card/paper-card.html">
 <link rel="import" href="../bower_components/paper-input/paper-input.html">
+
+<link rel="import" href="auth-login.html">
+<link rel="import" href="auth-profile.html">
 
 <script src="../bower_components/js-cookie/src/js.cookie.js"></script>
 
@@ -8,28 +14,27 @@
   <link rel="import" type="css" href="auth-mainwindow.css">
 
   <template>
+    <app-location
+      route="{{_route}}">
+    </app-location>
+    <app-route
+      route="{{_route}}"
+      pattern="/:view"
+      data="{{_routeData}}"
+      tail="{{_pagesRoute}}">
+    </app-route>
     <paper-card>
       <div>Papan auth server</div>
-    <paper-card>
-    <iron-form allowRedirect="true">
-      <form method="post" action="/auth/login">
-        <paper-input name="username" label="username"></paper-input>
-        <paper-input name="password" label="password" type="password"></paper-input>
-        <button>Login using Papan Auth</button>
-      </form>
-    </iron-form>
-    <iron-form allowRedirect="true">
-      <form method="post" action="/auth/create">
-        <paper-input name="username" label="username"></paper-input>
-        <paper-input name="password" label="password" type="password"></paper-input>
-        <button>Create account using Papan Auth</button>
-      </form>
-    </iron-form>
-    <iron-form allowRedirect="true">
-      <form method="post" action="/auth/google-login">
-        <button>Login using Google Auth</button>
-      </form>
-    </iron-form>
+    </paper-card>
+    <iron-pages 
+      id="content" 
+      selected="[[_routeData.view]]"
+      attr-for-selected="id"
+      fallback-selection="startupscreen">
+      <div id="startupscreen">Welcome</div>
+      <auth-login id="login">Login</auth-login>
+      <auth-profile id="profile" route="{{_pagesRoute}}">Profile</auth-profile>
+    </iron-pages>
   </template>
   <script>
     'use strict'

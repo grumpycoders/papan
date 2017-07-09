@@ -1,0 +1,43 @@
+<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
+
+<dom-module id="auth-available">
+  <template>
+    <iron-ajax
+      id="ajax"
+      auto
+      url="/auth/available"
+      handle-as="json"
+      last-response="{{gameinfo}}"
+      on-response="filter">
+    </iron-ajax>
+  </template>
+  <script>
+    Polymer({
+      is: 'auth-available',
+
+      filter: function(e) {
+        this.authavailable = e.detail.response[this.gameid]
+      },
+
+      ready: function() {
+        this.$.ajax.generateRequest()
+      },
+
+      properties: {
+        /*
+          authentification available on this server
+        */
+        authavailable: {
+          type: Object,
+          value: () => {
+            return {
+              loginPath: '',
+              connectPath: ''
+            }
+          },
+          notify: true,
+        }
+      }
+    })
+  </script>
+</dom-module>
