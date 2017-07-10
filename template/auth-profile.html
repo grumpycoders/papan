@@ -1,15 +1,19 @@
 <link rel="import" href="../bower_components/app-route/app-route.html">
+<link rel="import" href="data/auth-profile-data.html">
 
 <dom-module id="auth-profile">
   <link rel="import" type="css" href="auth-profile.css">
   <template>
-    <app-route
-      route="{{route}}"
-      pattern="/:userid"
-      data="{{_routeData}}">
-    </app-route>
-
-    Profile for [[_routeData.userid]]
+    <auth-profile-data auth-profile-data="{{_authProfileData}}"></auth-profile-data>
+    Profile for [[_authProfileData.screenName]]
+    Connected accounts:
+    <template is="dom-repeat" items="[[_authProfileData.providedAuths]]">
+      + [[item.provider]]
+    </template>
+    Connectable account providers:
+    <template is="dom-repeat" items="[[_authProfileData.connectable]]">
+      + <a href="[[item.connectPath]]">[[item.provider]]</a>
+    </template>
   </template>
 
   <script>
@@ -17,19 +21,6 @@
 
     Polymer({
       is: "auth-profile",
-
-      properties: {
-        route : {
-          type: Object
-        },
-        /*
-          Name of the user writing in the chat box
-        */
-        user : {
-          type: String
-        }
-      },
-
     })
   </script>
 </dom-module>

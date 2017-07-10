@@ -13,11 +13,12 @@
 
   <template>
     <app-location
+      url-space-regex="^/render"
       route="{{_route}}">
     </app-location>
     <app-route
       route="{{_route}}"
-      pattern="/:view"
+      pattern="/render/:view"
       data="{{_routeData}}"
       tail="{{_pagesRoute}}">
     </app-route>
@@ -31,7 +32,7 @@
       fallback-selection="startupscreen">
       <div id="startupscreen">Welcome</div>
       <auth-login id="login">Login</auth-login>
-      <auth-profile id="profile" route="{{_pagesRoute}}">Profile</auth-profile>
+      <auth-profile id="profile">Profile</auth-profile>
     </iron-pages>
   </template>
   <script>
