@@ -97,7 +97,8 @@ exports.registerServer = (app, config) => {
     app.use('/docs', express.static('docs'))
     app.use('/node_modules', express.static('node_modules'))
     app.use('/template', express.static('template'))
-    app.get('/', (req, res) => sendRoot(res))
+    app.get('/', (req, res) => res.redirect('/render/main'))
+    app.get('/render/main', (req, res) => sendRoot(res))
     app.get('/render/login', (req, res) => sendRoot(res))
     app.get('/render/profile', (req, res) => sendRoot(res))
 
