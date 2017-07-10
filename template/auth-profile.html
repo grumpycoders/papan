@@ -1,26 +1,52 @@
 <link rel="import" href="../bower_components/app-route/app-route.html">
+<link rel="import" href="../bower_components/iron-image/iron-image.html">
+<link rel="import" href="../bower_components/paper-card/paper-card.html">
+<link rel="import" href="../bower_components/paper-button/paper-button.html">
 <link rel="import" href="data/auth-profile-data.html">
 
 <dom-module id="auth-profile">
   <link rel="import" type="css" href="auth-profile.css">
   <template>
     <style>
-      .profilePicture {
-        width: 64px;
-        height: 64px;
+      iron-image {
+        width: 128px;
+        height: 128px;
+        background-color: lightgray;
+      }
+      #profilename {
+        margin-top: 50px;
+        font-size: 12pt;
+        font-weight: bold; 
+      }
+      .providercard {
+        max-width: 128px;
+      }
+      paper-card paper-button {
+        font-size: 8pt;
       }
     </style>
     <auth-profile-data auth-profile-data="{{_authProfileData}}"></auth-profile-data>
-    Profile for [[_authProfileData.screenName]]
-    <template is="dom-if" if="[[_authProfileData.avatarURL]]"><img class="profilePicture" src="[[_authProfileData.avatarURL]]"></img></template>
-    Connected accounts:
+    <div id="profilename">[[_authProfileData.screenName]]</div>
+    <iron-image preload fade sizing="contain" placeholder="pictures/userpicture.svg" src="[[_authProfileData.avatarURL]]"></iron-image>
+    <p>Signed in through:</p>
     <template is="dom-repeat" items="[[_authProfileData.providedAuths]]">
-      + [[item.provider]]
-      <template is="dom-if" if="[[item.avatarURL]]"><img class="profilePicture" src="[[item.avatarURL]]"></img></template>
+      <paper-card 
+        image="[[item.avatarURL]]" 
+        placeholder-image="pictures/userpicture.svg" 
+        preload-image
+        elevation="4"
+        class="providercard">
+        <div class="card-content">
+          <div class="">[[item.provider]]</div>
+          <div class="card-actions">
+            <paper-button raised><a href="#">Sign out</a></paper-button>
+          </div>
+        </div>
+      </paper-card>
     </template>
-    Connectable account providers:
+    <p>Sigh in with:</p>
     <template is="dom-repeat" items="[[_authProfileData.connectable]]">
-      + <a href="[[item.connectPath]]">[[item.provider]]</a>
+      <paper-button raised><a href="[[item.connectPath]]">[[item.provider]]</a></paper-button>
     </template>
   </template>
 
