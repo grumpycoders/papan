@@ -25,7 +25,7 @@
       },
 
       filter: function(e) {
-        this.authAvailable = e.detail.response.items.sort(this._providerCompare)
+        this.authAvailable = e.detail.response.providers.sort(this._providerCompare)
       },
 
       properties: {
