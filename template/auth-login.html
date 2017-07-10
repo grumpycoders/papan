@@ -1,12 +1,19 @@
 <link rel="import" href="data/auth-available.html">
+<link rel="import" href="data/auth-info.html">
 
 <dom-module id="auth-login">
   <link rel="import" type="css" href="auth-login.css">
   <template>
     <auth-available auth-available="{{_authAvailable}}"></auth-available>
-    Log in using:
-    <template is="dom-repeat" items="[[_authAvailable]]">
-      + <a href="[[item.loginPath]]">[[item.provider]]</a>
+    <auth-info auth-info="{{_authInfo}}" is-logged-in="{{_isLoggedIn}}" is-logged-out="{{_isLoggedOut}}"></auth-info>
+    <template is="dom-if" if="[[_isLoggedIn]]">
+      <a href="/logout">Logout</a>
+    </template>
+    <template is="dom-if" if="[[_isLoggedOut]]">
+      Log in using:
+      <template is="dom-repeat" items="[[_authAvailable]]">
+        + <a href="[[item.loginPath]]">[[item.provider]]</a>
+      </template>
     </template>
   </template>
 
