@@ -1,5 +1,8 @@
+<link rel="import" href="../bower_components/app-layout/app-header/app-header.html">
+<link rel="import" href="../bower_components/app-layout/app-toolbar/app-toolbar.html">
 <link rel="import" href="../bower_components/app-route/app-location.html">
 <link rel="import" href="../bower_components/app-route/app-route.html">
+<link rel="import" href="../bower_components/app-layout/app-layout.html">
 <link rel="import" href="../bower_components/iron-pages/iron-pages.html">
 <link rel="import" href="../bower_components/paper-card/paper-card.html">
 
@@ -20,9 +23,11 @@
       data="{{_routeData}}"
       tail="{{_pagesRoute}}">
     </app-route>
-    <paper-card>
+    <app-header reveals>
+      <app-toolbar>
       <div>Papan auth server</div>
-    </paper-card>
+      </app-toolbar>
+    </app-header>
     <iron-pages 
       id="content" 
       selected="[[_routeData.view]]"

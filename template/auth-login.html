@@ -6,16 +6,37 @@
 <dom-module id="auth-login">
   <link rel="import" type="css" href="auth-login.css">
   <template>
+    <style>
+      .profilearea {
+        box-shadow: 4;
+        padding: 10px;
+        margin: 10px;
+        border-radius: 5px;
+        background-color: #fff;
+        max-width: 500px;
+        min-height: 64px;
+      }
+      .profiletitle {
+        font-size: 12pt;
+        font-weight: bold;
+        margin-top: 10px;
+        margin-bottom: 10px;
+        padding-bottom: 5px;
+        border-bottom: 1px solid lightgrey;
+      }
+    </style>
     <auth-available auth-available="{{_authAvailable}}"></auth-available>
     <auth-info auth-info="{{_authInfo}}" is-logged-in="{{_isLoggedIn}}" is-logged-out="{{_isLoggedOut}}"></auth-info>
     <template is="dom-if" if="[[_isLoggedIn]]">
       <a href="/logout">Logout</a>
     </template>
     <template is="dom-if" if="[[_isLoggedOut]]">
-      Log in using:
-      <template is="dom-repeat" items="[[_authAvailable]]">
-        <paper-button raised><a href="[[item.loginPath]]">[[item.provider]]</a></paper-button>
-      </template>
+      <div class="profilearea">
+        <div class="profiletitle">Sign in with</div>
+        <template is="dom-repeat" items="[[_authAvailable]]">
+          <paper-button raised><a href="[[item.loginPath]]">[[item.provider]]</a></paper-button>
+        </template>
+      </div>
     </template>
   </template>
 

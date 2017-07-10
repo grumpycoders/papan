@@ -8,15 +8,29 @@
   <link rel="import" type="css" href="auth-profile.css">
   <template>
     <style>
-      iron-image {
-        width: 128px;
-        height: 128px;
-        background-color: lightgray;
+      .profilearea {
+        box-shadow: 4;
+        padding: 10px;
+        margin: 10px;
+        border-radius: 5px;
+        background-color: #fff;
+        max-width: 500px;
+        min-height: 64px;
       }
-      #profilename {
-        margin-top: 50px;
+      .profilearea iron-image {
+        width: 64px;
+        height: 64px;
+        background-color: lightgray;
+        border-radius: 50%;
+        float: right;
+      }
+      .profiletitle {
         font-size: 12pt;
-        font-weight: bold; 
+        font-weight: bold;
+        margin-top: 10px;
+        margin-bottom: 10px;
+        padding-bottom: 5px;
+        border-bottom: 1px solid lightgrey;
       }
       .providercard {
         max-width: 128px;
@@ -26,28 +40,37 @@
       }
     </style>
     <auth-profile-data auth-profile-data="{{_authProfileData}}"></auth-profile-data>
-    <div id="profilename">[[_authProfileData.screenName]]</div>
-    <iron-image preload fade sizing="contain" placeholder="pictures/userpicture.svg" src="[[_authProfileData.avatarURL]]"></iron-image>
-    <p>Signed in through:</p>
-    <template is="dom-repeat" items="[[_authProfileData.providedAuths]]">
-      <paper-card 
-        image="[[item.avatarURL]]" 
-        placeholder-image="pictures/userpicture.svg" 
-        preload-image
-        elevation="4"
-        class="providercard">
-        <div class="card-content">
-          <div class="">[[item.provider]]</div>
-          <div class="card-actions">
-            <paper-button raised><a href="#">Sign out</a></paper-button>
+
+    <div class="profilearea">
+      <iron-image preload fade sizing="contain" placeholder="pictures/userpicture.svg" src="[[_authProfileData.avatarURL]]"></iron-image>
+      <div class="profiletitle">[[_authProfileData.screenName]]</div>
+    </div>
+
+    <div class="profilearea">
+      <div class="profiletitle">Signed in through</div>
+      <template is="dom-repeat" items="[[_authProfileData.providedAuths]]">
+        <paper-card 
+          image="[[item.avatarURL]]" 
+          placeholder-image="pictures/userpicture.svg" 
+          preload-image
+          elevation="4"
+          class="providercard">
+          <div class="card-content">
+            <div class="">[[item.provider]]</div>
+            <div class="card-actions">
+              <paper-button raised><a href="#">Sign out</a></paper-button>
+            </div>
           </div>
-        </div>
-      </paper-card>
-    </template>
-    <p>Sigh in with:</p>
-    <template is="dom-repeat" items="[[_authProfileData.connectable]]">
-      <paper-button raised><a href="[[item.connectPath]]">[[item.provider]]</a></paper-button>
-    </template>
+        </paper-card>
+      </template>
+    </div>
+
+    <div class="profilearea">
+      <div class="profiletitle">Sign in with</div>
+      <template is="dom-repeat" items="[[_authProfileData.connectable]]">
+        <paper-button raised><a href="[[item.connectPath]]">[[item.provider]]</a></paper-button>
+      </template>
+    </div>
   </template>
 
   <script>
