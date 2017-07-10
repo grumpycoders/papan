@@ -7,7 +7,6 @@
       auto
       url="/auth/available"
       handle-as="json"
-      last-response="{{gameinfo}}"
       on-response="filter">
     </iron-ajax>
   </template>
@@ -15,22 +14,34 @@
     Polymer({
       is: 'auth-available',
 
-      filter: function(e) {
-        this.authavailable = e.detail.response
+      _providerCompare: (a, b) => {
+        if (a.provider < b.provider) {
+          return -1
+        } else if (a.provider > b.provider) {
+          return 1
+        } else {
+          return 0
+        }
       },
 
-      ready: function() {
-        this.$.ajax.generateRequest()
+      filter: function(e) {
+        this.authAvailable = e.detail.response.providers.sort(this._providerCompare)
       },
 
       properties: {
         /*
           authentification available on this server
         */
-        authavailable: {
+        authAvailable: {
           type: Array,
           notify: true,
+          observer: "_authAvailableChanged"
         }
+      },
+
+      _authAvailableChanged: function(list) {
+        console.log("Got list of available auth providers:")
+        console.log(list)
       }
     })
   </script>

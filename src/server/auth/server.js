@@ -8,6 +8,7 @@ const expressWinston = require('express-winston')
 const session = require('express-session')
 const pg = require('pg')
 const PGSession = require('connect-pg-simple')(session)
+const assert = require('assert')
 
 const passport = require('passport')
 
@@ -82,7 +83,7 @@ exports.registerServer = (app, config) => {
       return (req, res, next) => {
         if (req.isAuthenticated()) return next()
         req.session.returnURL = returnURL || req.returnURL
-        res.redirect('/login')
+        res.redirect('/render/login')
       }
     }
 
@@ -96,15 +97,16 @@ exports.registerServer = (app, config) => {
     app.use('/docs', express.static('docs'))
     app.use('/node_modules', express.static('node_modules'))
     app.use('/template', express.static('template'))
-    app.get('/', (req, res) => sendRoot(res))
-    app.get('/login', (req, res) => sendRoot(res))
-    app.get('/profile', (req, res) => sendRoot(res))
+    app.get('/', (req, res) => res.redirect('/render/main'))
+    app.get('/render/main', (req, res) => sendRoot(res))
+    app.get('/render/login', (req, res) => sendRoot(res))
+    app.get('/render/profile', (req, res) => sendRoot(res))
 
     // AJAX
     app.get('/profile/data', (req, res) => res.json(
       req.isAuthenticated() ? req.user.dataValues : {}
     ))
-    app.get('/auth/available', (req, res) => res.json(authentications))
+    app.get('/auth/available', (req, res) => res.json({ providers: authentications }))
     app.get('/info', (req, res) => res.json({
       authenticated: req.isAuthenticated()
     }))
@@ -113,7 +115,7 @@ exports.registerServer = (app, config) => {
     registerProvider = (provider) => {
       app.get(
         `/auth/${provider.urlFragment}/login`, (req, res, next) => {
-          if (req.isAuthenticated()) res.redirect('/profile')
+          if (req.isAuthenticated()) res.redirect('/render/profile')
           passport.authenticate(provider.create)(req, res, next)
         }
       )
@@ -123,7 +125,7 @@ exports.registerServer = (app, config) => {
         }
       )
       function getReturnURL (req) {
-        let returnURL = '/profile'
+        let returnURL = '/render/profile'
         if (req.session.returnURL) {
           returnURL = req.session.returnURL
           req.session.returnURL = null
@@ -153,7 +155,7 @@ exports.registerServer = (app, config) => {
               provider.create,
               (err, user) => {
                 if (err) return next(err)
-                if (!user) return res.redirect('/login')
+                if (!user) return res.redirect('/render/login')
 
                 req.logIn(user, err => {
                   if (err) return next(err)
@@ -189,6 +191,7 @@ exports.registerServer = (app, config) => {
         const registerPromise = require(providerValues.src).register(passport, users, config)
         promises.push(
           registerPromise.then(provider => {
+            assert(provider.urlFragment.indexOf('#') === -1)
             authentications.push({
               provider: provider.urlFragment,
               loginPath: `/auth/${provider.urlFragment}/login`,

@@ -6,18 +6,17 @@
 <link rel="import" href="auth-login.html">
 <link rel="import" href="auth-profile.html">
 
-<script src="../bower_components/js-cookie/src/js.cookie.js"></script>
-
 <dom-module id="auth-main-window">
   <link rel="import" type="css" href="auth-mainwindow.css">
 
   <template>
     <app-location
+      url-space-regex="^/render"
       route="{{_route}}">
     </app-location>
     <app-route
       route="{{_route}}"
-      pattern="/:view"
+      pattern="/render/:view"
       data="{{_routeData}}"
       tail="{{_pagesRoute}}">
     </app-route>
@@ -31,7 +30,7 @@
       fallback-selection="startupscreen">
       <div id="startupscreen">Welcome</div>
       <auth-login id="login">Login</auth-login>
-      <auth-profile id="profile" route="{{_pagesRoute}}">Profile</auth-profile>
+      <auth-profile id="profile">Profile</auth-profile>
     </iron-pages>
   </template>
   <script>
@@ -39,11 +38,6 @@
 
     Polymer({
       is: 'auth-main-window',
-
-      ready: function() {
-        console.log('Reading cookies')
-        console.log(Cookies.get())
-      }
     })
   </script>
 </dom-module>

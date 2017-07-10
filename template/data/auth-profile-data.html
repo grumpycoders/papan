@@ -1,0 +1,83 @@
+<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="auth-available.html">
+
+<dom-module id="auth-profile-data">
+  <template>
+    <iron-ajax
+      id="ajax"
+      auto
+      url="/profile/data"
+      handle-as="json"
+      last-response="{{_profileData}}">
+    </iron-ajax>
+    <auth-available id="authAvailable" auth-available="{{_authAvailable}}"></auth-available>
+  </template>
+  <script>
+    Polymer({
+      is: 'auth-profile-data',
+
+      _providerCompare: (a, b) => {
+        if (a.provider < b.provider) {
+          return -1
+        } else if (a.provider > b.provider) {
+          return 1
+        } else {
+          return 0
+        }
+      },
+
+      properties: {
+        /*
+          user profile
+        */
+        authProfileData: {
+          type: Object,
+          notify: true,
+          observer: "_authProfileDataChanged"
+        },
+
+        _profileData: {
+          type: Object,
+          notify: true,
+          observer: "_gotData"
+        },
+
+        _authAvailable: {
+          type: Array,
+          observer: "_gotData"
+        },
+      },
+
+      _authProfileDataChanged: profile => {
+        console.log("Got user profile data:")
+        console.log(profile)
+      },
+
+      _gotData: function() {
+        if (!this._numRequests) this._numRequests = 0
+        if (++this._numRequests == 2) this._computeAuthProfile()
+      },
+
+      _computeAuthProfile: function() {
+        let profile = this._profileData
+        if (!profile.providedAuths) {
+          this.authProfileData = {}
+          return
+        }
+        let connected = []
+        profile.providedAuths.forEach(auth => {
+          let info = auth.id.split('#')
+          connected.push(auth.provider = info[0])
+          auth.id = info[1]
+        })
+        profile.providedAuths = profile.providedAuths.sort(this._providerCompare)
+        profile.connectable = []
+        this._authAvailable.forEach(auth => {
+          if (!connected.includes(auth.provider)) profile.connectable.push(auth)
+        })
+        this.authProfileData = profile
+      }
+
+    })
+  </script>
+</dom-module>
