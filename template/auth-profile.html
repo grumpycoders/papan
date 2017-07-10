@@ -4,11 +4,19 @@
 <dom-module id="auth-profile">
   <link rel="import" type="css" href="auth-profile.css">
   <template>
+    <style>
+      .profilePicture {
+        width: 64px;
+        height: 64px;
+      }
+    </style>
     <auth-profile-data auth-profile-data="{{_authProfileData}}"></auth-profile-data>
     Profile for [[_authProfileData.screenName]]
+    <template is="dom-if" if="[[_authProfileData.avatarURL]]"><img class="profilePicture" src="[[_authProfileData.avatarURL]]"></img></template>
     Connected accounts:
     <template is="dom-repeat" items="[[_authProfileData.providedAuths]]">
       + [[item.provider]]
+      <template is="dom-if" if="[[item.avatarURL]]"><img class="profilePicture" src="[[item.avatarURL]]"></img></template>
     </template>
     Connectable account providers:
     <template is="dom-repeat" items="[[_authProfileData.connectable]]">
