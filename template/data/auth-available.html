@@ -16,7 +16,7 @@
       is: 'auth-available',
 
       filter: function(e) {
-        this.authavailable = e.detail.response[this.gameid]
+        this.authavailable = e.detail.response
       },
 
       ready: function() {
@@ -28,13 +28,7 @@
           authentification available on this server
         */
         authavailable: {
-          type: Object,
-          value: () => {
-            return {
-              loginPath: '',
-              connectPath: ''
-            }
-          },
+          type: Array,
           notify: true,
         }
       }

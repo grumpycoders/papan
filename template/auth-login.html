@@ -1,3 +1,5 @@
+<link rel="import" href="../bower_components/paper-button/paper-button.html">
+
 <link rel="import" href="data/auth-available.html">
 
 <dom-module id="auth-login">
@@ -7,7 +9,7 @@
     <auth-available authavailable={{_authavailable}}></auth-available>
     <!--{"steam":{"loginPath":"/auth/steam/login","connectPath":"/auth/steam/connect"}}-->
     <template is="dom-repeat" items="[[_authavailable]]">
-      + <a href="[[item.loginPath]]">[[item]]</a>
+      <paper-button raised><a href="[[item.loginPath]]">[[item.provider]]</a></paper-button>
     </template>
   </template>
 
@@ -22,20 +24,10 @@
           achievement data from the DB
         */
         _authavailable: {
-          type: Object,
-          value: () => {
-            return {
-              loginPath: '',
-              connectPath: ''
-            }
-          },
+          type: Array,
           notify: true,
         }
-      },
-      filter: function(e) {
-        this._authavailable = e.detail.response[this._authavailable]
-      },
-
+      }
     })
   </script>
 </dom-module>
