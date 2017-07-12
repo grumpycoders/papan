@@ -1,6 +1,7 @@
 'use strict'
 
 const path = require('path')
+const env = require('process').env
 const express = require('express')
 const bodyParser = require('body-parser')
 const winston = require('winston')
@@ -40,6 +41,14 @@ exports.registerServer = (app, config) => {
   let authentications = []
   let users
   let registerProvider
+
+  if (!config) config = {}
+  if (!config.pgConfig) config.pgConfig = {}
+  config.pgConfig.user = config.pgConfig.user || env.PGUSER
+  config.pgConfig.password = config.pgConfig.password || env.PGPASSWORD
+  config.pgConfig.host = config.pgConfig.host || env.PGHOST
+  config.pgConfig.port = config.pgConfig.port || env.PGPORT
+  config.pgConfig.database = config.pgConfig.database || env.PGDATABASE
 
   return Promise.resolve(userDB.create(config.pgConfig)).then(createdUsers => {
     // We need to create and migrate the database first thing before going on with the rest of the work.

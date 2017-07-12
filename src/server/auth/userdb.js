@@ -94,9 +94,18 @@ class Users {
 
   initialize () {
     const pg = this.pgConfig
-    this.sequelize = new Sequelize(
-      `postgres://${pg.user}:${pg.password}@${pg.host}:${pg.port}/${pg.database}`
-    )
+    if (pg.useSocket) {
+      this.sequelize = new Sequelize(
+        pg.database, pg.user, pg.password, {
+          host: pg.host,
+          dialect: 'postgres'
+        }
+      )
+    } else {
+      this.sequelize = new Sequelize(
+        `postgres://${pg.user}:${pg.password}@${pg.host}:${pg.port}/${pg.database}`
+      )
+    }
 
     const umzug = new Umzug({
       storage: 'sequelize',
