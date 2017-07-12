@@ -6,38 +6,9 @@
 
 <dom-module id="auth-profile">
   <link rel="import" type="css" href="auth-profile.css">
+  <link rel="import" type="css" href="data/auth-provider.css">
   <template>
     <style>
-      .profilearea {
-        box-shadow: 4;
-        padding: 10px;
-        margin: 10px;
-        border-radius: 5px;
-        background-color: #fff;
-        max-width: 500px;
-        min-height: 64px;
-      }
-      .profilearea iron-image {
-        width: 64px;
-        height: 64px;
-        background-color: lightgray;
-        border-radius: 50%;
-        float: right;
-      }
-      .profiletitle {
-        font-size: 12pt;
-        font-weight: bold;
-        margin-top: 10px;
-        margin-bottom: 10px;
-        padding-bottom: 5px;
-        border-bottom: 1px solid lightgrey;
-      }
-      .providercard {
-        max-width: 128px;
-      }
-      paper-card paper-button {
-        font-size: 8pt;
-      }
     </style>
     <auth-profile-data auth-profile-data="{{_authProfileData}}"></auth-profile-data>
 
@@ -68,7 +39,7 @@
     <div class="profilearea">
       <div class="profiletitle">Sign in with</div>
       <template is="dom-repeat" items="[[_authProfileData.connectable]]">
-        <paper-button raised><a href="[[item.connectPath]]">[[item.provider]]</a></paper-button>
+        <paper-button class$="[[item.provider]] loginbutton" raised><a href="[[item.connectPath]]">[[item.provider]]</a></paper-button>
       </template>
     </div>
   </template>
