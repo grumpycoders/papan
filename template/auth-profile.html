@@ -1,0 +1,83 @@
+<link rel="import" href="../bower_components/app-route/app-route.html">
+<link rel="import" href="../bower_components/iron-image/iron-image.html">
+<link rel="import" href="../bower_components/paper-card/paper-card.html">
+<link rel="import" href="../bower_components/paper-button/paper-button.html">
+<link rel="import" href="data/auth-profile-data.html">
+
+<dom-module id="auth-profile">
+  <link rel="import" type="css" href="auth-profile.css">
+  <template>
+    <style>
+      .profilearea {
+        box-shadow: 4;
+        padding: 10px;
+        margin: 10px;
+        border-radius: 5px;
+        background-color: #fff;
+        max-width: 500px;
+        min-height: 64px;
+      }
+      .profilearea iron-image {
+        width: 64px;
+        height: 64px;
+        background-color: lightgray;
+        border-radius: 50%;
+        float: right;
+      }
+      .profiletitle {
+        font-size: 12pt;
+        font-weight: bold;
+        margin-top: 10px;
+        margin-bottom: 10px;
+        padding-bottom: 5px;
+        border-bottom: 1px solid lightgrey;
+      }
+      .providercard {
+        max-width: 128px;
+      }
+      paper-card paper-button {
+        font-size: 8pt;
+      }
+    </style>
+    <auth-profile-data auth-profile-data="{{_authProfileData}}"></auth-profile-data>
+
+    <div class="profilearea">
+      <iron-image preload fade sizing="contain" placeholder="pictures/userpicture.svg" src="[[_authProfileData.avatarURL]]"></iron-image>
+      <div class="profiletitle">[[_authProfileData.screenName]]</div>
+    </div>
+
+    <div class="profilearea">
+      <div class="profiletitle">Signed in through</div>
+      <template is="dom-repeat" items="[[_authProfileData.providedAuths]]">
+        <paper-card 
+          image="[[item.avatarURL]]" 
+          placeholder-image="pictures/userpicture.svg" 
+          preload-image
+          elevation="4"
+          class="providercard">
+          <div class="card-content">
+            <div class="">[[item.provider]]</div>
+            <div class="card-actions">
+              <paper-button raised><a href="#">Sign out</a></paper-button>
+            </div>
+          </div>
+        </paper-card>
+      </template>
+    </div>
+
+    <div class="profilearea">
+      <div class="profiletitle">Sign in with</div>
+      <template is="dom-repeat" items="[[_authProfileData.connectable]]">
+        <paper-button raised><a href="[[item.connectPath]]">[[item.provider]]</a></paper-button>
+      </template>
+    </div>
+  </template>
+
+  <script>
+    'use strict'
+
+    Polymer({
+      is: "auth-profile",
+    })
+  </script>
+</dom-module>

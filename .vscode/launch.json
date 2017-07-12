@@ -5,7 +5,7 @@
       "name": "Debug Main Process",
       "type": "node",
       "request": "launch",
-      "args": ["--auth_server"]
+      "args": ["--auth_server"],
       "preLaunchTask": "install",
       "cwd": "${workspaceRoot}",
       "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron",
@@ -30,14 +30,14 @@
       "name": "Debug Electron Mocha tests",
       "type": "node",
       "request": "launch",
-      "args": ["test/common"]
+      "args": ["test/common"],
       "preLaunchTask": "install",
       "cwd": "${workspaceRoot}",
       "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron",
       "windows": {
         "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron.cmd"
       },
-      "program": "${workspaceRoot}/node_modules/electron-mocha/index.js",
+      "program": "${workspaceRoot}/node_modules/electron-mocha/index.js"
     }
   ]
 }

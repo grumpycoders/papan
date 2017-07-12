@@ -1,0 +1,48 @@
+<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
+
+<dom-module id="auth-available">
+  <template>
+    <iron-ajax
+      id="ajax"
+      auto
+      url="/auth/available"
+      handle-as="json"
+      on-response="filter">
+    </iron-ajax>
+  </template>
+  <script>
+    Polymer({
+      is: 'auth-available',
+
+      _providerCompare: (a, b) => {
+        if (a.provider < b.provider) {
+          return -1
+        } else if (a.provider > b.provider) {
+          return 1
+        } else {
+          return 0
+        }
+      },
+
+      filter: function(e) {
+        this.authAvailable = e.detail.response.providers.sort(this._providerCompare)
+      },
+
+      properties: {
+        /*
+          authentification available on this server
+        */
+        authAvailable: {
+          type: Array,
+          notify: true,
+          observer: "_authAvailableChanged"
+        }
+      },
+
+      _authAvailableChanged: function(list) {
+        console.log("Got list of available auth providers:")
+        console.log(list)
+      }
+    })
+  </script>
+</dom-module>
