@@ -1,5 +1,9 @@
 'use strict'
 
+const path = require('path')
+
+const root = path.normalize(path.join(__dirname, '..', '..', '..', '..'))
+
 const readFile = path => new Promise((resolve, reject) =>
   require('fs').readFile(path, 'ascii',
     (err, data) => {
@@ -57,7 +61,7 @@ module.exports = {
     User.TemporaryCodes = User.hasMany(TemporaryCode)
 
     return Promise.all([
-      readFile('node_modules/connect-pg-simple/table.sql')
+      readFile(path.join(root, 'node_modules', 'connect-pg-simple', 'table.sql'))
         .then(sessionsQuery => sequelize.query(sessionsQuery)),
       sequelize.sync()
     ])
