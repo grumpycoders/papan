@@ -2,6 +2,7 @@ const openidClient = require('openid-client')
 const Provider = require('./provider.js').Provider
 
 exports.register = (passport, users, config) => {
+  Issuer.defaultHttpOptions = { timeout: 10000 }
   return openidClient.Issuer.discover('https://accounts.google.com').then(googleIssuer => {
     const client = new googleIssuer.Client(config.googleAuthConfig)
     client.CLOCK_TOLERANCE = 20
