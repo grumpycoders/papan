@@ -100,12 +100,12 @@ exports.registerServer = (app, config) => {
     function sendRoot (res) {
       res.sendFile(path.join(root, 'auth-index.html'))
     }
-    app.use('/src/common', express.static('src/common'))
-    app.use('/src/client/auth', express.static('src/client/auth'))
-    app.use('/bower_components', express.static('bower_components'))
-    app.use('/docs', express.static('docs'))
-    app.use('/node_modules', express.static('node_modules'))
-    app.use('/template', express.static('template'))
+    app.use('/src/common', express.static(path.join(root, 'src', 'common')))
+    app.use('/src/client/auth', express.static(path.join(root, 'src', 'client', 'auth')))
+    app.use('/bower_components', express.static(path.join(root, 'bower_components')))
+    app.use('/docs', express.static(path.join(root, 'docs')))
+    app.use('/node_modules', express.static(path.join(root, 'node_modules')))
+    app.use('/template', express.static(path.join(root, 'template')))
     app.get('/', (req, res) => res.redirect('/render/main'))
     app.get('/render/main', (req, res) => sendRoot(res))
     app.get('/render/login', (req, res) => sendRoot(res))
