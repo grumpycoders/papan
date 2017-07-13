@@ -1,8 +1,8 @@
 <link rel="import" href="../bower_components/app-layout/app-header/app-header.html">
 <link rel="import" href="../bower_components/app-layout/app-header-layout/app-header-layout.html">
 <link rel="import" href="../bower_components/app-layout/app-toolbar/app-toolbar.html">
-<link rel="import" href="../bower_components/app-route/app-route.html">
 <link rel="import" href="../bower_components/app-route/app-location.html">
+<link rel="import" href="../bower_components/app-route/app-route.html">
 <link rel="import" href="../bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="../bower_components/iron-pages/iron-pages.html">
 <link rel="import" href="../bower_components/paper-button/paper-button.html">
@@ -106,6 +106,12 @@
       <div id="error">404</div>
     </iron-pages>
 
+    <paper-dialog id="logindialog" modal>
+      <paper-input name="username" label="[[localize('username')]]" value=""></paper-input>
+      <paper-input name="password" label="[[localize('password')]]" value=""></paper-input>
+      <paper-button dialog-confirm autofocus>[[localize('connect')]]</paper-button>
+    </paper-dialog>
+
     <paper-dialog id="dbglogindata" modal>
       <div>DBG:USEREDIT</div>
       <paper-input name="username" label="[[localize('username')]]" value="{{_user.username}}"></paper-input>
@@ -149,11 +155,11 @@
       },
 
       _showlogin: function() {
-
+        this.$.logindialog.open()
       },
 
       _signout: function() {
-        
+        _user.islogged = false
       },
 
       _updateServer: function(server) {

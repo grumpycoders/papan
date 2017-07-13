@@ -16,7 +16,7 @@ class LevelCollectionAdaptor {
         if (err) {
           reject(err)
         } else {
-          resolve()
+          resolve(doc)
         }
       })
     })

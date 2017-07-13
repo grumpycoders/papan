@@ -7,13 +7,12 @@ describe('Database', () => {
   it('should create a table', (done) => {
     let db = Database.create()
 
-    db.connect().then(() => {
-      db.table('test').then(() => { done() })
-    })
+    db.connect().then(() =>
+    db.table('test')).then(() => { done() })
   })
 })
 
-describe('Database', function () {
+describe('Database', () => {
   it('should put, get, update and remove a document properly', (done) => {
     let db = Database.create()
     let table

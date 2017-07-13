@@ -12,3 +12,6 @@
 
 # Log failures from Mocha
 *.log
+
+# The configuration files
+/config

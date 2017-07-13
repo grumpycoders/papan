@@ -1,0 +1,47 @@
+<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
+
+<dom-module id="auth-info">
+  <template>
+    <iron-ajax
+      id="ajax"
+      auto
+      url="/info"
+      handle-as="json"
+      last-response="{{authInfo}}">
+    </iron-ajax>
+  </template>
+  <script>
+    Polymer({
+      is: 'auth-info',
+
+      properties: {
+        /*
+          information about the auth server and the current session
+        */
+        authInfo: {
+          type: Object,
+          notify: true,
+          observer: "_gotAuthInfo"
+        },
+
+        isLoggedIn: {
+          type: Boolean,
+          notify: true,
+          value: false
+        },
+
+        isLoggedOut: {
+          type: Boolean,
+          notify: true,
+          value: true
+        }
+      },
+
+      _gotAuthInfo: function(info) {
+        if (!info) info = {}
+        this.isLoggedIn = info.authenticated
+        this.isLoggedOut = !info.authenticated
+      }
+    })
+  </script>
+</dom-module>

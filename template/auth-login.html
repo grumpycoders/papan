@@ -1,0 +1,33 @@
+<link rel="import" href="../bower_components/paper-button/paper-button.html">
+
+<link rel="import" href="data/auth-available.html">
+<link rel="import" href="data/auth-info.html">
+
+<dom-module id="auth-login">
+  <link rel="import" type="css" href="auth-login.css">
+  <link rel="import" type="css" href="data/auth-provider.css">
+  <template>
+    <auth-available auth-available="{{_authAvailable}}"></auth-available>
+    <auth-info auth-info="{{_authInfo}}" is-logged-in="{{_isLoggedIn}}" is-logged-out="{{_isLoggedOut}}"></auth-info>
+    <template is="dom-if" if="[[_isLoggedIn]]">
+      <a href="/logout">Logout</a>
+    </template>
+    <template is="dom-if" if="[[_isLoggedOut]]">
+      <div class="profilearea">
+        <div class="profiletitle">Sign in with</div>
+        <template is="dom-repeat" items="[[_authAvailable]]">
+          <paper-button class$="[[item.provider]] loginbutton" raised ><a href="[[item.loginPath]]">[[item.provider]]</a></paper-button>
+          <br />
+        </template>
+      </div>
+    </template>
+  </template>
+
+  <script>
+    'use strict'
+
+    Polymer({
+      is: "auth-login",
+    })
+  </script>
+</dom-module>

@@ -1,0 +1,40 @@
+paper-icon-item {
+  cursor: pointer;
+}
+
+.appmenuitem {
+  --paper-item: {
+    cursor: pointer;
+  };
+  --paper-icon-item: {
+    cursor: pointer;
+  };
+}
+
+app-header {
+  background-color: royalblue;
+  color: #fff;
+}
+
+app-header paper-icon-button {
+  --paper-icon-button-ink-color: white;
+}
+
+app-header a {
+  color: white;
+  text-decoration: none
+}
+
+app-header a:hover {
+  color: lightgrey;
+  text-decoration: none
+}
+
+app-drawer {
+  z-index: 1000;
+  --app-drawer-scrim-background: rgba(0, 0, 0, 0.8);
+}
+
+app-drawer iron-icon {
+  margin-right: 5px;
+}
