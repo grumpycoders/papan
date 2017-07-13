@@ -2,6 +2,7 @@
 
 const Sequelize = require('sequelize')
 const Umzug = require('umzug')
+const path = require('path')
 
 class Users {
   constructor (config) {
@@ -117,7 +118,7 @@ class Users {
         params: [
           this.sequelize
         ],
-        path: './src/server/auth/migrations',
+        path: path.join(__dirname, 'migrations'),
         pattern: /\.js$/
       },
 
