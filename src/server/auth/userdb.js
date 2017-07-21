@@ -78,7 +78,7 @@ class Users {
         if (result[0].dataValues.userId === userId) {
           return Promise.resolve(user)
         } else {
-          return Promise.reject('Account already connected by someone else')
+          return Promise.reject(Error('Account already connected by someone else'))
         }
       } else {
         return this.ProvidedAuth.create({
