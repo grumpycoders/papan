@@ -6,7 +6,7 @@ message OptionValues {
 
 message GameType {
   // Game type IDs should be unique across the lifetime of a server
-  uint32 game_type_id = 1;
+  string game_type_id = 1;
   string name = 2;
   string version = 3;
   uint32 players_min = 4;

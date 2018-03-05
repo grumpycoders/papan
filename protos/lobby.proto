@@ -11,7 +11,9 @@ message RegisterUpdate {
   }
 }
 
-message RegisterServerResponse {
+message GameCreationRequest {
+  string game_type_id = 1;
+  string game_lobby = 2;
 }
 
 message CreateGameLobby {
@@ -102,7 +104,7 @@ message GameLobbyUpdate {
 service Lobby {
   /* The diffs sent via this method should apply to an array of the information
      contained in a game.json file */
-  rpc RegisterServer (stream RegisterUpdate) returns (RegisterServerResponse);
+  rpc GameServerRegister (stream RegisterUpdate) returns (stream GameCreationRequest);
   
   rpc Lobby (stream LobbyAction) returns (stream LobbyUpdate);
 
