@@ -10,6 +10,8 @@ const session = require('express-session')
 const pg = require('pg')
 const PGSession = require('connect-pg-simple')(session)
 const assert = require('assert')
+const crypto = require('crypto')
+const base64url = require('base64url')
 
 const passport = require('passport')
 
@@ -79,6 +81,16 @@ exports.registerServer = (app, config) => {
       saveUninitialized: false
     }))
 
+    const generateToken = () => new Promise((resolve, reject) => {
+      crypto.randomBytes(48, (err, buffer) => {
+        if (err) {
+          reject(err)
+        } else {
+          resolve(base64url(buffer))
+        }
+      })
+    })
+
     // we'll do ajax
     app.use(bodyParser.json())
 
@@ -115,6 +127,34 @@ exports.registerServer = (app, config) => {
     app.get('/profile/data', (req, res) => res.json(
       req.isAuthenticated() ? req.user.dataValues : {}
     ))
+    app.get('/auth/getcode',
+      passport.authenticated('/auth/getcode'),
+      (req, res) => generateToken()
+      .then(token => users.addTemporaryCode(req.user, token))
+      .then(token => res.json({ code: token.dataValues.id }))
+      .catch(err => res.status(500).send(err))
+    )
+    app.post('/exchange', (req, res) => {
+      let code = req.body.code
+      let userId = -1
+      users.findUserByTemporaryCode(code)
+      .then(user => {
+        if (user) {
+          userId = user.dataValues.id
+          return users.revokeTemporaryCode(code)
+        } else {
+          return Promise.reject(Error('user not found'))
+        }
+      }).then(() => res.json({ userId: userId }))
+      .catch(err => {
+        if (err.message === 'user not found') {
+          res.status(404)
+        } else {
+          res.status(500)
+        }
+        res.send(err)
+      })
+    })
     app.get('/auth/available', (req, res) => res.json({ providers: authentications }))
     app.get('/info', (req, res) => res.json({
       authenticated: req.isAuthenticated()

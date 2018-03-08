@@ -93,6 +93,35 @@ class Users {
     })
   }
 
+  addTemporaryCode (user, code) {
+    return this.TemporaryCode.create({
+      id: code,
+      userId: user.dataValues.id
+    })
+  }
+
+  revokeTemporaryCode (code) {
+    return this.TemporaryCode.findAll({
+      where: {
+        id: code
+      }
+    }).then(result => Promise.all(result.map(code => code.destroy())))
+  }
+
+  findUserByTemporaryCode (code) {
+    return this.TemporaryCode.findAll({
+      where: {
+        id: code
+      }
+    }).then(result => {
+      if (result.length === 0) {
+        return Promise.resolve(false)
+      } else {
+        return this.deserialize({ id: result[0].dataValues.userId })
+      }
+    })
+  }
+
   initialize () {
     const pg = this.pgConfig
     if (pg.useSocket) {
