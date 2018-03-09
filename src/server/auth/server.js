@@ -103,7 +103,7 @@ exports.registerServer = (app, config) => {
     passport.authenticated = returnURL => {
       return (req, res, next) => {
         if (req.isAuthenticated()) return next()
-        req.session.returnURL = returnURL || req.returnURL
+        req.session.returnURL = returnURL || req.returnURL || req.originalUrl
         res.redirect('/render/login')
       }
     }
@@ -128,13 +128,22 @@ exports.registerServer = (app, config) => {
       req.isAuthenticated() ? req.user.dataValues : {}
     ))
     app.get('/auth/getcode',
-      passport.authenticated('/auth/getcode'),
-      (req, res) => generateToken()
+      passport.authenticated(),
+      (req, res, next) => generateToken()
       .then(token => users.addTemporaryCode(req.user, token))
       .then(token => res.json({ code: token.dataValues.id }))
-      .catch(err => res.status(500).send(err))
+      .catch(err => next(err))
     )
-    app.post('/exchange', (req, res) => {
+    app.get('/auth/forwardcode',
+      passport.authenticated(),
+      (req, res, next) => (req.query.returnURL && req.query.returnURL.indexOf('?') < 0
+        ? generateToken()
+        : Promise.reject(Error('Invalid returnURL query parameter'))
+      ).then(token => users.addTemporaryCode(req.user, token))
+      .then(token => res.redirect(req.query.returnURL + '?code=' + token.dataValues.id))
+      .catch(err => next(err))
+    )
+    app.post('/exchange', (req, res, next) => {
       let code = req.body.code
       let userId = -1
       users.findUserByTemporaryCode(code)
@@ -146,14 +155,7 @@ exports.registerServer = (app, config) => {
           return Promise.reject(Error('user not found'))
         }
       }).then(() => res.json({ userId: userId }))
-      .catch(err => {
-        if (err.message === 'user not found') {
-          res.status(404)
-        } else {
-          res.status(500)
-        }
-        res.send(err)
-      })
+      .catch(err => next(err))
     })
     app.get('/auth/available', (req, res) => res.json({ providers: authentications }))
     app.get('/info', (req, res) => res.json({
