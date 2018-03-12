@@ -1,87 +1,50 @@
-import "game_info.proto"
+syntax = "proto3";
+package PapanLobby;
 
-package papan;
-
-message RegisterUpdate {
-  oneof update {
-    GameType type_added = 1;
-    /* We assume that a server will not concurrently add two game types of the
-       same name. If one attempts to do so, the second one should be ignored */
-    string type_removed = 2;
-  }
+message CreateLobby {
+  string lobby_name = 1;
 }
 
-message GameCreationRequest {
-  string game_type_id = 1;
-  string game_lobby = 2;
-}
-
-message CreateGameLobby {
-  uint32 game_type_id = 1;
-  repeated map<string, string> exclusive_options = 2;
-  repeated map<string, OptionValues> group_options = 3;
-}
-
-message LobbyAction {
-  CreateGameLobby create = 1;
-}
-
-message GameInstance {
-  uint32 game_type_id = 1;
-  uint32 current_players = 2;
-  uint32 game_lobby_id = 3;
-  map<string, string> exclusive_options = 4;
-  repeated map<string, OptionValues> group_options = 3;
-}
-
-message LobbyUpdate {
-  oneof update {
-    // A server registered a new game types.
-    GameType type_added = 1;
-    // A server unregistered a game type, or disconnected
-    uint32 type_id_removed = 2;
-    // A player created or joined a game lobby
-    GameInstance instance_updated = 3;
-    // A game lobby became unavailable
-    uint32 instance_removed = 4;
-    // The player making this call created a game lobby
-    GameInstance instace_created = 5;
-  }
-}
-
-enum GameLobbyStateChange {
-  // When all players are ready
-  SET_READY = 0;
-  UNSET_READY = 1;
-  LEAVE = 2;
-}
-
-message GameLobbyAction {
+message Action {
   oneof action {
-    string send_chat_message = 1;
-    GameLobbyStateChange finish = 2;
-    // Only the host can do this
-    string kick_player_id = 3;
+    CreateLobby create_lobby = 1;
   }
+}
+
+message LobbyInfo {
+  string lobby_id = 1;
+  string lobby_name = 2;
+}
+
+message Update {
+  oneof update {
+    LobbyInfo lobby_created = 1;
+  }
+}
+
+message JoinLobby {
+  string lobby_id = 1;
 }
 
 message Player {
-  /* I expect ID to be specific to a single connection to the lobby by that
-     player */
   string player_id = 1;
-  string player_name = 2;
 }
 
-message GameLobbyChatMessage {
-  string sender_player_id = 1;
-  string message_text = 2;
+message ChatMessage {
+  Player player = 1;
+  string message = 2;
 }
 
-message GameInfo {
-  /* Both of these will be passed in the metadata of the RPC to the game server
-     that joins the game */
-  string game_instance_id = 1;
-  string game_instance_player_id = 2;
+message LeaveLobby { }
+
+message LobbyAction {
+  oneof action {
+    JoinLobby join_lobby = 1;
+    ChatMessage send_chat_message = 2;
+    bool set_ready = 3;
+    Player kick_player = 4;
+    LeaveLobby leave_lobby = 5;
+  }
 }
 
 message PlayerReadyUpdate {
@@ -89,26 +52,28 @@ message PlayerReadyUpdate {
   bool ready = 2;
 }
 
-message GameLobbyUpdate {
+message LobbyUpdate {
   oneof update {
-    GameLobbyChatMessage new_chat_message = 1;
+    ChatMessage new_chat_message = 1;
     Player player_joined = 2;
-    // ID of the player that left
-    string player_left = 3;
-    // Should be followed by a server-side half-close
-    GameInfo game_started = 4;
-    PlayerReadyUpdate player_read_update = 5;
+    Player player_left = 3;
+    PlayerReadyUpdate player_ready_update = 4;
   }
 }
 
-service Lobby {
-  /* The diffs sent via this method should apply to an array of the information
-     contained in a game.json file */
-  rpc GameServerRegister (stream RegisterUpdate) returns (stream GameCreationRequest);
-  
-  rpc Lobby (stream LobbyAction) returns (stream LobbyUpdate);
+enum LobbyStatus {
+  CREATED = 0;
+  DESTROYED = 1;
+}
 
-  /* Client metadata contains game lobby ID. Server metadata contains server
-     address */
-  rpc GameLobby (stream GameLobbyAction) returns (stream GameLobbyUpdate);
+message ListLobbiesRequest { }
+message ListLobbiesResponse {
+  LobbyInfo lobby = 1;
+  LobbyStatus status = 2;
+}
+
+service PlayerLobbyService {
+  rpc Subscribe (stream Action) returns (stream Update);
+  rpc Lobby (stream LobbyAction) returns (stream LobbyUpdate);
+  rpc ListLobbies (ListLobbiesRequest) returns (stream ListLobbiesResponse);
 }

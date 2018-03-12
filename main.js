@@ -4,6 +4,11 @@ const PapanUtils = require('./src/common/utils.js')
 const fs = require('fs')
 const argv = require('minimist')(process.argv.slice(2))
 
+let grpcServers = []
+
+// process.env['GRPC_VERBOSITY'] = 'DEBUG'
+// process.env['GRPC_TRACE'] = 'all'
+
 if (PapanUtils.isElectron()) {
   const mainElectron = require('./src/server/main-electron.js')
   mainElectron.main()
@@ -51,4 +56,20 @@ if (argv.auth_server) {
       }
     )
   })
+}
+
+if (argv.lobby_server) {
+  try {
+    require('./src/server/lobby/server.js').registerServer()
+    .then(server => {
+      grpcServers.push(server)
+      const lobbyClient = require('./src/server/lobby/client.js')
+      lobbyClient.test()
+    })
+    .catch(err => {
+      console.error(err)
+    })
+  } catch (err) {
+    console.error(err)
+  }
 }
