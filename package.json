@@ -38,6 +38,7 @@
     "snazzy": "^6.0.0"
   },
   "dependencies": {
+    "base64url": "^2.0.0",
     "body-parser": "^1.17.2",
     "bower": "^1.8.0",
     "command-line-args": "^4.0.1",
