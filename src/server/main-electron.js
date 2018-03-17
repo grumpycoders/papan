@@ -61,28 +61,30 @@ exports.main = (settings) => {
   const BrowserWindow = electron.BrowserWindow
 
   const options = commandline(optionDefinitions, { partial: true })
-  let createWindow
-  const returnPromise = new Promise((resolve, reject) => {
-    createWindow = () => {
-      mainWindow = new BrowserWindow({'width': 1100, 'height': 800})
-      mainWindow.loadURL(url.format({
-        'pathname': path.join(__dirname, '../..', 'index.html'),
-        protocol: 'file:',
-        slashes: true
-      }))
+  const createWindow = settings => {
+    mainWindow = new BrowserWindow({'width': 1100, 'height': 800})
+    mainWindow.loadURL(url.format({
+      'pathname': path.join(__dirname, '../..', 'index.html'),
+      protocol: 'file:',
+      slashes: true
+    }))
 
-      if (options.debug) {
-        mainWindow.webContents.openDevTools()
-      }
-
-      mainWindow.on('closed', function () {
-        mainWindow = null
-      })
-      resolve(settings => lobbyClient.CreateClient(new ElectronClientInterface(), settings))
+    if (options.debug) {
+      mainWindow.webContents.openDevTools()
     }
-  })
 
-  app.on('ready', createWindow)
+    mainWindow.on('closed', function () {
+      mainWindow = null
+    })
+
+    lobbyClient.CreateClient(new ElectronClientInterface(), settings)
+  }
+
+  const returnPromise = new Promise((resolve, reject) => {
+    app.on('ready', () => {
+      resolve(settings => createWindow(settings))
+    })
+  })
 
   app.on('window-all-closed', function () {
     if (process.platform !== 'darwin') {
