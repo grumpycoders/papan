@@ -7,6 +7,10 @@ const util = require('../common/util.js')
 const protoLoader = require('../common/proto.js')
 
 class LobbyClient extends EventEmitter {
+  close () {
+
+  }
+
   getAuthMetadata () {
     let metadata = new grpc.Metadata()
     if (this.papan_code) {

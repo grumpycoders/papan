@@ -61,37 +61,54 @@ exports.main = (settings) => {
   const BrowserWindow = electron.BrowserWindow
 
   const options = commandline(optionDefinitions, { partial: true })
-  let createWindow
-  const returnPromise = new Promise((resolve, reject) => {
-    createWindow = () => {
-      mainWindow = new BrowserWindow({'width': 1100, 'height': 800})
-      mainWindow.loadURL(url.format({
-        'pathname': path.join(__dirname, '../..', 'index.html'),
-        protocol: 'file:',
-        slashes: true
-      }))
+  const createWindow = settings => {
+    mainWindow = new BrowserWindow({'width': 1100, 'height': 800})
+    mainWindow.loadURL(url.format({
+      'pathname': path.join(__dirname, '../..', 'index.html'),
+      protocol: 'file:',
+      slashes: true
+    }))
 
-      if (options.debug) {
-        mainWindow.webContents.openDevTools()
-      }
-
-      mainWindow.on('closed', function () {
-        mainWindow = null
-      })
-      resolve(settings => lobbyClient.CreateClient(new ElectronClientInterface(), settings))
+    if (options.debug) {
+      mainWindow.webContents.openDevTools()
     }
+
+    let client
+
+    mainWindow.on('closed', () => {
+      mainWindow = null
+      if (client) {
+        client.close()
+      }
+    })
+
+    lobbyClient.CreateClient(new ElectronClientInterface(), settings)
+    .then(createdClient => {
+      if (mainWindow) {
+        client = createdClient
+      } else {
+        client.close()
+      }
+    })
+  }
+
+  let isAppReady = false
+
+  const returnPromise = new Promise((resolve, reject) => {
+    app.on('ready', () => {
+      isAppReady = true
+      resolve(settings => createWindow(settings))
+    })
   })
 
-  app.on('ready', createWindow)
-
-  app.on('window-all-closed', function () {
+  app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') {
       app.quit()
     }
   })
 
-  app.on('activate', function () {
-    if (mainWindow === null) {
+  app.on('activate', () => {
+    if (isAppReady && mainWindow === null) {
       createWindow()
     }
   })
