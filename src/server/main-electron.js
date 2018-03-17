@@ -73,27 +73,42 @@ exports.main = (settings) => {
       mainWindow.webContents.openDevTools()
     }
 
-    mainWindow.on('closed', function () {
+    let client
+
+    mainWindow.on('closed', () => {
       mainWindow = null
+      if (client) {
+        client.close()
+      }
     })
 
     lobbyClient.CreateClient(new ElectronClientInterface(), settings)
+    .then(createdClient => {
+      if (mainWindow) {
+        client = createdClient
+      } else {
+        client.close()
+      }
+    })
   }
+
+  let isAppReady = false
 
   const returnPromise = new Promise((resolve, reject) => {
     app.on('ready', () => {
+      isAppReady = true
       resolve(settings => createWindow(settings))
     })
   })
 
-  app.on('window-all-closed', function () {
+  app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') {
       app.quit()
     }
   })
 
-  app.on('activate', function () {
-    if (mainWindow === null) {
+  app.on('activate', () => {
+    if (isAppReady && mainWindow === null) {
       createWindow()
     }
   })
