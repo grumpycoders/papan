@@ -1,28 +1,19 @@
 'use strict'
 
-const fs = require('fs')
 const grpc = require('grpc')
 const request = require('request-promise-native')
 const _ = require('lodash')
-const protoLoader = require('./proto.js')
+const protoLoader = require('../common/proto.js')
 const util = require('../common/util.js')
 
 const serverDefaults = {
   requiresAuth: true,
-  authServer: 'https://auth.papan.online'
-}
-
-function readFile (filename) {
-  return new Promise((resolve, reject) => {
-    fs.readFile(filename, (err, data) => {
-      resolve(err ? undefined : data)
-    })
-  })
+  authServer: 'https://auth.papan.online',
+  port: 5051
 }
 
 exports.registerServer = options => {
   let sessions = {}
-  let lobbies = {}
 
   options = _.defaults(options, serverDefaults)
   const checkCredentialsGenerator = credentialsVerifier => handlerOrService => {
@@ -88,7 +79,7 @@ exports.registerServer = options => {
           return util.generateToken()
         })
         .then(token => {
-          session[token] = userId
+          sessions[token] = userId
           let metadata = new grpc.Metadata()
           metadata.set('papan-session', token)
           return metadata
@@ -100,11 +91,11 @@ exports.registerServer = options => {
     }
   })
 
-  let work = [
-    readFile('certs/localhost-ca.crt'),
-    readFile('certs/localhost-server.crt'),
-    readFile('certs/localhost-server.key'),
-    protoLoader.load()
+  const work = [
+    util.readFile('certs/localhost-ca.crt'),
+    util.readFile('certs/localhost-server.crt'),
+    util.readFile('certs/localhost-server.key'),
+    protoLoader.load('lobby.proto')
   ]
 
   return Promise.all(work).then(results => {
@@ -118,19 +109,17 @@ exports.registerServer = options => {
     grpcServer.addService(lobbyProto.PlayerLobbyService.service, checkCredentials({
       Subscribe: call => {
         console.log(call)
-        call.end()
       },
       Lobby: call => {
         console.log(call)
-        call.end()
       },
       ListLobbies: call => {
         console.log(call)
-        call.end()
+        call.on('end', () => call.end())
       }
     }))
 
-    grpcServer.bind('0.0.0.0:5051', sslCreds)
+    grpcServer.bind('0.0.0.0:' + options.port, sslCreds)
     grpcServer.start()
 
     return grpcServer

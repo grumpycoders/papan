@@ -6,7 +6,7 @@ const recursive = require('recursive-readdir')
 const protosdirs = ['protos']
 let allprotos = {}
 
-exports.load = () => {
+exports.load = filename => {
   let root = new protobufjs.Root()
   root.resolvePath = (origin, target) => {
     let foundValue = ''
@@ -23,7 +23,7 @@ exports.load = () => {
     protosdirs.map((key, index) => {
       allprotos[key] = results[index]
     })
-    return protobufjs.load('lobby.proto', root)
+    return protobufjs.load(filename, root)
   })
   .then(proto => {
     return grpc.loadObject(proto)

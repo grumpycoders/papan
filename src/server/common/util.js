@@ -1,6 +1,7 @@
 'use strict'
 
 const crypto = require('crypto')
+const fs = require('fs')
 const base64url = require('base64url')
 
 exports.generateToken = () => new Promise((resolve, reject) => {
@@ -10,5 +11,11 @@ exports.generateToken = () => new Promise((resolve, reject) => {
     } else {
       resolve(base64url(buffer))
     }
+  })
+})
+
+exports.readFile = filename => new Promise((resolve, reject) => {
+  fs.readFile(filename, (err, data) => {
+    resolve(err ? undefined : data)
   })
 })

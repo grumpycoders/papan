@@ -6,6 +6,7 @@ const deepDiff = require('deep-diff')
 const optionDefinitions = [
   { name: 'debug', type: Boolean }
 ]
+let mainWindow
 
 const electron = require('electron')
 const ipc = electron.ipcMain
@@ -14,31 +15,72 @@ const path = require('path')
 const url = require('url')
 
 const instance = require('./game/game-instance.js')
+const lobbyClient = require('./lobby/client.js')
 
-exports.main = () => {
+class ElectronClientInterface extends lobbyClient.ClientInterface {
+  getAuthorizationCode () {
+    const electron = require('electron')
+    const authServerURL = 'https://auth.papan.online'
+    const authRequestURL = authServerURL + '/auth/forwardcode?returnURL=https://auth.papan.online/auth/electronreturn'
+    let window = new electron.BrowserWindow({ parent: mainWindow, width: 800, height: 600 })
+    let success = false
+    let promise = new Promise((resolve, reject) => {
+      const closedListener = () => {
+        console.log('closed')
+        if (!success) {
+          reject(Error('Authorization window closed'))
+        }
+      }
+      const filter = { urls: [authServerURL] }
+      const returnPrefix = authServerURL + '/auth/electronreturn?code='
+      electron.session.defaultSession.webRequest.onBeforeRequest(filter, (details, callback) => {
+        const response = { cancel: false }
+        response.cancel = false
+        if (details.url.startsWith(returnPrefix)) {
+          const code = details.url.substr(returnPrefix.length)
+          success = true
+          window.removeListener('closed', closedListener)
+          window.close()
+          response.cancel = true
+          callback(response)
+          resolve(code)
+        } else {
+          callback(response)
+        }
+      })
+      window.on('closed', closedListener)
+    })
+    window.once('ready-to-show', () => window.show())
+    window.loadURL(authRequestURL)
+    return promise
+  }
+}
+
+exports.main = (settings) => {
   const app = electron.app
   const BrowserWindow = electron.BrowserWindow
 
   const options = commandline(optionDefinitions, { partial: true })
+  let createWindow
+  const returnPromise = new Promise((resolve, reject) => {
+    createWindow = () => {
+      mainWindow = new BrowserWindow({'width': 1100, 'height': 800})
+      mainWindow.loadURL(url.format({
+        'pathname': path.join(__dirname, '../..', 'index.html'),
+        protocol: 'file:',
+        slashes: true
+      }))
 
-  let mainWindow
+      if (options.debug) {
+        mainWindow.webContents.openDevTools()
+      }
 
-  function createWindow () {
-    mainWindow = new BrowserWindow({'width': 1100, 'height': 800})
-    mainWindow.loadURL(url.format({
-      'pathname': path.join(__dirname, '../..', 'index.html'),
-      protocol: 'file:',
-      slashes: true
-    }))
-
-    if (options.debug) {
-      mainWindow.webContents.openDevTools()
+      mainWindow.on('closed', function () {
+        mainWindow = null
+      })
+      resolve(settings => lobbyClient.CreateClient(new ElectronClientInterface(), settings))
     }
-
-    mainWindow.on('closed', function () {
-      mainWindow = null
-    })
-  }
+  })
 
   app.on('ready', createWindow)
 
@@ -92,4 +134,6 @@ exports.main = () => {
         break
     }
   })
+
+  return returnPromise
 }

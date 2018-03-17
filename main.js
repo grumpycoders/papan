@@ -6,16 +6,39 @@ const argv = require('minimist')(process.argv.slice(2))
 
 let grpcServers = []
 
-// process.env['GRPC_VERBOSITY'] = 'DEBUG'
-// process.env['GRPC_TRACE'] = 'all'
-
-if (PapanUtils.isElectron()) {
-  const mainElectron = require('./src/server/main-electron.js')
-  mainElectron.main()
+const settings = {
+  connectLocal: false
 }
 
-const mainNode = require('./src/server/main-node.js')
-mainNode.main()
+const lobbyStartup = () => argv.lobby_server
+? require('./src/server/lobby/server.js').registerServer()
+  .then(server => {
+    settings.connectLocal = true
+    grpcServers.push(server)
+  })
+: Promise.resolve()
+
+const electronStartup = () => PapanUtils.isElectron()
+? require('./src/server/main-electron.js').main()
+: Promise.resolve(() => {})
+
+const nodeStartup = () => require('./src/server/main-node.js').main(settings)
+
+Promise.all([
+  lobbyStartup(),
+  electronStartup(),
+  nodeStartup()
+])
+.then(results => {
+  results[1](settings)
+  console.log('Started')
+})
+.catch(err => {
+  console.error(err)
+})
+
+// process.env['GRPC_VERBOSITY'] = 'DEBUG'
+// process.env['GRPC_TRACE'] = 'all'
 
 function readJSON (filename) {
   return new Promise((resolve, reject) => {
@@ -56,20 +79,4 @@ if (argv.auth_server) {
       }
     )
   })
-}
-
-if (argv.lobby_server) {
-  try {
-    require('./src/server/lobby/server.js').registerServer()
-    .then(server => {
-      grpcServers.push(server)
-      const lobbyClient = require('./src/server/lobby/client.js')
-      lobbyClient.test()
-    })
-    .catch(err => {
-      console.error(err)
-    })
-  } catch (err) {
-    console.error(err)
-  }
 }

@@ -10,4 +10,6 @@ exports.main = () => {
   app.use(express.static(path.join(__dirname, '../..')))
 
   app.listen(port)
+
+  return Promise.resolve()
 }
