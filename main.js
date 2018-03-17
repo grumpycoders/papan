@@ -1,7 +1,7 @@
 'use strict'
 
 const PapanUtils = require('./src/common/utils.js')
-const fs = require('fs')
+const PapanServerUtils = require('./src/server/utils.js')
 const argv = require('minimist')(process.argv.slice(2))
 
 let grpcServers = []
@@ -40,22 +40,14 @@ Promise.all([
 // process.env['GRPC_VERBOSITY'] = 'DEBUG'
 // process.env['GRPC_TRACE'] = 'all'
 
-function readJSON (filename) {
-  return new Promise((resolve, reject) => {
-    fs.readFile(filename, (err, data) => {
-      resolve(err ? undefined : JSON.parse(data))
-    })
-  })
-}
-
 if (argv.auth_server) {
   Promise.all([
-    readJSON('config/google-auth-config.json'),
-    readJSON('config/facebook-auth-config.json'),
-    readJSON('config/twitter-auth-config.json'),
-    readJSON('config/steam-auth-config.json'),
-    readJSON('config/pg-config.json'),
-    readJSON('config/http-config.json')
+    PapanServerUtils.readJSON('config/google-auth-config.json'),
+    PapanServerUtils.readJSON('config/facebook-auth-config.json'),
+    PapanServerUtils.readJSON('config/twitter-auth-config.json'),
+    PapanServerUtils.readJSON('config/steam-auth-config.json'),
+    PapanServerUtils.readJSON('config/pg-config.json'),
+    PapanServerUtils.readJSON('config/http-config.json')
   ]).then(values => {
     const config = {
       googleAuthConfig: values[0],

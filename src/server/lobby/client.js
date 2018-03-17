@@ -62,9 +62,9 @@ class ClientInterface {
 
 }
 
-module.exports.ClientInterface = ClientInterface
+exports.ClientInterface = ClientInterface
 
-module.exports.CreateClient = (clientInterface, options) => {
+exports.CreateClient = (clientInterface, options) => {
   options = _.defaults(options, clientDefaults)
   if (options.connectLocal) {
     options.lobbyServer = 'localhost'
