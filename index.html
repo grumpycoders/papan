@@ -4,9 +4,11 @@
     <meta charset="UTF-8">
     <title>Papan</title>
     <script src="node_modules/deep-diff/releases/deep-diff-0.3.4.min.js"></script>
+    <script src="node_modules/socket.io-client/dist/socket.io.js"></script>
     <script src="src/common/utils.js"></script>
     <script src="bower_components/webcomponentsjs/webcomponents-lite.js"></script>
-    <link rel="import" href="template/mainwindow.html">
+    <!-- <link rel="import" href="template/mainwindow.html"> -->
+    <link rel="import" href="template/placeholder.html">
 
     <style is="papan-style">
       html:not([style-scope]):not(.style-scope),body:not([style-scope]):not(.style-scope) {
@@ -20,6 +22,28 @@
         display: none;
       }
     </style>
+
+    <script>
+      let channel
+      if (PapanUtils.isElectron()) {
+        const electron = require('electron')
+        const ipc = electron.ipcRenderer
+        class Channel {
+          on(event, callback) {
+            ipc.on(event, (event, data) => callback(data))
+          }
+          once(event, callback) {
+            ipc.once(event, (event, data) => callback(data))
+          }
+          send(event, data) {
+            ipc.send(event, data)
+          }
+        }
+        channel = new Channel()
+      } else {
+        // TODO: socket.io implementation
+      }
+    </script>
 
     <noscript>
       <style is="papan-js-off">

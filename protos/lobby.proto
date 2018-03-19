@@ -11,6 +11,8 @@ message Action {
   }
 }
 
+message Subscribed {}
+
 message LobbyInfo {
   string lobby_id = 1;
   string lobby_name = 2;
@@ -18,7 +20,8 @@ message LobbyInfo {
 
 message Update {
   oneof update {
-    LobbyInfo lobby_created = 1;
+    Subscribed subscribed = 1;
+    LobbyInfo lobby_created = 2;
   }
 }
 

@@ -25,6 +25,7 @@ class LobbyClient extends EventEmitter {
     let call = this.grpcClient.Subscribe()
     call.on('error', err => {
       if (err.code === grpc.status.UNAUTHENTICATED) {
+        this.clientInterface.setLobbyConnectionStatus('AUTHENTICATING')
         this.clientInterface.getAuthorizationCode()
         .then(code => {
           this.papan_code = code
@@ -41,7 +42,11 @@ class LobbyClient extends EventEmitter {
       console.log(status)
     })
     call.on('data', data => {
-      console.log(data)
+      switch (data.update) {
+        case 'subscribed':
+          this.clientInterface.setLobbyConnectionStatus('CONNECTED')
+          break
+      }
     })
     call.on('end', () => {
       console.log('end')
@@ -63,7 +68,21 @@ const clientDefaults = {
 }
 
 class ClientInterface {
+  constructor (channel) {
+    this.channel = channel
+    this.lobbyConnectionStatus = 'NOTCONNECTED'
+    this.channel.on('GetLobbyConnectionStatus', data => {
+      this.sendLobbyConnectionStatus()
+    })
+  }
+  sendLobbyConnectionStatus () {
+    this.channel.send('LobbyConnectionStatus', { status: this.lobbyConnectionStatus })
+  }
 
+  setLobbyConnectionStatus (status) {
+    this.lobbyConnectionStatus = status
+    this.sendLobbyConnectionStatus()
+  }
 }
 
 exports.ClientInterface = ClientInterface
@@ -75,6 +94,7 @@ exports.CreateClient = (clientInterface, options) => {
     options.lobbyServerPort = 5051
   }
   const serverAddress = options.lobbyServer + ':' + options.lobbyServerPort
+  clientInterface.setLobbyConnectionStatus('CONNECTING')
 
   const work = [
     util.readFile('certs/localhost-ca.crt'),

@@ -108,6 +108,9 @@ exports.registerServer = options => {
     )
     grpcServer.addService(lobbyProto.PlayerLobbyService.service, checkCredentials({
       Subscribe: call => {
+        call.write({
+          subscribed: {}
+        })
         console.log(call)
       },
       Lobby: call => {

@@ -4,9 +4,9 @@ const crypto = require('crypto')
 const fs = require('fs')
 const base64url = require('base64url')
 
-exports.generateToken = () =>
+exports.generateToken = (length = 48) =>
 new Promise((resolve, reject) => {
-  crypto.randomBytes(48, (err, buffer) => {
+  crypto.randomBytes(length, (err, buffer) => {
     if (err) {
       reject(err)
     } else {

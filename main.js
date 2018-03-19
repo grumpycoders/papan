@@ -6,14 +6,9 @@ const argv = require('minimist')(process.argv.slice(2))
 
 let grpcServers = []
 
-const settings = {
-  connectLocal: false
-}
-
-const lobbyStartup = () => argv.lobby_server
+const lobbyStartup = () => argv.lobby_server && !PapanUtils.isElectron()
 ? require('./src/server/lobby/server.js').registerServer()
   .then(server => {
-    settings.connectLocal = true
     grpcServers.push(server)
   })
 : Promise.resolve()
@@ -22,7 +17,7 @@ const electronStartup = () => PapanUtils.isElectron()
 ? require('./src/server/main-electron.js').main()
 : Promise.resolve(() => {})
 
-const nodeStartup = () => require('./src/server/main-node.js').main(settings)
+const nodeStartup = () => require('./src/server/main-node.js').main()
 
 Promise.all([
   lobbyStartup(),
@@ -30,7 +25,7 @@ Promise.all([
   nodeStartup()
 ])
 .then(results => {
-  results[1](settings)
+  results[1]()
   console.log('Started')
 })
 .catch(err => {
