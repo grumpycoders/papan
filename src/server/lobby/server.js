@@ -111,7 +111,22 @@ exports.registerServer = options => {
         call.write({
           subscribed: {}
         })
-        console.log(call)
+        call.on('data', data => {
+          switch (data.action) {
+            case 'create_action':
+              util.generateToken()
+              .then(token => {
+                // store it in persist
+                call.write({
+                  lobby_created: {
+                    lobby_id: token,
+                    lobby_name: data.create_lobby.lobby_name
+                  }
+                })
+              })
+              break
+          }
+        })
       },
       Lobby: call => {
         console.log(call)

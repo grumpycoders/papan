@@ -7,6 +7,11 @@ const util = require('../common/util.js')
 const protoLoader = require('../common/proto.js')
 
 class LobbyClient extends EventEmitter {
+  constructor () {
+    super()
+    this.pendingSubscriptionActions = []
+  }
+
   close () {
 
   }
@@ -45,6 +50,7 @@ class LobbyClient extends EventEmitter {
       switch (data.update) {
         case 'subscribed':
           this.clientInterface.setLobbyConnectionStatus('CONNECTED')
+          this.processSubscriptionActions()
           break
       }
     })
@@ -58,6 +64,38 @@ class LobbyClient extends EventEmitter {
       }
     })
     this.subscription = call
+  }
+
+  processSubscriptionActions () {
+    if (this.clientInterface.getLobbyConnectionStatus() !== 'CONNECTED') {
+      return
+    }
+
+    this.pendingSubscriptionActions.forEach(pending =>
+      this.subscription.write(pending.message)
+    )
+  }
+
+  createLobby (data) {
+    if (this.pendingLobbyCreation) {
+      return Promise.reject(Error('Lobby creation already in progress'))
+    }
+
+    this.pendingLobbyCreation = {}
+    let promise = Promise((resolve, reject) => {
+      this.pendingLobbyCreation.resolve = resolve
+      this.pendingLobbyCreation.reject = reject
+    })
+    this.pendingLobbyCreation.message = {
+      create_lobby: {
+        lobby_name: data.lobby_name
+      }
+    }
+
+    this.pendingSubscriptionActions.push(this.pendingLobbyCreation)
+    this.processSubscriptionActions()
+
+    return promise
   }
 }
 
@@ -75,6 +113,11 @@ class ClientInterface {
       this.sendLobbyConnectionStatus()
     })
   }
+
+  getLobbyConnectionStatus () {
+    return this.lobbyConnectionStatus
+  }
+
   sendLobbyConnectionStatus () {
     this.channel.send('LobbyConnectionStatus', { status: this.lobbyConnectionStatus })
   }

@@ -1,13 +1,20 @@
 <link rel="import" href="../bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../bower_components/paper-dialog/paper-dialog.html">
 <link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../bower_components/paper-input/paper-input.html">
 
 <dom-module id="papan-main-window">
   <template>
-    <paper-icon-button icon="launch" on-tap="_connectToLocalLobby"></paper-icon-button>
-    <div>[[_status]]</div>
-  </template>
+    <paper-button on-tap="_connectToLocalLobby">Launch and connect to local lobby</paper-button>
+    <div>Connection status: [[_status]]</div>
+    <paper-button id="createLobby" disabled on-tap="_createLobby">Create lobby</paper-button>
 
+    <paper-dialog id="lobbycreation" modal>
+      <paper-input id="lobbyname" label="Lobby name" value="My Lobby"></paper-input>
+      <paper-button dialog-confirm autofocus on-tap="_validateLobbyName">Create</paper-button>
+    </paper-dialog>  
+  </template>
   <script>
     'use strict'
 
@@ -18,11 +25,20 @@
         channel.send('GetLobbyConnectionStatus')
         channel.on('LobbyConnectionStatus', data => {
           this._status = data.status
+          this.$.createLobby.disabled = this._status !== 'CONNECTED'
         })
       },
 
       _connectToLocalLobby: function() {
-        channel.send('ConnectToLobby', { connectLocal: true })
+        channel.send('ConnectToLobbyServer', { connectLocal: true })
+      },
+
+      _createLobby: function() {
+        this.$.lobbycreation.open()
+      },
+
+      _validateLobbyName: function() {
+        channel.send('CreateLobby', { lobbyName: this.$.lobbyname.value })
       }
     })
 

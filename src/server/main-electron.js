@@ -82,7 +82,10 @@ exports.main = () => {
   let client
   let clientInterface = new ElectronClientInterface()
 
-  clientInterface.channel.on('ConnectToLobby', data => {
+  clientInterface.channel.on('ConnectToLobbyServer', data => {
+    if (clientInterface.getLobbyConnectionStatus() !== 'NOTCONNECTED') {
+      return
+    }
     let premise
     if (data.connectLocal) {
       clientInterface.setLobbyConnectionStatus('STARTINGLOBBY')
@@ -100,7 +103,27 @@ exports.main = () => {
         client = createdClient
       } else {
         client.close()
+        client = null
       }
+    })
+  })
+
+  clientInterface.channel.on('CreateLobby', data => {
+    if (clientInterface.getLobbyConnectionStatus() !== 'CONNECTED' || !client) {
+      return
+    }
+
+    client.createLobby({ lobby_name: data.lobbyName })
+    .then(lobbyId => {
+      clientInterface.send('LobbyCreated', {
+        lobbyId: lobbyId,
+        lobbyName: data.lobbyName
+      })
+    })
+    .catch(err => {
+      clientInterface.send('ErrorMessage', {
+        err: err
+      })
     })
   })
 
