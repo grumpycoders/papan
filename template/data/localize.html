@@ -2,7 +2,12 @@
 <link rel="import" href="../../bower_components/app-localize-behavior/app-localize-behavior.html">
 
 <script>
-  PapanLocalizeImpl = {
+  /**
+   * Behavior
+   *
+   * @polymerBehavior PapanLocalizeImpl
+   */
+   PapanLocalizeImpl = {
     properties: {
       language: {
         value: 'en',
@@ -14,5 +19,10 @@
     },
   };
 
+  /**
+   * Behavior that translates text into the selected language in the settings.
+   *
+   * @polymerBehavior PapanLocalize
+   */
   PapanLocalize = [PapanLocalizeImpl, Polymer.AppLocalizeBehavior]; 
 </script>
