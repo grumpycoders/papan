@@ -4,7 +4,7 @@
 <link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../bower_components/paper-input/paper-input.html">
 
-<dom-module id="papan-main-window">
+<dom-module id="papan-placeholder">
   <template>
     <paper-button on-tap="_connectToLocalLobby">Launch and connect to local lobby</paper-button>
     <div>Connection status: [[_status]]</div>
@@ -24,7 +24,7 @@
     'use strict'
 
     Polymer({
-      is: "papan-main-window",
+      is: "papan-placeholder",
 
       ready() {
         channel.send('GetLobbyConnectionStatus')
