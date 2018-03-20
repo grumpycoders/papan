@@ -48,9 +48,15 @@ class LobbyClient extends EventEmitter {
     })
     call.on('data', data => {
       switch (data.update) {
+        case 'error':
+          this.clientInterface.sendError(data.error.message)
+          break
         case 'subscribed':
           this.clientInterface.setLobbyConnectionStatus('CONNECTED')
           this.processSubscriptionActions()
+          break
+        case 'lobbyCreated':
+          this.clientInterface.lobbyCreated(data.lobbyCreated)
           break
       }
     })
@@ -77,25 +83,12 @@ class LobbyClient extends EventEmitter {
   }
 
   createLobby (data) {
-    if (this.pendingLobbyCreation) {
-      return Promise.reject(Error('Lobby creation already in progress'))
-    }
-
-    this.pendingLobbyCreation = {}
-    let promise = Promise((resolve, reject) => {
-      this.pendingLobbyCreation.resolve = resolve
-      this.pendingLobbyCreation.reject = reject
-    })
-    this.pendingLobbyCreation.message = {
-      create_lobby: {
-        lobby_name: data.lobby_name
+    this.pendingSubscriptionActions.push({
+      message: {
+        createLobby: data
       }
-    }
-
-    this.pendingSubscriptionActions.push(this.pendingLobbyCreation)
+    })
     this.processSubscriptionActions()
-
-    return promise
   }
 }
 
@@ -125,6 +118,14 @@ class ClientInterface {
   setLobbyConnectionStatus (status) {
     this.lobbyConnectionStatus = status
     this.sendLobbyConnectionStatus()
+  }
+
+  sendError (message) {
+    this.channel.send('Error', { message: message })
+  }
+
+  lobbyCreated (data) {
+    this.channel.send('LobbyCreated', { lobbyCreated: data })
   }
 }
 

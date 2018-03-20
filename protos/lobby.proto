@@ -11,6 +11,10 @@ message Action {
   }
 }
 
+message Error {
+  string message = 1;
+}
+
 message Subscribed {}
 
 message LobbyInfo {
@@ -20,8 +24,9 @@ message LobbyInfo {
 
 message Update {
   oneof update {
-    Subscribed subscribed = 1;
-    LobbyInfo lobby_created = 2;
+    Error error = 1;
+    Subscribed subscribed = 2;
+    LobbyInfo lobby_created = 3;
   }
 }
 

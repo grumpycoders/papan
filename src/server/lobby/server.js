@@ -5,6 +5,7 @@ const request = require('request-promise-native')
 const _ = require('lodash')
 const protoLoader = require('../common/proto.js')
 const util = require('../common/util.js')
+const persist = require('./persist.js')
 
 const serverDefaults = {
   requiresAuth: true,
@@ -113,16 +114,33 @@ exports.registerServer = options => {
         })
         call.on('data', data => {
           switch (data.action) {
-            case 'create_action':
-              util.generateToken()
-              .then(token => {
-                // store it in persist
-                call.write({
-                  lobby_created: {
-                    lobby_id: token,
-                    lobby_name: data.create_lobby.lobby_name
+            case 'createLobby':
+              let createLobby = () => {
+                return util.generateToken()
+                .then(token => persist.createLobby({
+                  userId: call.metadata.get('papan-userid'),
+                  lobbyId: token,
+                  lobbyName: data.createLobby.lobbyName
+                }))
+                .then(lobbyId => {
+                  if (lobbyId) {
+                    return lobbyId
+                  } else {
+                    return createLobby()
                   }
                 })
+              }
+              createLobby()
+              .then(lobbyId => {
+                call.write({
+                  lobbyCreated: {
+                    lobbyId: lobbyId,
+                    lobbyName: data.createLobby.lobbyName
+                  }
+                })
+              })
+              .catch(err => {
+                call.write({ error: { errorString: err.toString() } })
               })
               break
           }

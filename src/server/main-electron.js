@@ -37,6 +37,7 @@ class ElectronClientInterface extends lobbyClient.ClientInterface {
       authServerURL: 'https://auth.papan.online'
     })
   }
+
   getAuthorizationCode () {
     const electron = require('electron')
     const authServerURL = this.settings.authServerURL
@@ -113,21 +114,10 @@ exports.main = () => {
       return
     }
 
-    client.createLobby({ lobby_name: data.lobbyName })
-    .then(lobbyId => {
-      clientInterface.send('LobbyCreated', {
-        lobbyId: lobbyId,
-        lobbyName: data.lobbyName
-      })
-    })
-    .catch(err => {
-      clientInterface.send('ErrorMessage', {
-        err: err
-      })
-    })
+    client.createLobby(data)
   })
 
-  const options = commandline(optionDefinitions, { partial: true })
+  const options = commandline(optionDefinitions, { partial: true, argv: process.argv })
   function createWindow () {
     mainWindow = new BrowserWindow({ width: 1100, height: 800 })
     mainWindow.loadURL(url.format({

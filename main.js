@@ -2,7 +2,12 @@
 
 const PapanUtils = require('./src/common/utils.js')
 const PapanServerUtils = require('./src/server/utils.js')
-const argv = require('minimist')(process.argv.slice(2))
+const commandline = require('command-line-args')
+const optionDefinitions = [
+  { name: 'lobby_server', type: Boolean },
+  { name: 'auth_server', type: Boolean }
+]
+const argv = commandline(optionDefinitions, { partial: true, argv: process.argv })
 
 let grpcServers = []
 

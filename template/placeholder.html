@@ -10,10 +10,15 @@
     <div>Connection status: [[_status]]</div>
     <paper-button id="createLobby" disabled on-tap="_createLobby">Create lobby</paper-button>
 
-    <paper-dialog id="lobbycreation" modal>
-      <paper-input id="lobbyname" label="Lobby name" value="My Lobby"></paper-input>
+    <paper-dialog id="lobbyCreation" modal>
+      <paper-input id="lobbyName" label="Lobby name" value="My Lobby"></paper-input>
       <paper-button dialog-confirm autofocus on-tap="_validateLobbyName">Create</paper-button>
-    </paper-dialog>  
+    </paper-dialog>
+
+    <paper-dialog id="errorMessage" modal>
+      <div>[[_errorMessage]]</div>
+      <paper-button dialog-confirm autofocus>Close</paper-button>
+    </paper-dialog>
   </template>
   <script>
     'use strict'
@@ -23,9 +28,16 @@
 
       ready() {
         channel.send('GetLobbyConnectionStatus')
+        channel.on('Error', error => {
+          this._errorMessage = error.message
+          this.$.errorMessage.open()
+        })
         channel.on('LobbyConnectionStatus', data => {
           this._status = data.status
           this.$.createLobby.disabled = this._status !== 'CONNECTED'
+        })
+        channel.on('LobbyCreated', lobbyInfo => {
+          
         })
       },
 
@@ -34,11 +46,11 @@
       },
 
       _createLobby: function() {
-        this.$.lobbycreation.open()
+        this.$.lobbyCreation.open()
       },
 
       _validateLobbyName: function() {
-        channel.send('CreateLobby', { lobbyName: this.$.lobbyname.value })
+        channel.send('CreateLobby', { lobbyName: this.$.lobbyName.value })
       }
     })
 
