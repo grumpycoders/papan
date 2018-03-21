@@ -55,7 +55,6 @@ class ElectronClientInterface extends lobbyClient.ClientInterface {
       const returnPrefix = authServerURL + '/auth/electronreturn?code='
       electron.session.defaultSession.webRequest.onBeforeRequest(filter, (details, callback) => {
         const response = { cancel: false }
-        response.cancel = false
         if (details.url.startsWith(returnPrefix)) {
           const code = details.url.substr(returnPrefix.length)
           success = true
