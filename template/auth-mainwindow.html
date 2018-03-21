@@ -5,6 +5,7 @@
 <link rel="import" href="../bower_components/app-layout/app-layout.html">
 <link rel="import" href="../bower_components/iron-pages/iron-pages.html">
 <link rel="import" href="../bower_components/paper-card/paper-card.html">
+<link rel="import" href="../bower_components/paper-button/paper-button.html">
 
 <link rel="import" href="auth-login.html">
 <link rel="import" href="auth-profile.html">
@@ -33,7 +34,11 @@
       selected="[[_routeData.view]]"
       attr-for-selected="id"
       fallback-selection="startupscreen">
-      <div id="startupscreen">Welcome</div>
+      <div id="startupscreen">
+        Welcome<br />
+        <a href="render/login">Login</a><br />
+        <a href="render/profile">Profile</a><br />
+      </div>
       <auth-login id="login">Login</auth-login>
       <auth-profile id="profile">Profile</auth-profile>
     </iron-pages>
