@@ -1,5 +1,6 @@
 {
   "name": "papan",
+  "productName": "Papan",
   "version": "0.0.1",
   "description": "A turn-by-turn board game engine",
   "main": "main.js",
