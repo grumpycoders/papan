@@ -1,6 +1,7 @@
 'use strict'
 
 const commandline = require('command-line-args')
+const request = require('request-promise-native')
 const deepDiff = require('deep-diff')
 const _ = require('lodash')
 
@@ -10,6 +11,7 @@ const optionDefinitions = [
 let mainWindow
 
 const electron = require('electron')
+const settings = require('electron-settings')
 const ipc = electron.ipcMain
 
 const path = require('path')
@@ -39,7 +41,39 @@ class ElectronClientInterface extends lobbyClient.ClientInterface {
   }
 
   getAuthorizationCode () {
-    const electron = require('electron')
+    if (!settings.has('auth.cookies')) {
+      return this.getAuthorizationCodeFromWindow()
+    }
+    const cookies = settings.get('auth.cookies')
+    const jar = request.jar()
+    const authServerURL = this.settings.authServerURL
+    Object.keys(cookies).forEach(cookieName => {
+      jar.setCookie(request.cookie(cookieName + '=' + cookies[cookieName]), authServerURL)
+    })
+    const requestData = {
+      method: 'GET',
+      followRedirect: false,
+      jar: jar,
+      url: authServerURL + '/auth/getcode',
+      json: true
+    }
+
+    return new Promise((resolve, reject) => {
+      request(requestData)
+      .then(res => {
+        if (typeof res === 'object' && typeof res.code === 'string') {
+          resolve(res.code)
+        } else {
+          resolve(this.getAuthorizationCodeFromWindow())
+        }
+      })
+      .catch(_ => {
+        resolve(this.getAuthorizationCodeFromWindow())
+      })
+    })
+  }
+
+  getAuthorizationCodeFromWindow () {
     const authServerURL = this.settings.authServerURL
     const authRequestURL = authServerURL + '/auth/forwardcode?returnURL=' + authServerURL + '/auth/electronreturn'
     let window = new electron.BrowserWindow({ parent: mainWindow, width: 800, height: 600 })
@@ -53,7 +87,8 @@ class ElectronClientInterface extends lobbyClient.ClientInterface {
       }
       const filter = { urls: [authServerURL] }
       const returnPrefix = authServerURL + '/auth/electronreturn?code='
-      electron.session.defaultSession.webRequest.onBeforeRequest(filter, (details, callback) => {
+      const webRequest = electron.session.defaultSession.webRequest
+      webRequest.onBeforeRequest(filter, (details, callback) => {
         const response = { cancel: false }
         if (details.url.startsWith(returnPrefix)) {
           const code = details.url.substr(returnPrefix.length)
@@ -66,6 +101,25 @@ class ElectronClientInterface extends lobbyClient.ClientInterface {
         } else {
           callback(response)
         }
+      })
+      webRequest.onHeadersReceived(filter, (details, callback) => {
+        const response = { cancel: false }
+        if (details.url.startsWith(authRequestURL)) {
+          let authCookies = {}
+          const cookies = details.responseHeaders['Set-Cookie']
+          if (settings.has('auth.cookies')) {
+            authCookies = settings.get('auth.cookies')
+          }
+          if (Array.isArray(cookies)) {
+            cookies.forEach(cookie => {
+              const parts = cookie.split(';')
+              const cookieDetails = parts[0].split('=')
+              authCookies[cookieDetails[0]] = cookieDetails[1]
+            })
+          }
+          settings.set('auth', { cookies: authCookies })
+        }
+        callback(response)
       })
       window.on('closed', closedListener)
     })
