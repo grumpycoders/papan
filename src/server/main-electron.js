@@ -18,7 +18,7 @@ const path = require('path')
 const url = require('url')
 
 const instance = require('./game/game-instance.js')
-const lobbyClient = require('./lobby/client.js')
+const ClientInterface = require('./lobby/clientinterface.js').ClientInterface
 
 class Channel {
   on (event, callback) {
@@ -32,7 +32,7 @@ class Channel {
   }
 }
 
-class ElectronClientInterface extends lobbyClient.ClientInterface {
+class ElectronClientInterface extends ClientInterface {
   constructor (settings) {
     super(new Channel())
     this.settings = _.defaults(settings, {
@@ -130,42 +130,9 @@ class ElectronClientInterface extends lobbyClient.ClientInterface {
 exports.main = () => {
   const app = electron.app
   const BrowserWindow = electron.BrowserWindow
-  let localLobbyServer
-  let client
   let clientInterface = new ElectronClientInterface()
-
-  clientInterface.channel.on('ConnectToLobbyServer', data => {
-    if (clientInterface.getLobbyConnectionStatus() !== 'NOTCONNECTED') {
-      return
-    }
-    let premise
-    if (data.connectLocal) {
-      clientInterface.setLobbyConnectionStatus('STARTINGLOBBY')
-      premise = require('./lobby/server.js').registerServer()
-      .then(server => {
-        localLobbyServer = server
-      })
-    } else {
-      premise = Promise.resolve()
-    }
-    premise
-    .then(() => lobbyClient.CreateClient(clientInterface, data))
-    .then(createdClient => {
-      if (mainWindow) {
-        client = createdClient
-      } else {
-        client.close()
-        client = null
-      }
-    })
-  })
-
-  clientInterface.channel.on('CreateLobby', data => {
-    if (clientInterface.getLobbyConnectionStatus() !== 'CONNECTED' || !client) {
-      return
-    }
-
-    client.createLobby(data)
+  clientInterface.on('CreatedClient', client => {
+    if (!mainWindow) clientInterface.close()
   })
 
   const options = commandline(optionDefinitions, { partial: true, argv: process.argv })
@@ -183,9 +150,7 @@ exports.main = () => {
 
     mainWindow.on('closed', () => {
       mainWindow = null
-      if (client) {
-        client.close()
-      }
+      clientInterface.close()
     })
     clientInterface.setLobbyConnectionStatus('NOTCONNECTED')
   }
@@ -202,11 +167,7 @@ exports.main = () => {
 
   app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') {
-      if (localLobbyServer) {
-        localLobbyServer.tryShutdown(() => app.quit())
-      } else {
-        app.quit()
-      }
+      clientInterface.shutdown(() => app.quit())
     }
   })
 

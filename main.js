@@ -4,19 +4,9 @@ const PapanUtils = require('./src/common/utils.js')
 const PapanServerUtils = require('./src/server/utils.js')
 const commandline = require('command-line-args')
 const optionDefinitions = [
-  { name: 'lobby_server', type: Boolean },
   { name: 'auth_server', type: Boolean }
 ]
 const argv = commandline(optionDefinitions, { partial: true, argv: process.argv })
-
-let grpcServers = []
-
-const lobbyStartup = () => argv.lobby_server && !PapanUtils.isElectron()
-? require('./src/server/lobby/server.js').registerServer()
-  .then(server => {
-    grpcServers.push(server)
-  })
-: Promise.resolve()
 
 const electronStartup = () => PapanUtils.isElectron()
 ? require('./src/server/main-electron.js').main()
@@ -25,12 +15,11 @@ const electronStartup = () => PapanUtils.isElectron()
 const nodeStartup = () => require('./src/server/main-node.js').main()
 
 Promise.all([
-  lobbyStartup(),
   electronStartup(),
   nodeStartup()
 ])
 .then(results => {
-  results[1]()
+  results[0]()
   console.log('Started')
 })
 .catch(err => {

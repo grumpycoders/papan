@@ -8,11 +8,6 @@ const util = require('../common/util.js')
 const protoLoader = require('../common/proto.js')
 
 class LobbyClient extends EventEmitter {
-  constructor () {
-    super()
-    this.pendingSubscriptionActions = []
-  }
-
   close () {
 
   }
@@ -27,7 +22,7 @@ class LobbyClient extends EventEmitter {
     return metadata
   }
 
-  authCatcher (call, handler) {
+  errorCatcher (call, handler) {
     call.on('error', err => {
       if (err.code === grpc.status.UNAUTHENTICATED) {
         this.clientInterface.setLobbyConnectionStatus('AUTHENTICATING')
@@ -48,7 +43,7 @@ class LobbyClient extends EventEmitter {
 
   subscribe () {
     let call = this.grpcClient.Subscribe()
-    this.authCatcher(call, console.log)
+    this.errorCatcher(call, console.log)
     call.on('status', status => {
       console.log(status)
     })
@@ -59,7 +54,6 @@ class LobbyClient extends EventEmitter {
           break
         case 'subscribed':
           this.clientInterface.setLobbyConnectionStatus('CONNECTED')
-          this.processSubscriptionActions()
           break
         case 'lobbyCreated':
           this.clientInterface.lobbyCreated(data.lobbyCreated)
@@ -78,23 +72,20 @@ class LobbyClient extends EventEmitter {
     this.subscription = call
   }
 
-  processSubscriptionActions () {
+  subscribedWrite (data) {
     if (this.clientInterface.getLobbyConnectionStatus() !== 'CONNECTED') {
       return
     }
 
-    this.pendingSubscriptionActions.forEach(pending =>
-      this.subscription.write(pending.message)
-    )
+    this.subscription.write(data)
   }
 
   createLobby (data) {
-    this.pendingSubscriptionActions.push({
+    this.subscribedWrite({
       message: {
         createLobby: data
       }
     })
-    this.processSubscriptionActions()
   }
 }
 
@@ -103,39 +94,6 @@ const clientDefaults = {
   lobbyServer: 'lobby.papan.online',
   lobbyServerPort: 5051
 }
-
-class ClientInterface {
-  constructor (channel) {
-    this.channel = channel
-    this.lobbyConnectionStatus = 'NOTCONNECTED'
-    this.channel.on('GetLobbyConnectionStatus', data => {
-      this.sendLobbyConnectionStatus()
-    })
-  }
-
-  getLobbyConnectionStatus () {
-    return this.lobbyConnectionStatus
-  }
-
-  sendLobbyConnectionStatus () {
-    this.channel.send('LobbyConnectionStatus', { status: this.lobbyConnectionStatus })
-  }
-
-  setLobbyConnectionStatus (status) {
-    this.lobbyConnectionStatus = status
-    this.sendLobbyConnectionStatus()
-  }
-
-  sendError (message) {
-    this.channel.send('Error', { message: message })
-  }
-
-  lobbyCreated (data) {
-    this.channel.send('LobbyCreated', { lobbyCreated: data })
-  }
-}
-
-exports.ClientInterface = ClientInterface
 
 exports.CreateClient = (clientInterface, options) => {
   options = _.defaults(options, clientDefaults)
