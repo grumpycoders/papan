@@ -19,31 +19,36 @@ class LobbyClient extends EventEmitter {
 
   getAuthMetadata () {
     let metadata = new grpc.Metadata()
-    if (this.papan_code) {
-      metadata.set('papan-code', this.papan_code)
+    if (this.papanCode) {
+      metadata.set('papan-code', this.papanCode)
     } else if (this.papan_session) {
       metadata.set('papan-session', this.papan_session)
     }
     return metadata
   }
 
-  subscribe () {
-    let call = this.grpcClient.Subscribe()
+  authCatcher (call, handler) {
     call.on('error', err => {
       if (err.code === grpc.status.UNAUTHENTICATED) {
         this.clientInterface.setLobbyConnectionStatus('AUTHENTICATING')
         this.clientInterface.getAuthorizationCode()
         .then(code => {
-          this.papan_code = code
+          this.papanCode = code
           this.subscribe()
         })
         .catch(err => {
           err.code = grpc.status.UNAUTHENTICATED
           call.emit('error', err)
         })
+      } else {
+        if (handler) handler(err)
       }
-      console.log(err)
     })
+  }
+
+  subscribe () {
+    let call = this.grpcClient.Subscribe()
+    this.authCatcher(call, console.log)
     call.on('status', status => {
       console.log(status)
     })

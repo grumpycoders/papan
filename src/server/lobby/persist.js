@@ -21,7 +21,7 @@ const redis = mock ? require('redis-mock') : require('redis')
 const client = redis.createClient()
 
 exports.createLobby = ({ userId, lobbyId, lobbyName }) => {
-  const key = 'lobby:' + lobbyId
+  const key = 'lobbyinfo:' + lobbyId
   return new Promise((resolve, reject) => {
     client.hsetnx(key, 'owner', userId, (err, results) => {
       if (err) reject(err)

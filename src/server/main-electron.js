@@ -67,7 +67,7 @@ class ElectronClientInterface extends lobbyClient.ClientInterface {
           resolve(this.getAuthorizationCodeFromWindow())
         }
       })
-      .catch(_ => {
+      .catch(() => {
         resolve(this.getAuthorizationCodeFromWindow())
       })
     })
@@ -96,11 +96,9 @@ class ElectronClientInterface extends lobbyClient.ClientInterface {
           window.removeListener('closed', closedListener)
           window.close()
           response.cancel = true
-          callback(response)
           resolve(code)
-        } else {
-          callback(response)
         }
+        callback(response)
       })
       webRequest.onHeadersReceived(filter, (details, callback) => {
         const response = { cancel: false }
