@@ -6,6 +6,7 @@ const commandline = require('command-line-args')
 const argv = commandline(optionDefinitions, { partial: true, argv: process.argv })
 
 const PapanUtils = require('../../common/utils.js')
+const util = require('../common/util.js')
 
 let mock
 if (!argv.use_redis_mock && !argv.use_redis_server) {
@@ -20,17 +21,21 @@ if (!argv.use_redis_mock && !argv.use_redis_server) {
 const redis = mock ? require('redis-mock') : require('redis')
 const client = redis.createClient()
 
-exports.createLobby = ({ userId, lobbyId, lobbyName }) => {
-  const key = 'lobbyinfo:' + lobbyId
-  return new Promise((resolve, reject) => {
-    client.hsetnx(key, 'owner', userId, (err, results) => {
-      if (err) reject(err)
-      if (results === 0) resolve(undefined)
-      client.hset(key, 'name', lobbyName, (err, results) => {
+exports.createLobby = (data) => {
+  const { userId, lobbyName } = data
+  return util.generateToken()
+  .then(lobbyId => {
+    const key = 'lobbyinfo:' + lobbyId
+    return new Promise((resolve, reject) => {
+      client.hsetnx(key, 'owner', userId, (err, results) => {
         if (err) reject(err)
-        client.expire(key, 15 * 60, (err, results) => {
+        if (results === 0) return exports.createLobby(data)
+        client.hset(key, 'name', lobbyName, (err, results) => {
           if (err) reject(err)
-          resolve(lobbyId)
+          client.expire(key, 15 * 60, (err, results) => {
+            if (err) reject(err)
+            resolve(lobbyId)
+          })
         })
       })
     })

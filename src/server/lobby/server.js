@@ -114,24 +114,13 @@ exports.registerServer = options => {
           subscribed: {}
         })
         call.on('data', data => {
+          const userId = call.metadata.get('papan-userid')
           switch (data.action) {
             case 'createLobby':
-              let createLobby = () => {
-                return util.generateToken()
-                .then(token => persist.createLobby({
-                  userId: call.metadata.get('papan-userid'),
-                  lobbyId: token,
-                  lobbyName: data.createLobby.lobbyName
-                }))
-                .then(lobbyId => {
-                  if (lobbyId) {
-                    return lobbyId
-                  } else {
-                    return createLobby()
-                  }
-                })
-              }
-              createLobby()
+              persist.createLobby({
+                userId: userId,
+                lobbyName: data.createLobby.lobbyName
+              })
               .then(lobbyId => {
                 call.write({
                   lobbyCreated: {
@@ -141,7 +130,7 @@ exports.registerServer = options => {
                 })
               })
               .catch(err => {
-                call.write({ error: { errorString: err.toString() } })
+                call.write({ error: { message: err.toString() } })
               })
               break
           }
