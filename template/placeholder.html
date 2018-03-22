@@ -27,22 +27,22 @@
       is: "papan-placeholder",
 
       ready() {
-        channel.send('GetLobbyConnectionStatus')
-        channel.on('Error', error => {
-          this._errorMessage = error.message
+        channel.send('getLobbyConnectionStatus')
+        channel.on('error', data => {
+          this._errorMessage = data.error.message
           this.$.errorMessage.open()
         })
-        channel.on('LobbyConnectionStatus', data => {
+        channel.on('lobbyConnectionStatus', data => {
           this._status = data.status
           this.$.createLobby.disabled = this._status !== 'CONNECTED'
         })
-        channel.on('LobbyCreated', lobbyInfo => {
-          
+        channel.on('lobbyCreated', data => {
+          console.log(data)
         })
       },
 
       _connectToLocalLobby: function() {
-        channel.send('ConnectToLobbyServer', { connectLocal: true })
+        channel.send('connectToLobbyServer', { connectLocal: true })
       },
 
       _createLobby: function() {
@@ -50,7 +50,7 @@
       },
 
       _validateLobbyName: function() {
-        channel.send('CreateLobby', { lobbyName: this.$.lobbyName.value })
+        channel.send('createLobby', { lobbyName: this.$.lobbyName.value })
       }
     })
 

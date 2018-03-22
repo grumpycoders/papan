@@ -1,7 +1,7 @@
 'use strict'
 
 const EventEmitter = require('events')
-const lobbyClient = require('./client.js')
+const Client = require('./client.js')
 
 class ClientInterface extends EventEmitter {
   constructor (channel) {
@@ -11,11 +11,11 @@ class ClientInterface extends EventEmitter {
     this.lobbyConnectionStatus = 'NOTCONNECTED'
     this.localLobbyServer = null
 
-    channel.on('GetLobbyConnectionStatus', data => {
+    channel.on('getLobbyConnectionStatus', data => {
       this.sendLobbyConnectionStatus()
     })
 
-    channel.on('ConnectToLobbyServer', data => {
+    channel.on('connectToLobbyServer', data => {
       if (this.getLobbyConnectionStatus() !== 'NOTCONNECTED') {
         return
       }
@@ -30,16 +30,24 @@ class ClientInterface extends EventEmitter {
         premise = Promise.resolve()
       }
       premise
-      .then(() => lobbyClient.CreateClient(this, data))
+      .then(() => Client.CreateClient(this, data))
       .then(createdClient => {
         this.emit('CreatedClient', createdClient)
         this.client = createdClient
       })
     })
 
-    channel.on('CreateLobby', this.connectedCall(data => {
-      this.client.createLobby(data)
-    }))
+    const clientToServerMessage = ['createLobby']
+    clientToServerMessage.forEach(message => {
+      channel.on(message, this.connectedCall(data => {
+        this.client[message](data)
+      }))
+    })
+
+    const serverToClientMessages = ['error', 'lobbyCreated']
+    serverToClientMessages.forEach(message => {
+      this[message] = data => this.channel.send(message, data)
+    })
   }
 
   connectedCall (callback) {
@@ -75,15 +83,7 @@ class ClientInterface extends EventEmitter {
   }
 
   sendLobbyConnectionStatus () {
-    this.channel.send('LobbyConnectionStatus', { status: this.lobbyConnectionStatus })
-  }
-
-  sendError (message) {
-    this.channel.send('Error', { message: message })
-  }
-
-  lobbyCreated (data) {
-    this.channel.send('LobbyCreated', { lobbyCreated: data })
+    this.channel.send('lobbyConnectionStatus', { status: this.lobbyConnectionStatus })
   }
 }
 

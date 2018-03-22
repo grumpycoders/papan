@@ -8,8 +8,21 @@ const util = require('../common/util.js')
 const protoLoader = require('../common/proto.js')
 
 class LobbyClient extends EventEmitter {
-  close () {
+  constructor () {
+    super()
 
+    const subscribedMessages = ['createLobby']
+    subscribedMessages.forEach(message => {
+      this[message] = data => {
+        const obj = {}
+        obj[message] = data
+        this.subscribedWrite(obj)
+      }
+    })
+  }
+
+  close () {
+    console.log('TODO')
   }
 
   getAuthMetadata () {
@@ -49,14 +62,11 @@ class LobbyClient extends EventEmitter {
     })
     call.on('data', data => {
       switch (data.update) {
-        case 'error':
-          this.clientInterface.sendError(data.error.message)
-          break
         case 'subscribed':
           this.clientInterface.setLobbyConnectionStatus('CONNECTED')
           break
-        case 'lobbyCreated':
-          this.clientInterface.lobbyCreated(data.lobbyCreated)
+        default:
+          this.clientInterface[data.update](data[data.update])
           break
       }
     })
@@ -78,14 +88,6 @@ class LobbyClient extends EventEmitter {
     }
 
     this.subscription.write(data)
-  }
-
-  createLobby (data) {
-    this.subscribedWrite({
-      message: {
-        createLobby: data
-      }
-    })
   }
 }
 
