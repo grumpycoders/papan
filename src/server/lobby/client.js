@@ -1,6 +1,7 @@
 'use strict'
 
 const EventEmitter = require('events')
+const path = require('path')
 const grpc = require('grpc')
 const _ = require('lodash')
 const util = require('../common/util.js')
@@ -141,7 +142,7 @@ exports.CreateClient = (clientInterface, options) => {
   clientInterface.setLobbyConnectionStatus('CONNECTING')
 
   const work = [
-    util.readFile('certs/localhost-ca.crt'),
+    util.readFile(path.join(__dirname, '..', '..', '..', 'certs', 'localhost-ca.crt')),
     protoLoader.load('lobby.proto')
   ]
 

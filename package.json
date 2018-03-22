@@ -12,7 +12,8 @@
     "node_test": "mocha ./test/common",
     "electron_test": "electron-mocha ./test/common",
     "test": "npm run node_test && npm run electron_test && npm run lint",
-    "postinstall": "bower install && bower prune"
+    "postinstall": "bower install && bower prune",
+    "build": "npm run electron-packager . --all --out=out"
   },
   "standard": {
     "env": [
@@ -34,6 +35,7 @@
     "devtron": "^1.4.0",
     "electron": "^1.8.2",
     "electron-mocha": "^4.0.0",
+    "electron-packager": "^11.1.0",
     "mocha": "^3.2.0",
     "snazzy": "^7.1.1",
     "standard": "^10.0.2"

@@ -1,6 +1,7 @@
 'use strict'
 
 const grpc = require('grpc')
+const path = require('path')
 const request = require('request-promise-native')
 const _ = require('lodash')
 const protoLoader = require('../common/proto.js')
@@ -93,9 +94,9 @@ exports.registerServer = options => {
   })
 
   const work = [
-    util.readFile('certs/localhost-ca.crt'),
-    util.readFile('certs/localhost-server.crt'),
-    util.readFile('certs/localhost-server.key'),
+    util.readFile(path.join(__dirname, '..', '..', '..', 'certs', 'localhost-ca.crt')),
+    util.readFile(path.join(__dirname, '..', '..', '..', 'certs', 'localhost-server.crt')),
+    util.readFile(path.join(__dirname, '..', '..', '..', 'certs', 'localhost-server.key')),
     protoLoader.load('lobby.proto')
   ]
 

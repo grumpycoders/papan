@@ -1,9 +1,12 @@
 'use strict'
 
 const grpc = require('grpc')
+const path = require('path')
 const protobufjs = require('protobufjs')
 const recursive = require('recursive-readdir')
-const protosdirs = ['protos']
+const protosdirs = ['protos'].map(
+  protopath => path.normalize(path.join(__dirname, '..', '..', '..', protopath))
+)
 let allprotos = {}
 
 exports.load = filename => {
