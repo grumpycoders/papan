@@ -38,11 +38,11 @@
       <div id="startupscreen">
         Welcome<br />
         <template is="dom-if" if="[[_isLoggedIn]]">
-            <a href="/profile">Profile</a><br />
+            <a href="/render/profile">Profile</a><br />
             <a href="/logout">Logout</a>
         </template>
         <template is="dom-if" if="[[_isLoggedOut]]">
-            <a href="/login">Login</a>
+            <a href="/render/login">Login</a>
         </template>
       </div>
       <auth-login id="login">Login</auth-login>
