@@ -23,6 +23,8 @@
     </style>
 
     <script>
+      'use strict'
+
       let channel
       if (PapanUtils.isElectron()) {
         const electron = require('electron')
@@ -40,7 +42,45 @@
         }
         channel = new Channel()
       } else {
-        // TODO: socket.io implementation
+        const socket = io()
+        class Channel {
+          constructor() {
+            this.listeners = {}
+            socket.on('message', data => {
+              const event = data.event
+              const listeners = this.listeners[event]
+              if (listeners) {
+                let toremove = []
+                for (let index = 0; index < listeners.length; index++) {
+                  listeners[index].callback(data.message)
+                  if (listeners[index].once) {
+                    toremove.unshift(index)
+                  }
+                }
+                toremove.forEach(index => {
+                  listeners.splice(index, 1)
+                })
+              }
+            })
+          }
+          on(event, callback) {
+            if (!this.listeners[event]) {
+              this.listeners[event] = []
+            }
+            this.listeners[event].push({ callback: callback })
+          }
+          once(event, callback) {
+            if (!this.listeners[event]) {
+              this.listeners[event] = []
+            }
+            this.listeners[event].push({ callback: callback, once: true })
+          }
+          send(event, data) {
+            socket.send({ event: event, message: data })
+          }
+        }
+
+        channel = new Channel()
       }
     </script>
 

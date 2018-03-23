@@ -10,7 +10,7 @@ const argv = commandline(optionDefinitions, { partial: true, argv: process.argv 
 
 const electronStartup = () => PapanUtils.isElectron()
 ? require('./src/server/main-electron.js').main()
-: Promise.resolve(() => {})
+: Promise.resolve()
 
 const nodeStartup = () => require('./src/server/main-node.js').main()
 
@@ -19,11 +19,11 @@ Promise.all([
   nodeStartup()
 ])
 .then(results => {
-  results[0]()
   console.log('Started')
 })
 .catch(err => {
   console.error(err)
+  process.exit()
 })
 
 // process.env['GRPC_VERBOSITY'] = 'DEBUG'
