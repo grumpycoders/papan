@@ -144,6 +144,16 @@ exports.registerServer = options => {
               message.message.id = id
               persist.sendMessage(data.id, message)
               break
+            case 'getJoinedLobbies':
+              persist.getJoinedLobbies({ id: id })
+              .then(result => {
+                call.write({
+                  joinedLobbies: {
+                    lobbies: result
+                  }
+                })
+              })
+              break
           }
         })
         call.on('end', () => sub.close())

@@ -46,6 +46,15 @@ exports.sendMessage = (userId, message) => {
   client.publish('usersub:' + userId, JSON.stringify(message))
 }
 
+exports.getJoinedLobbies = data => {
+  const { id } = data
+  return promised.smembers('user:' + id + ':lobbies')
+  .then(results => {
+    if (!results) results = []
+    return Promise.all(results.map(id => exports.getLobbyInfo({ id: id })))
+  })
+}
+
 exports.getLobbyInfo = data => {
   const { id } = data
   let members
@@ -92,7 +101,6 @@ exports.joinLobby = data => {
     return promised.sadd('lobbymembers:' + id, userId)
   })
   .then(() => promised.sadd('user:' + userId + ':lobbies', id))
-  .then(() => promised.hget('lobbyinfo:' + id, 'name'))
   .then(() => exports.getLobbyInfo({ id: id }))
 }
 

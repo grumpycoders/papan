@@ -12,7 +12,10 @@ class LobbyClient extends EventEmitter {
   constructor () {
     super()
 
-    const subscribedMessages = ['xxx']
+    const subscribedMessages = [
+      'message',
+      'getJoinedLobbies'
+    ]
     subscribedMessages.forEach(message => {
       this[message] = data => {
         const obj = {}
@@ -21,7 +24,10 @@ class LobbyClient extends EventEmitter {
       }
     })
 
-    const lobbyMessages = ['setName', 'setPublic']
+    const lobbyMessages = [
+      'setName',
+      'setPublic'
+    ]
     lobbyMessages.forEach(message => {
       this[message] = data => {
         const obj = {}

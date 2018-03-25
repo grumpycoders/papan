@@ -10,9 +10,12 @@ message ChatMessage {
   string message = 2;
 }
 
+message GetJoinedLobbies { }
+
 message Action {
   oneof action {
     ChatMessage message = 1;
+    GetJoinedLobbies get_joined_lobbies = 2;
   }
 }
 
@@ -32,11 +35,16 @@ message LobbyInfo {
   repeated User members = 5;
 }
 
+message JoinedLobbies {
+  repeated LobbyInfo lobbies = 1;
+}
+
 message Update {
   oneof update {
     Error error = 1;
     Subscribed subscribed = 2;
     ChatMessage message = 3;
+    JoinedLobbies joined_lobbies = 4;
   }
 }
 
@@ -88,14 +96,8 @@ message ListLobbiesResponse {
   LobbyStatus status = 2;
 }
 
-message GetJoinedLobbies { }
-message JoinedLobbies {
-  repeated LobbyInfo lobbies = 1;
-}
-
 service PlayerLobbyService {
   rpc Subscribe (stream Action) returns (stream Update);
   rpc Lobby (stream LobbyAction) returns (stream LobbyUpdate);
   rpc ListLobbies (ListLobbiesRequest) returns (stream ListLobbiesResponse);
-  rpc JoinedLobbies (GetJoinedLobbies) returns (JoinedLobbies);
 }
