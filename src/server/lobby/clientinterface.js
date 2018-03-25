@@ -58,14 +58,14 @@ class ClientInterface extends EventEmitter {
       })
     })
 
-    const clientToServerMessage = ['joinLobby', 'setName']
+    const clientToServerMessage = ['join', 'setName', 'setPublic']
     clientToServerMessage.forEach(message => {
       channel.on(message, this.connectedCall(data => {
         this.client[message](data)
       }))
     })
 
-    const serverToClientMessages = ['subscribed', 'error', 'lobbyInfo', 'userJoined']
+    const serverToClientMessages = ['subscribed', 'error', 'info', 'userJoined']
     serverToClientMessages.forEach(message => {
       this[message] = data => this.channel.send(message, data)
     })
@@ -87,7 +87,7 @@ class ClientInterface extends EventEmitter {
   }
 
   shutdown (callback) {
-    this.client.close()
+    if (this.client) this.client.close()
     if (this.localLobbyServer) {
       this.localLobbyServer.tryShutdown(callback)
       clearInterval(natRefreshInterval)

@@ -126,23 +126,23 @@ exports.registerServer = options => {
     )
     grpcServer.addService(lobbyProto.PlayerLobbyService.service, checkCredentials({
       Subscribe: call => {
-        const userId = getUserId(call)
+        const id = getUserId(call)
         call.write({
           subscribed: {
             self: {
-              userId: userId
+              id: id
             }
           }
         })
-        const sub = persist.userSubscribe(userId, message => {
+        const sub = persist.userSubscribe(id, message => {
           call.write(message)
         })
         call.on('data', data => {
           switch (data.action) {
             case 'message':
               let message = deepclone(data)
-              message.message.userId = userId
-              persist.sendMessage(data.userId, message)
+              message.message.id = id
+              persist.sendMessage(data.id, message)
               break
           }
         })
@@ -151,12 +151,13 @@ exports.registerServer = options => {
       Lobby: call => {
         const userId = getUserId(call)
         let gotJoin = false
-        let lobbyId
+        let id
         let sub
+        let runningPromise
         call.on('data', data => {
           let joinError = false
           let errorMsg
-          if (data.action === 'joinLobby') {
+          if (data.action === 'join') {
             if (gotJoin) {
               joinError = true
               errorMsg = 'You can\'t join twice'
@@ -179,57 +180,70 @@ exports.registerServer = options => {
             return
           }
           switch (data.action) {
-            case 'joinLobby':
-              lobbyId = data.joinLobby.lobbyId
+            case 'join':
+              id = data.join.id
               let premise
-              if (lobbyId) {
+              if (id) {
                 premise = persist.joinLobby({
                   userId: userId,
-                  lobbyId: lobbyId
+                  id: id
                 })
               } else {
                 premise = persist.createLobby({
                   userId: userId
                 })
               }
-              premise
+              runningPromise = premise
               .then(result => {
-                lobbyId = result.lobbyId
-                sub = persist.lobbySubscribe(lobbyId, message => {
+                id = result.id
+                sub = persist.lobbySubscribe(id, message => {
                   call.write(message)
                 })
                 call.on('end', () => sub.close())
                 call.write({
-                  lobbyInfo: result
+                  info: result
                 })
-                persist.lobbySendMessage(lobbyId, {
+                persist.lobbySendMessage(id, {
                   userJoined: {
-                    userId: userId
+                    id: userId
                   }
                 })
               })
-              .catch(err => {
-                let error = {
-                  code: grpc.status.UNKNOWN,
-                  details: err.message,
-                  metadata: new grpc.Metadata()
-                }
-                call.emit('error', error)
-                call.end()
-              })
               break
             case 'setName':
-              persist.setLobbyName({
+              runningPromise = persist.setLobbyName({
                 userId: userId,
-                lobbyId: lobbyId,
-                lobbyName: data.setName
+                id: id,
+                name: data.setName.name
               })
               .then(result => {
                 persist.lobbySendMessage({
-                  lobbyInfo: result
+                  info: result
                 })
               })
               break
+            case 'setPublic':
+              runningPromise = persist.setLobbyPublic({
+                userId: userId,
+                id: id,
+                public: data.setPublic.public
+              }).then(result => {
+                persist.lobbySendMessage({
+                  info: result
+                })
+              })
+              break
+          }
+          if (runningPromise) {
+            runningPromise.catch(err => {
+              let error = {
+                code: grpc.status.UNKNOWN,
+                details: err.message,
+                metadata: new grpc.Metadata()
+              }
+              call.emit('error', error)
+              call.end()
+            })
           }
         })
         console.log(call)

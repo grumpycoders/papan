@@ -3,10 +3,12 @@
 <link rel="import" href="../bower_components/paper-dialog/paper-dialog.html">
 <link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../bower_components/paper-toggle-button/paper-toggle-button.html">
 
 <dom-module id="papan-placeholderlobby">
   <template>
-    <paper-input always-float-label label="Lobby name" value="{{name}}"></paper-input>
+    <paper-input always-float-label label="Lobby name" id="lobbyName" value="{{name}}"></paper-input>
+    Public: <paper-toggle-button id="public"></paper-toggle-button>
   </template>
   <script>
     'use strict'
@@ -14,14 +16,52 @@
     Polymer({
       is: 'papan-placeholderlobby',
 
+      ready: function() {
+        if (this.userid !== this.owner) {
+          this._isowner = false
+          this.$.public.disabled = true
+          this.$.lobbyName.disabled = true
+        } else {
+          this._isowner = true
+        }
+        this.$.public.addEventListener('change', () => {
+          if (this._isowner) channel.send('setPublic', {
+            id: this.id,
+            public: this.$.public.checked
+          })
+        })
+      },
+
       _nameChange: function() {
-        channel.send('setName', { lobbyId: this.id, lobbyName: this.name })
+        if (this._isowner) channel.send('setName', {
+          id: this.id,
+          name: this.name
+        })
+      },
+
+      _publicChange: function() {
+        this.$.public.checked = this.public
       },
 
       properties: {
         name: {
           type: String,
           observer: '_nameChange'
+        },
+        public: {
+          type: Boolean,
+          value: false,
+          observer: '_publicChange'
+        },
+        userid: {
+          type: String
+        },
+        owner: {
+          type: String
+        },
+        _isowner: {
+          type: Boolean,
+          value: false
         }
       }
     })
@@ -54,13 +94,17 @@
         lobbyServer: {
           type: String,
           value: 'localhost'
+        },
+
+        userInfo: {
+          type: Object
         }
       },
 
       ready() {
         channel.send('getLobbyConnectionStatus')
         channel.on('subscribed', data => {
-          console.log(data)
+          this.userInfo = data.self
         })
         channel.on('error', data => {
           this._errorMessage = data.error.message
@@ -70,11 +114,24 @@
           this._status = data.status
           this.$.createLobby.disabled = this._status !== 'CONNECTED'
         })
-        channel.on('lobbyInfo', data => {
-          const id = data.lobbyId
+        channel.on('info', data => {
+          const id = data.id
+          let lobby
+          let needsAdd = false
           if (!this.$[id]) {
-            const lobby = document.createElement('papan-placeholderlobby')
+            lobby = document.createElement('papan-placeholderlobby')
             lobby.setAttribute('id', id)
+            lobby.setAttribute('owner', data.owner.id)
+            needsAdd = true
+          } else {
+            lobby = this.$[id]
+          }
+          lobby.setAttribute('name', data.name)
+          lobby.setAttribute('userid', this.userInfo.id)
+          if (data.public) {
+            lobby.setAttribute('public')
+          }
+          if (needsAdd) {
             this.$.lobbies.appendChild(lobby)
           }
         })
@@ -92,7 +149,7 @@
       },
 
       _createLobby: function() {
-        channel.send('joinLobby')
+        channel.send('join')
       },
     })
   </script>

@@ -21,12 +21,12 @@ class LobbyClient extends EventEmitter {
       }
     })
 
-    const lobbyMessages = ['setName']
+    const lobbyMessages = ['setName', 'setPublic']
     lobbyMessages.forEach(message => {
       this[message] = data => {
         const obj = {}
         obj[message] = data
-        const lobby = this.lobbies[data.lobbyId]
+        const lobby = this.lobbies[data.id]
         if (lobby) lobby.call.write(obj)
       }
     })
@@ -104,25 +104,25 @@ class LobbyClient extends EventEmitter {
     this.subscription = call
   }
 
-  joinLobby (data) {
+  join (data) {
     let call = this.grpcClient.Lobby()
     if (!data) data = {}
-    let lobbyId = data.lobbyId
-    if (lobbyId) {
-      this.lobbies[lobbyId] = { call: call }
+    let id = data.id
+    if (id) {
+      this.lobbies[id] = { call: call }
     }
 
-    this.errorCatcher(call, () => this.joinLobby({ lobbyId: lobbyId }), console.log)
+    this.errorCatcher(call, () => this.join({ id: id }), console.log)
     this.metadataCatcher(call, console.log)
     call.on('data', data => {
-      if (!lobbyId && data.update === 'lobbyInfo') {
-        lobbyId = data.lobbyInfo.lobbyId
-        this.lobbies[lobbyId] = { call: call }
+      if (!id && data.update === 'info') {
+        id = data.info.id
+        this.lobbies[id] = { call: call }
       }
-      this.clientInterface[data.update](merge(data[data.update], { lobbyId: lobbyId }))
+      this.clientInterface[data.update](merge(data[data.update], { id: id }))
     })
 
-    call.write({ joinLobby: data })
+    call.write({ join: data })
   }
 
   subscribedWrite (data) {

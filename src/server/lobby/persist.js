@@ -3,6 +3,7 @@ const optionDefinitions = [
   { name: 'use_redis_server', type: Boolean }
 ]
 const commandline = require('command-line-args')
+const deepmerge = require('deepmerge')
 const argv = commandline(optionDefinitions, { partial: true, argv: process.argv })
 
 const PapanUtils = require('../../common/utils.js')
@@ -45,80 +46,87 @@ exports.sendMessage = (userId, message) => {
   client.publish('usersub:' + userId, JSON.stringify(message))
 }
 
-exports.createLobby = data => {
-  let lobbyId
-  const { userId } = data
-  return PapanServerUtils.generateToken()
-  .then(token => {
-    lobbyId = token
-    return promised.hsetnx('lobbyinfo:' + lobbyId, 'owner', userId)
+exports.getLobbyInfo = data => {
+  const { id } = data
+  let members
+  return promised.smembers('lobbymembers:' + id)
+  .then(results => {
+    members = results.map(id => ({ id: id }))
+    return promised.hgetall('lobbyinfo:' + id)
   })
-  .then(result => {
-    if (result === 0) return exports.createLobby(data)
-    return promised.sadd('lobbymembers:' + lobbyId, userId)
-  })
-  .then(() => promised.sadd('user:' + userId + ':lobbies', lobbyId))
-  .then(() => ({
-    lobbyId: lobbyId,
-    owner: {
-      userId: userId
-    },
-    lobbyName: ''
-  }))
-}
-
-exports.joinLobby = data => {
-  const { userId, lobbyId } = data
-  let owner
-  return promised.hget('lobbyinfo:' + lobbyId, 'owner')
-  .then(result => {
-    if (result === null) Promise.reject(Error('Lobby doesn\t exist'))
-    owner = result
-    return promised.sadd('lobbymembers:' + lobbyId, userId)
-  })
-  .then(() => promised.sadd('user:' + userId + ':lobbies', lobbyId))
-  .then(() => promised.hget('lobbyinfo:' + lobbyId, 'name'))
-  .then(result => ({
-    lobbyId: lobbyId,
-    owner: {
-      userId: owner
-    },
-    lobbyName: result
-  }))
-}
-
-exports.setLobbyName = data => {
-  const { lobbyId, userId, lobbyName } = data
-  const key = 'lobbyinfo:' + lobbyId
-  return promised.hget(key, 'owner')
-  .then(result => {
-    if (result === null) return Promise.reject(Error('Lobby doesn\'t exist'))
-    if (userId !== result) {
-      const owner = result
-      return promised.hget(key, 'name')
-      .then(result => ({
-        lobbyId: lobbyId,
-        owner: {
-          userId: owner
-        },
-        lobbyName: result
-      }))
-    } else {
-      return promised.hset(key, 'name', lobbyName)
-      .then(() => ({
-        lobbyId: lobbyId,
-        owner: {
-          userId: userId
-        },
-        lobbyName: lobbyName
-      }))
+  .then(results => {
+    if (!results.owner) return Promise.reject(Error('Lobby doesn\t exist'))
+    return {
+      id: id,
+      owner: {
+        id: results.owner
+      },
+      members: members,
+      name: results.name,
+      public: results.public
     }
   })
 }
 
-exports.lobbySubscribe = (lobbyId, callback) => {
+exports.createLobby = data => {
+  let id
+  const { userId } = data
+  return PapanServerUtils.generateToken()
+  .then(token => {
+    id = token
+    return promised.hsetnx('lobbyinfo:' + id, 'owner', userId)
+  })
+  .then(result => {
+    if (result === 0) return exports.createLobby(data)
+    return promised.sadd('lobbymembers:' + id, userId)
+  })
+  .then(() => promised.sadd('user:' + userId + ':lobbies', id))
+  .then(() => exports.getLobbyInfo({ id: id }))
+}
+
+exports.joinLobby = data => {
+  const { userId, id } = data
+  return promised.hget('lobbyinfo:' + id, 'owner')
+  .then(result => {
+    if (result === null) Promise.reject(Error('Lobby doesn\t exist'))
+    return promised.sadd('lobbymembers:' + id, userId)
+  })
+  .then(() => promised.sadd('user:' + userId + ':lobbies', id))
+  .then(() => promised.hget('lobbyinfo:' + id, 'name'))
+  .then(() => exports.getLobbyInfo({ id: id }))
+}
+
+const setLobbyField = data => {
+  const { id, userId, field } = data
+  const key = 'lobbyinfo:' + id
+  return promised.hget(key, 'owner')
+  .then(result => {
+    if (result === null) return Promise.reject(Error('Lobby doesn\'t exist'))
+    let info = this.getLobbyInfo({ id: id })
+    if (userId !== result) {
+      return info
+    } else {
+      return promised.hset(key, field, data[field])
+      .then(() => info)
+    }
+  })
+}
+
+exports.setLobbyName = data => setLobbyField(deepmerge(data, { field: 'name' }))
+exports.setLobbyPublic = data => setLobbyField(deepmerge(data, { field: 'public' }))
+.then(info => {
+  let ret
+  if (data.public) {
+    ret = promised.sadd('publiclobbies', data.id)
+  } else {
+    ret = promised.srem('publiclobbies', data.id)
+  }
+  return ret.then(() => info)
+})
+
+exports.lobbySubscribe = (id, callback) => {
   const subscriber = client.duplicate()
-  const key = 'lobbysub:' + lobbyId
+  const key = 'lobbysub:' + id
   subscriber.subscribe(key, (channel, message) => {
     callback(JSON.parse(message))
   })
@@ -130,6 +138,6 @@ exports.lobbySubscribe = (lobbyId, callback) => {
   return ret
 }
 
-exports.lobbySendMessage = (lobbyId, message) => {
-  client.publish('lobbysub:' + lobbyId, JSON.stringify(message))
+exports.lobbySendMessage = (id, message) => {
+  client.publish('lobbysub:' + id, JSON.stringify(message))
 }
