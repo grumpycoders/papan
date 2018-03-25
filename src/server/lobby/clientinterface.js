@@ -1,7 +1,9 @@
 'use strict'
 
 const EventEmitter = require('events')
+const natUPNP = require('nat-upnp').createClient()
 const Client = require('./client.js')
+let natRefreshInterval
 
 class ClientInterface extends EventEmitter {
   constructor (channel) {
@@ -25,6 +27,17 @@ class ClientInterface extends EventEmitter {
         premise = require('./server.js').registerServer()
         .then(server => {
           this.localLobbyServer = server
+          const setMapping = () => {
+            natUPNP.portMapping({
+              public: 9999,
+              private: 9999,
+              ttl: 600
+            }, err => {
+              console.log(err)
+            })
+          }
+          setMapping()
+          natRefreshInterval = setInterval(setMapping, 300000)
         })
       } else {
         premise = Promise.resolve()
@@ -67,7 +80,11 @@ class ClientInterface extends EventEmitter {
 
   shutdown (callback) {
     if (this.localLobbyServer) {
-      this.lobbyConnectionStatus.tryShutdown(callback)
+      this.localLobbyServer.tryShutdown(callback)
+      clearInterval(natRefreshInterval)
+      natUPNP.portUnmapping({
+        public: 9999
+      })
     } else {
       setImmediate(callback)
     }
