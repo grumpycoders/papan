@@ -121,16 +121,14 @@
           if (!this.$[id]) {
             lobby = document.createElement('papan-placeholderlobby')
             lobby.setAttribute('id', id)
-            lobby.setAttribute('owner', data.owner.id)
+            lobby.owner = data.owner.id
             needsAdd = true
           } else {
             lobby = this.$[id]
           }
-          lobby.setAttribute('name', data.name)
-          lobby.setAttribute('userid', this.userInfo.id)
-          if (data.public) {
-            lobby.setAttribute('public')
-          }
+          lobby.name = data.name
+          lobby.userid = this.userInfo.id
+          lobby.public = data.public
           if (needsAdd) {
             this.$.lobbies.appendChild(lobby)
           }
