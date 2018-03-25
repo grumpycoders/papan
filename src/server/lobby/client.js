@@ -92,7 +92,7 @@ class LobbyClient extends EventEmitter {
       switch (data.update) {
         case 'subscribed':
           this.clientInterface.setLobbyConnectionStatus('CONNECTED')
-          break
+          // falls through
         default:
           this.clientInterface[data.update](data[data.update])
           break
