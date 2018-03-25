@@ -81,8 +81,14 @@ message ListLobbiesResponse {
   LobbyStatus status = 2;
 }
 
+message GetJoinedLobbies { }
+message JoinedLobbies {
+  repeated LobbyInfo lobbies = 1;
+}
+
 service PlayerLobbyService {
   rpc Subscribe (stream Action) returns (stream Update);
   rpc Lobby (stream LobbyAction) returns (stream LobbyUpdate);
   rpc ListLobbies (ListLobbiesRequest) returns (stream ListLobbiesResponse);
+  rpc JoinedLobbies (GetJoinedLobbies) returns (JoinedLobbies);
 }

@@ -57,6 +57,7 @@ exports.createLobby = data => {
     if (result === 0) return exports.createLobby(data)
     return promised.sadd('lobbymembers:' + lobbyId, userId)
   })
+  .then(() => promised.sadd('user:' + userId + ':lobbies', lobbyId))
   .then(() => lobbyId)
 }
 
@@ -67,6 +68,7 @@ exports.joinLobby = data => {
     if (result === 0) Promise.reject(Error('Lobby doesn\t exist'))
     return promised.sadd('lobbymembers:' + lobbyId, userId)
   })
+  .then(() => promised.sadd('user:' + userId + ':lobbies', lobbyId))
   .then(() => lobbyId)
 }
 
