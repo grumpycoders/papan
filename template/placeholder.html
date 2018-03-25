@@ -34,6 +34,7 @@
     <paper-input always-float-label label="Lobby Server" value="{{lobbyServer}}"></paper-input>
     <paper-button on-tap="_connectToLobbyServer">Connect to lobby server {{lobbyServer}}</paper-button>
     <div>Connection status: [[_status]]</div>
+    <div>Local server address: [[_myIP]]</div>
     <paper-button id="createLobby" disabled on-tap="_createLobby">Create lobby</paper-button>
 
     <paper-dialog id="errorMessage" modal>
@@ -76,6 +77,9 @@
             lobby.setAttribute('id', id)
             this.$.lobbies.appendChild(lobby)
           }
+        })
+        channel.on('localServerIP', data => {
+          this._myIP = data.ip
         })
       },
 

@@ -35,7 +35,10 @@ class LobbyClient extends EventEmitter {
   }
 
   close () {
-    console.log('TODO')
+    if (this.subscription) this.subscription.cancel()
+    Object.keys(this.lobbies).forEach(key => {
+      this.lobbies[key].call.cancel()
+    })
   }
 
   getAuthMetadata () {

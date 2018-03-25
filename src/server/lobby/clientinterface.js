@@ -2,6 +2,7 @@
 
 const EventEmitter = require('events')
 const natUPNP = require('nat-upnp').createClient()
+const ip = require('ip')
 const Client = require('./client.js')
 let natRefreshInterval
 
@@ -22,7 +23,7 @@ class ClientInterface extends EventEmitter {
         return
       }
       let premise
-      if (data.connectLocal) {
+      if (data.connectLocal && !this.localLobbyServer) {
         this.setLobbyConnectionStatus('STARTINGLOBBY')
         premise = require('./server.js').registerServer()
         .then(server => {
@@ -34,6 +35,13 @@ class ClientInterface extends EventEmitter {
               ttl: 600
             }, err => {
               console.log(err)
+              natUPNP.externalIp((err, result) => {
+                let myIP = result
+                if (err) {
+                  myIP = ip.address()
+                }
+                channel.send('localServerIP', { ip: myIP })
+              })
             })
           }
           setMapping()
@@ -79,6 +87,7 @@ class ClientInterface extends EventEmitter {
   }
 
   shutdown (callback) {
+    this.client.close()
     if (this.localLobbyServer) {
       this.localLobbyServer.tryShutdown(callback)
       clearInterval(natRefreshInterval)

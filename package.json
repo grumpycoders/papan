@@ -54,6 +54,7 @@
     "express-session": "^1.15.3",
     "express-winston": "^2.5.0",
     "grpc": "^1.9.1",
+    "ip": "^1.1.5",
     "lodash": "^4.17.5",
     "nat-upnp": "^1.1.1",
     "openid-client": "^1.19.4",
