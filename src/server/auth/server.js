@@ -14,7 +14,7 @@ const assert = require('assert')
 const passport = require('passport')
 
 const userDB = require('./userdb.js')
-const util = require('../common/util.js')
+const PapanServerUtils = require('../common/utils.js')
 
 const root = path.normalize(path.join(__dirname, '..', '..', '..'))
 
@@ -118,7 +118,7 @@ exports.registerServer = (app, config) => {
     ))
     app.get('/auth/getcode',
       passport.authenticated(),
-      (req, res, next) => util.generateToken()
+      (req, res, next) => PapanServerUtils.generateToken()
       .then(token => users.addTemporaryCode(req.user, token))
       .then(token => res.json({ code: token.dataValues.id }))
       .catch(err => next(err))
@@ -126,7 +126,7 @@ exports.registerServer = (app, config) => {
     app.get('/auth/forwardcode',
       passport.authenticated(),
       (req, res, next) => (req.query.returnURL && req.query.returnURL.indexOf('?') < 0
-        ? util.generateToken()
+        ? PapanServerUtils.generateToken()
         : Promise.reject(Error('Invalid returnURL query parameter'))
       ).then(token => users.addTemporaryCode(req.user, token))
       .then(token => res.redirect(req.query.returnURL + '?code=' + token.dataValues.id))

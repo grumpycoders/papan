@@ -10,11 +10,6 @@
     <div>Connection status: [[_status]]</div>
     <paper-button id="createLobby" disabled on-tap="_createLobby">Create lobby</paper-button>
 
-    <paper-dialog id="lobbyCreation" modal>
-      <paper-input id="lobbyName" label="Lobby name" value="My Lobby"></paper-input>
-      <paper-button dialog-confirm autofocus on-tap="_validateLobbyName">Create</paper-button>
-    </paper-dialog>
-
     <paper-dialog id="errorMessage" modal>
       <div>[[_errorMessage]]</div>
       <paper-button dialog-confirm autofocus>Close</paper-button>
@@ -36,7 +31,7 @@
           this._status = data.status
           this.$.createLobby.disabled = this._status !== 'CONNECTED'
         })
-        channel.on('lobbyCreated', data => {
+        channel.on('lobbyInfo', data => {
           console.log(data)
         })
       },
@@ -46,12 +41,8 @@
       },
 
       _createLobby: function() {
-        this.$.lobbyCreation.open()
+        channel.send('joinLobby')
       },
-
-      _validateLobbyName: function() {
-        channel.send('createLobby', { lobbyName: this.$.lobbyName.value })
-      }
     })
 
     if (PapanUtils.isElectron()) {

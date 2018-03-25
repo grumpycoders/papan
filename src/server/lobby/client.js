@@ -3,15 +3,16 @@
 const EventEmitter = require('events')
 const path = require('path')
 const grpc = require('grpc')
+const merge = require('deepmerge')
 const _ = require('lodash')
-const util = require('../common/util.js')
+const PapanServerUtils = require('../common/utils.js')
 const protoLoader = require('../common/proto.js')
 
 class LobbyClient extends EventEmitter {
   constructor () {
     super()
 
-    const subscribedMessages = ['createLobby']
+    const subscribedMessages = ['xxx']
     subscribedMessages.forEach(message => {
       this[message] = data => {
         const obj = {}
@@ -19,6 +20,8 @@ class LobbyClient extends EventEmitter {
         this.subscribedWrite(obj)
       }
     })
+
+    this.lobbies = {}
   }
 
   close () {
@@ -29,20 +32,21 @@ class LobbyClient extends EventEmitter {
     let metadata = new grpc.Metadata()
     if (this.papanCode) {
       metadata.set('papan-code', this.papanCode)
-    } else if (this.papan_session) {
-      metadata.set('papan-session', this.papan_session)
+      this.papanCode = null
+    } else if (this.papanSession) {
+      metadata.set('papan-session', this.papanSession)
     }
     return metadata
   }
 
-  errorCatcher (call, handler) {
+  errorCatcher (call, retry, handler) {
     call.on('error', err => {
       if (err.code === grpc.status.UNAUTHENTICATED) {
         this.clientInterface.setLobbyConnectionStatus('AUTHENTICATING')
         this.clientInterface.getAuthorizationCode()
         .then(code => {
           this.papanCode = code
-          this.subscribe()
+          retry()
         })
         .catch(err => {
           err.code = grpc.status.UNAUTHENTICATED
@@ -54,11 +58,25 @@ class LobbyClient extends EventEmitter {
     })
   }
 
+  metadataCatcher (call, handler) {
+    call.on('metadata', metadata => {
+      const session = metadata.get('papan-session')
+      if (session.length === 1) {
+        this.papanSession = session[0]
+      }
+      handler(metadata)
+    })
+  }
+
   subscribe () {
     let call = this.grpcClient.Subscribe()
-    this.errorCatcher(call, console.log)
+    this.errorCatcher(call, () => this.subscribe(), console.log)
+    this.metadataCatcher(call, console.log)
     call.on('status', status => {
       console.log(status)
+    })
+    call.on('end', () => {
+      console.log('end')
     })
     call.on('data', data => {
       switch (data.update) {
@@ -70,16 +88,28 @@ class LobbyClient extends EventEmitter {
           break
       }
     })
-    call.on('end', () => {
-      console.log('end')
-    })
-    call.on('metadata', metadata => {
-      const session = metadata.get('papan-session')
-      if (session.length === 1) {
-        this.papan_session = session[0]
-      }
-    })
     this.subscription = call
+  }
+
+  joinLobby (data) {
+    let call = this.grpcClient.Lobby()
+    if (!data) data = {}
+    let lobbyId = data.lobbyId
+    if (lobbyId) {
+      this.lobbies[lobbyId] = { call: call }
+    }
+
+    this.errorCatcher(call, () => this.joinLobby({ lobbyId: lobbyId }), console.log)
+    this.metadataCatcher(call, console.log)
+    call.on('data', data => {
+      if (!lobbyId && data.update === 'lobbyInfo') {
+        lobbyId = data.lobbyInfo.lobbyId
+        this.lobbies[lobbyId] = { call: call }
+      }
+      this.clientInterface[data.update](merge(data[data.update], { lobbyId: lobbyId }))
+    })
+
+    call.write({ joinLobby: data })
   }
 
   subscribedWrite (data) {
@@ -107,7 +137,7 @@ exports.CreateClient = (clientInterface, options) => {
   clientInterface.setLobbyConnectionStatus('CONNECTING')
 
   const work = [
-    util.readFile(path.join(__dirname, '..', '..', '..', 'certs', 'localhost-ca.crt')),
+    PapanServerUtils.readFile(path.join(__dirname, '..', '..', '..', 'certs', 'localhost-ca.crt')),
     protoLoader.load('lobby.proto')
   ]
 

@@ -37,14 +37,14 @@ class ClientInterface extends EventEmitter {
       })
     })
 
-    const clientToServerMessage = ['createLobby']
+    const clientToServerMessage = ['joinLobby']
     clientToServerMessage.forEach(message => {
       channel.on(message, this.connectedCall(data => {
         this.client[message](data)
       }))
     })
 
-    const serverToClientMessages = ['error', 'lobbyCreated']
+    const serverToClientMessages = ['error', 'lobbyInfo']
     serverToClientMessages.forEach(message => {
       this[message] = data => this.channel.send(message, data)
     })

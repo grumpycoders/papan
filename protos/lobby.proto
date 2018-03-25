@@ -5,9 +5,18 @@ message CreateLobby {
   string lobby_name = 1;
 }
 
+message User {
+  string user_id = 1;
+}
+
+message ChatMessage {
+  User user = 1;
+  string message = 2;
+}
+
 message Action {
   oneof action {
-    CreateLobby create_lobby = 1;
+    ChatMessage message = 1;
   }
 }
 
@@ -26,7 +35,7 @@ message Update {
   oneof update {
     Error error = 1;
     Subscribed subscribed = 2;
-    LobbyInfo lobby_created = 3;
+    ChatMessage message = 3;
   }
 }
 
@@ -34,38 +43,30 @@ message JoinLobby {
   string lobby_id = 1;
 }
 
-message Player {
-  string player_id = 1;
-}
-
-message ChatMessage {
-  Player player = 1;
-  string message = 2;
-}
-
 message LeaveLobby { }
 
 message LobbyAction {
   oneof action {
     JoinLobby join_lobby = 1;
-    ChatMessage send_chat_message = 2;
-    bool set_ready = 3;
-    Player kick_player = 4;
-    LeaveLobby leave_lobby = 5;
+    LeaveLobby leave_lobby = 2;
+    ChatMessage message = 3;
+    bool set_ready = 4;
+    User kick_user = 5;
   }
 }
 
-message PlayerReadyUpdate {
-  string player_id = 1;
+message UserReadyUpdate {
+  User user = 1;
   bool ready = 2;
 }
 
 message LobbyUpdate {
   oneof update {
-    ChatMessage new_chat_message = 1;
-    Player player_joined = 2;
-    Player player_left = 3;
-    PlayerReadyUpdate player_ready_update = 4;
+    LobbyInfo lobby_info = 1;
+    User user_joined = 2;
+    User user_left = 3;
+    ChatMessage message = 4;
+    UserReadyUpdate ready_update = 5;
   }
 }
 

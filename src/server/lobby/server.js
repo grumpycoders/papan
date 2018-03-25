@@ -4,8 +4,9 @@ const grpc = require('grpc')
 const path = require('path')
 const request = require('request-promise-native')
 const _ = require('lodash')
+const deepclone = require('deepclone')
 const protoLoader = require('../common/proto.js')
-const util = require('../common/util.js')
+const PapanServerUtils = require('../common/utils.js')
 const persist = require('./persist.js')
 
 const serverDefaults = {
@@ -55,14 +56,14 @@ exports.registerServer = options => {
   }
 
   const checkCredentials = checkCredentialsGenerator(call => {
-    if (options.requiresAuth) {
-      call.metadata.remove('papan-userid')
-      let session = call.metadata.get('papan-session')[0]
-      if (session && sessions[session]) {
-        call.metadata.set('papan-userid', sessions[session])
-        return Promise.resolve()
-      }
+    call.metadata.remove('papan-userid')
+    let session = call.metadata.get('papan-session')[0]
+    if (session && sessions[session]) {
+      call.metadata.set('papan-userid', sessions[session])
+      return Promise.resolve()
+    }
 
+    if (options.requiresAuth) {
       let code = call.metadata.get('papan-code')[0]
       if (code) {
         const requestData = {
@@ -78,7 +79,7 @@ exports.registerServer = options => {
           if (!res.userId) return Promise.reject(Error('Invalid exchange code'))
           userId = res.userId
           call.metadata.set('papan-userid', userId)
-          return util.generateToken()
+          return PapanServerUtils.generateToken()
         })
         .then(token => {
           sessions[token] = userId
@@ -89,14 +90,23 @@ exports.registerServer = options => {
       }
       return Promise.reject(Error('Client must authenticate'))
     } else {
-      return Promise.resolve(undefined)
+      return PapanServerUtils.generateToken()
+      .then(token => {
+        sessions[token] = token
+        let metadata = new grpc.Metadata()
+        metadata.set('papan-session', token)
+        call.metadata.set('papan-userid', token)
+        return metadata
+      })
     }
   })
 
+  const getUserId = call => call.metadata.get('papan-userid')
+
   const work = [
-    util.readFile(path.join(__dirname, '..', '..', '..', 'certs', 'localhost-ca.crt')),
-    util.readFile(path.join(__dirname, '..', '..', '..', 'certs', 'localhost-server.crt')),
-    util.readFile(path.join(__dirname, '..', '..', '..', 'certs', 'localhost-server.key')),
+    PapanServerUtils.readFile(path.join(__dirname, '..', '..', '..', 'certs', 'localhost-ca.crt')),
+    PapanServerUtils.readFile(path.join(__dirname, '..', '..', '..', 'certs', 'localhost-server.crt')),
+    PapanServerUtils.readFile(path.join(__dirname, '..', '..', '..', 'certs', 'localhost-server.key')),
     protoLoader.load('lobby.proto')
   ]
 
@@ -110,33 +120,89 @@ exports.registerServer = options => {
     )
     grpcServer.addService(lobbyProto.PlayerLobbyService.service, checkCredentials({
       Subscribe: call => {
+        const userId = getUserId(call)
         call.write({
           subscribed: {}
         })
+        const sub = persist.userSubscribe(userId, message => {
+          call.write(message)
+        })
         call.on('data', data => {
-          const userId = call.metadata.get('papan-userid')
           switch (data.action) {
-            case 'createLobby':
-              persist.createLobby({
-                userId: userId,
-                lobbyName: data.createLobby.lobbyName
-              })
-              .then(lobbyId => {
-                call.write({
-                  lobbyCreated: {
-                    lobbyId: lobbyId,
-                    lobbyName: data.createLobby.lobbyName
-                  }
+            case 'message':
+              let message = deepclone(data)
+              message.message.userId = userId
+              persist.sendMessage(data.userId, message)
+              break
+          }
+        })
+        call.on('end', () => sub.close())
+      },
+      Lobby: call => {
+        const userId = getUserId(call)
+        let gotJoin = false
+        let lobbyId
+        let sub
+        call.on('data', data => {
+          let joinError = false
+          let errorMsg
+          if (data.action === 'joinLobby') {
+            if (gotJoin) {
+              joinError = true
+              errorMsg = 'You can\'t join twice'
+            }
+            gotJoin = true
+          } else {
+            if (!gotJoin) {
+              joinError = true
+              errorMsg = 'You need to join first'
+            }
+          }
+          if (joinError) {
+            let error = {
+              code: grpc.status.FAILED_PRECONDITION,
+              details: errorMsg,
+              metadata: new grpc.Metadata()
+            }
+            call.emit('error', error)
+            call.end()
+            return
+          }
+          switch (data.action) {
+            case 'joinLobby':
+              lobbyId = data.joinLobby.lobbyId
+              let premise
+              if (lobbyId) {
+                premise = persist.joinLobby({
+                  userId: userId,
+                  lobbyId: lobbyId
                 })
+              } else {
+                premise = persist.createLobby({
+                  userId: userId
+                })
+              }
+              premise
+              .then(result => {
+                lobbyId = result
+                sub = persist.lobbySubscribe(lobbyId, message => {
+                  call.write(message)
+                })
+                call.on('end', () => sub.close())
+                call.write({ lobbyInfo: { lobbyId: lobbyId } })
               })
               .catch(err => {
-                call.write({ error: { message: err.toString() } })
+                let error = {
+                  code: grpc.status.UNKNOWN,
+                  details: err.message,
+                  metadata: new grpc.Metadata()
+                }
+                call.emit('error', error)
+                call.end()
               })
               break
           }
         })
-      },
-      Lobby: call => {
         console.log(call)
       },
       ListLobbies: call => {
