@@ -101,7 +101,13 @@ exports.registerServer = options => {
     }
   })
 
-  const getUserId = call => call.metadata.get('papan-userid')
+  const getUserId = call => {
+    const userid = call.metadata.get('papan-userid')
+    if (userid.length === 1) {
+      return userid[0]
+    }
+    return ''
+  }
 
   const work = [
     PapanServerUtils.readFile(path.join(__dirname, '..', '..', '..', 'certs', 'localhost-ca.crt')),
@@ -122,7 +128,11 @@ exports.registerServer = options => {
       Subscribe: call => {
         const userId = getUserId(call)
         call.write({
-          subscribed: {}
+          subscribed: {
+            self: {
+              userId: userId
+            }
+          }
         })
         const sub = persist.userSubscribe(userId, message => {
           call.write(message)
@@ -184,12 +194,19 @@ exports.registerServer = options => {
               }
               premise
               .then(result => {
-                lobbyId = result
+                lobbyId = result.lobbyId
                 sub = persist.lobbySubscribe(lobbyId, message => {
                   call.write(message)
                 })
                 call.on('end', () => sub.close())
-                call.write({ lobbyInfo: { lobbyId: lobbyId } })
+                call.write({
+                  lobbyInfo: result
+                })
+                persist.lobbySendMessage(lobbyId, {
+                  userJoined: {
+                    userId: userId
+                  }
+                })
               })
               .catch(err => {
                 let error = {
@@ -199,6 +216,18 @@ exports.registerServer = options => {
                 }
                 call.emit('error', error)
                 call.end()
+              })
+              break
+            case 'setName':
+              persist.setLobbyName({
+                userId: userId,
+                lobbyId: lobbyId,
+                lobbyName: data.setName
+              })
+              .then(result => {
+                persist.lobbySendMessage({
+                  lobbyInfo: result
+                })
               })
               break
           }

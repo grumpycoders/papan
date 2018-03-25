@@ -21,6 +21,16 @@ class LobbyClient extends EventEmitter {
       }
     })
 
+    const lobbyMessages = ['setName']
+    lobbyMessages.forEach(message => {
+      this[message] = data => {
+        const obj = {}
+        obj[message] = data
+        const lobby = this.lobbies[data.lobbyId]
+        if (lobby) lobby.call.write(obj)
+      }
+    })
+
     this.lobbies = {}
   }
 

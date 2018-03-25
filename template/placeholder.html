@@ -4,9 +4,35 @@
 <link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../bower_components/paper-input/paper-input.html">
 
+<dom-module id="papan-placeholderlobby">
+  <template>
+    <paper-input always-float-label label="Lobby name" value="{{name}}"></paper-input>
+  </template>
+  <script>
+    'use strict'
+
+    Polymer({
+      is: 'papan-placeholderlobby',
+
+      _nameChange: function() {
+        channel.send('setName', { lobbyId: this.id, lobbyName: this.name })
+      },
+
+      properties: {
+        name: {
+          type: String,
+          observer: '_nameChange'
+        }
+      }
+    })
+  </script>
+</dom-module>
+
 <dom-module id="papan-placeholder">
   <template>
-    <paper-button on-tap="_connectToLocalLobby">Launch and connect to local lobby</paper-button>
+    <paper-button on-tap="_connectToLocalLobbyServer">Launch and connect to local lobby</paper-button>
+    <paper-input always-float-label label="Lobby Server" value="{{lobbyServer}}"></paper-input>
+    <paper-button on-tap="_connectToLobbyServer">Connect to lobby server {{lobbyServer}}</paper-button>
     <div>Connection status: [[_status]]</div>
     <paper-button id="createLobby" disabled on-tap="_createLobby">Create lobby</paper-button>
 
@@ -14,15 +40,27 @@
       <div>[[_errorMessage]]</div>
       <paper-button dialog-confirm autofocus>Close</paper-button>
     </paper-dialog>
+
+    <div id="lobbies"></div>
   </template>
   <script>
     'use strict'
 
     Polymer({
-      is: "papan-placeholder",
+      is: 'papan-placeholder',
+
+      properties: {
+        lobbyServer: {
+          type: String,
+          value: 'localhost'
+        }
+      },
 
       ready() {
         channel.send('getLobbyConnectionStatus')
+        channel.on('subscribed', data => {
+          console.log(data)
+        })
         channel.on('error', data => {
           this._errorMessage = data.error.message
           this.$.errorMessage.open()
@@ -32,12 +70,21 @@
           this.$.createLobby.disabled = this._status !== 'CONNECTED'
         })
         channel.on('lobbyInfo', data => {
-          console.log(data)
+          const id = data.lobbyId
+          if (!this.$[id]) {
+            const lobby = document.createElement('papan-placeholderlobby')
+            lobby.setAttribute('id', id)
+            this.$.lobbies.appendChild(lobby)
+          }
         })
       },
 
-      _connectToLocalLobby: function() {
+      _connectToLocalLobbyServer: function() {
         channel.send('connectToLobbyServer', { connectLocal: true })
+      },
+
+      _connectToLobbyServer: function() {
+        channel.send('connectToLobbyServer', { lobbyServer: this.lobbyServer })
       },
 
       _createLobby: function() {

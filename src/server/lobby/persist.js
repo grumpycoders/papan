@@ -58,18 +58,62 @@ exports.createLobby = data => {
     return promised.sadd('lobbymembers:' + lobbyId, userId)
   })
   .then(() => promised.sadd('user:' + userId + ':lobbies', lobbyId))
-  .then(() => lobbyId)
+  .then(() => ({
+    lobbyId: lobbyId,
+    owner: {
+      userId: userId
+    },
+    lobbyName: ''
+  }))
 }
 
 exports.joinLobby = data => {
   const { userId, lobbyId } = data
+  let owner
   return promised.hget('lobbyinfo:' + lobbyId, 'owner')
   .then(result => {
-    if (result === 0) Promise.reject(Error('Lobby doesn\t exist'))
+    if (result === null) Promise.reject(Error('Lobby doesn\t exist'))
+    owner = result
     return promised.sadd('lobbymembers:' + lobbyId, userId)
   })
   .then(() => promised.sadd('user:' + userId + ':lobbies', lobbyId))
-  .then(() => lobbyId)
+  .then(() => promised.hget('lobbyinfo:' + lobbyId, 'name'))
+  .then(result => ({
+    lobbyId: lobbyId,
+    owner: {
+      userId: owner
+    },
+    lobbyName: result
+  }))
+}
+
+exports.setLobbyName = data => {
+  const { lobbyId, userId, lobbyName } = data
+  const key = 'lobbyinfo:' + lobbyId
+  return promised.hget(key, 'owner')
+  .then(result => {
+    if (result === null) return Promise.reject(Error('Lobby doesn\'t exist'))
+    if (userId !== result) {
+      const owner = result
+      return promised.hget(key, 'name')
+      .then(result => ({
+        lobbyId: lobbyId,
+        owner: {
+          userId: owner
+        },
+        lobbyName: result
+      }))
+    } else {
+      return promised.hset(key, 'name', lobbyName)
+      .then(() => ({
+        lobbyId: lobbyId,
+        owner: {
+          userId: userId
+        },
+        lobbyName: lobbyName
+      }))
+    }
+  })
 }
 
 exports.lobbySubscribe = (lobbyId, callback) => {

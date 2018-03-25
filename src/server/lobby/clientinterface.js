@@ -37,7 +37,7 @@ class ClientInterface extends EventEmitter {
       })
     })
 
-    const clientToServerMessage = ['joinLobby']
+    const clientToServerMessage = ['joinLobby', 'setName']
     clientToServerMessage.forEach(message => {
       channel.on(message, this.connectedCall(data => {
         this.client[message](data)

@@ -24,11 +24,14 @@ message Error {
   string message = 1;
 }
 
-message Subscribed {}
+message Subscribed {
+  User self = 1;
+}
 
 message LobbyInfo {
   string lobby_id = 1;
   string lobby_name = 2;
+  User owner = 3;
 }
 
 message Update {
@@ -52,6 +55,7 @@ message LobbyAction {
     ChatMessage message = 3;
     bool set_ready = 4;
     User kick_user = 5;
+    string set_name = 6;
   }
 }
 
