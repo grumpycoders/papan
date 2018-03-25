@@ -12,7 +12,7 @@ const persist = require('./persist.js')
 const serverDefaults = {
   requiresAuth: true,
   authServer: 'https://auth.papan.online',
-  port: 5051
+  port: 9999
 }
 
 exports.registerServer = options => {

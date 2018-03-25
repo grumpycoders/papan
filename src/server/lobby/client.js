@@ -134,14 +134,14 @@ class LobbyClient extends EventEmitter {
 const clientDefaults = {
   connectLocal: false,
   lobbyServer: 'lobby.papan.online',
-  lobbyServerPort: 5051
+  lobbyServerPort: 9999
 }
 
 exports.CreateClient = (clientInterface, options) => {
   options = _.defaults(options, clientDefaults)
   if (options.connectLocal) {
     options.lobbyServer = 'localhost'
-    options.lobbyServerPort = 5051
+    options.lobbyServerPort = 9999
   }
   const serverAddress = options.lobbyServer + ':' + options.lobbyServerPort
   clientInterface.setLobbyConnectionStatus('CONNECTING')
