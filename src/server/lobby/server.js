@@ -156,7 +156,10 @@ exports.registerServer = options => {
               break
           }
         })
-        call.on('end', () => sub.close())
+        call.on('end', () => {
+          sub.close()
+          call.end()
+        })
       },
       Lobby: call => {
         const userId = getUserId(call)
@@ -164,6 +167,7 @@ exports.registerServer = options => {
         let id
         let sub
         let runningPromise
+        call.on('end', () => call.end())
         call.on('data', data => {
           let joinError = false
           let errorMsg
@@ -256,11 +260,25 @@ exports.registerServer = options => {
             })
           }
         })
-        console.log(call)
       },
       ListLobbies: call => {
-        console.log(call)
-        call.on('end', () => call.end())
+        const sub = persist.lobbyListSubscribe(data => {
+          call.write(data)
+        })
+        persist.getPublicLobbies()
+        .then(lobbies => Promise.all(lobbies.map(id => persist.getLobbyInfo({ id: id }))))
+        .then(lobbies => {
+          lobbies.forEach(info => {
+            call.write({
+              lobby: info,
+              status: 0
+            })
+          })
+        })
+        call.on('end', () => {
+          sub.close()
+          call.end()
+        })
       }
     }))
 

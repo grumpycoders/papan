@@ -42,6 +42,7 @@ class LobbyClient extends EventEmitter {
 
   close () {
     if (this.subscription) this.subscription.cancel()
+    if (this.lobbiesWatcher) this.lobbiesWatcher.cancel()
     Object.keys(this.lobbies).forEach(key => {
       this.lobbies[key].call.cancel()
     })
@@ -88,7 +89,7 @@ class LobbyClient extends EventEmitter {
   }
 
   subscribe () {
-    let call = this.grpcClient.Subscribe()
+    const call = this.grpcClient.Subscribe()
     this.errorCatcher(call, () => this.subscribe(), console.log)
     this.metadataCatcher(call, console.log)
     call.on('status', status => {
@@ -111,7 +112,7 @@ class LobbyClient extends EventEmitter {
   }
 
   join (data) {
-    let call = this.grpcClient.Lobby()
+    const call = this.grpcClient.Lobby()
     if (!data) data = {}
     let id = data.id
     if (id) {
@@ -120,6 +121,12 @@ class LobbyClient extends EventEmitter {
 
     this.errorCatcher(call, () => this.join({ id: id }), console.log)
     this.metadataCatcher(call, console.log)
+    call.on('status', status => {
+      console.log(status)
+    })
+    call.on('end', () => {
+      console.log('end')
+    })
     call.on('data', data => {
       if (!id && data.update === 'info') {
         id = data.info.id
@@ -137,6 +144,32 @@ class LobbyClient extends EventEmitter {
     }
 
     this.subscription.write(data)
+  }
+
+  startWatchingLobbies () {
+    if (this.lobbiesWatcher) return
+    const call = this.grpcClient.ListLobbies()
+    this.lobbiesWatcher = call
+    this.errorCatcher(call, () => {
+      this.lobbiesWatcher = null
+      this.startWatchingLobbies()
+    }, console.log)
+    this.metadataCatcher(call, console.log)
+    call.on('status', status => {
+      console.log(status)
+    })
+    call.on('end', () => {
+      console.log('end')
+    })
+    call.on('data', data => {
+      this.clientInterface.publicLobbyUpdate(data)
+    })
+  }
+
+  stopWatchingLobbies () {
+    if (!this.lobbiesWatcher) return
+    this.lobbiesWatcher.end()
+    this.lobbiesWatcher = null
   }
 }
 

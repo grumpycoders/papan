@@ -62,7 +62,9 @@ class ClientInterface extends EventEmitter {
       'join',
       'setName',
       'setPublic',
-      'getJoinedLobbies'
+      'getJoinedLobbies',
+      'startWatchingLobbies',
+      'stopWatchingLobbies'
     ]
     clientToServerMessage.forEach(message => {
       channel.on(message, this.connectedCall(data => {
@@ -121,6 +123,10 @@ class ClientInterface extends EventEmitter {
 
   sendLobbyConnectionStatus () {
     this.channel.send('lobbyConnectionStatus', { status: this.lobbyConnectionStatus })
+  }
+
+  publicLobbyUpdate (data) {
+    this.channel.send('publicLobbyUpdate', data)
   }
 }
 

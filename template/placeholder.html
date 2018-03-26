@@ -5,6 +5,35 @@
 <link rel="import" href="../bower_components/paper-input/paper-input.html">
 <link rel="import" href="../bower_components/paper-toggle-button/paper-toggle-button.html">
 
+<dom-module id="papan-placeholderlobbylistitem">
+  <template>
+    <paper-button on-tap="_joinLobby">Join lobby [[name]]</paper-button>
+  </template>
+  <script>
+    'use strict'
+
+    Polymer({
+      is: 'papan-placeholderlobbylistitem',
+
+      properties: {
+        name: {
+          type: String
+        },
+        owner: {
+          type: Object
+        },
+        lobbyId: {
+          type: String
+        }
+      },
+
+      _joinLobby: function() {
+        channel.send('join', { id: this.lobbyId })
+      }
+    })
+  </script>
+</dom-module>
+
 <dom-module id="papan-placeholderlobby">
   <template>
     <paper-input always-float-label label="Lobby name" id="lobbyName" value="{{name}}"></paper-input>
@@ -17,26 +46,42 @@
       is: 'papan-placeholderlobby',
 
       ready: function() {
-        if (this.userid !== this.owner) {
+        if (this.userInfo.id !== this.owner.id) {
           this._isowner = false
           this.$.public.disabled = true
           this.$.lobbyName.disabled = true
         } else {
           this._isowner = true
         }
+        if (this.name == '') {
+          this.$.public.disabled = true
+          this.$.public.checked = false
+        }
         this.$.public.addEventListener('change', () => {
           if (this._isowner) channel.send('setPublic', {
-            id: this.id,
+            id: this.lobbyId,
             public: this.$.public.checked
           })
         })
       },
 
       _nameChange: function() {
-        if (this._isowner) channel.send('setName', {
-          id: this.id,
-          name: this.name
-        })
+        if (this._isowner) {
+          channel.send('setName', {
+            id: this.lobbyId,
+            name: this.name
+          })
+          if (this.name == '') {
+            this.$.public.disabled = true
+            this.$.public.checked = false
+            channel.send('setPublic', {
+              id: this.lobbyId,
+              public: false
+            })
+          } else {
+            this.$.public.disabled = false
+          }
+        }
       },
 
       _publicChange: function() {
@@ -53,10 +98,13 @@
           value: false,
           observer: '_publicChange'
         },
-        userid: {
-          type: String
+        userInfo: {
+          type: Object
         },
         owner: {
+          type: Object
+        },
+        lobbyId: {
           type: String
         },
         _isowner: {
@@ -83,6 +131,9 @@
     </paper-dialog>
 
     <div id="lobbies"></div>
+
+    Watch lobbies: <paper-toggle-button id="watchLobbies" disabled></paper-toggle-button>
+    <div id="lobbieslist"></div>
   </template>
   <script>
     'use strict'
@@ -98,10 +149,17 @@
 
         userInfo: {
           type: Object
-        }
+        },
+
+        _lobbies: {
+          type: Array,
+          value: () => []
+        },
       },
 
       ready() {
+        this._lobbyList = {}
+        this._watchedLobbyList = {}
         channel.send('getLobbyConnectionStatus')
         channel.on('subscribed', data => {
           this.userInfo = data.self
@@ -113,28 +171,74 @@
         channel.on('lobbyConnectionStatus', data => {
           this._status = data.status
           this.$.createLobby.disabled = this._status !== 'CONNECTED'
+          this.$.watchLobbies.disabled = this._status !== 'CONNECTED'
         })
         channel.on('info', data => {
           const id = data.id
+          const elementId = 'lobby-' + id
           let lobby
           let needsAdd = false
-          if (!this.$[id]) {
+          if (!this._lobbyList[elementId]) {
             lobby = document.createElement('papan-placeholderlobby')
-            lobby.setAttribute('id', id)
-            lobby.owner = data.owner.id
+            lobby.setAttribute('id', elementId)
+            lobby.lobbyId = id
+            lobby.owner = data.owner
             needsAdd = true
           } else {
-            lobby = this.$[id]
+            lobby = this._lobbyList[elementId]
           }
           lobby.name = data.name
-          lobby.userid = this.userInfo.id
+          lobby.userInfo = this.userInfo
           lobby.public = data.public
           if (needsAdd) {
             this.$.lobbies.appendChild(lobby)
+            this._lobbyList[elementId] = lobby
+          }
+          const otherElementId = 'lobbylistitem-' + id
+          lobby = this._watchedLobbyList[otherElementId]
+          if (lobby) {
+            this.$.lobbieslist.removeChild(lobby)
+            this._watchedLobbyList[otherElementId] = undefined
           }
         })
         channel.on('localServerIP', data => {
           this._myIP = data.ip
+        })
+        this.$.watchLobbies.addEventListener('change', () => {
+          if (this.$.watchLobbies.checked) {
+            channel.send('startWatchingLobbies')
+          } else {
+            channel.send('stopWatchingLobbies')
+          }
+        })
+        channel.on('publicLobbyUpdate', data => {
+          const id = data.lobby.id
+          const elementId = 'lobbylistitem-' + id
+          const otherElementId = 'lobby-' + id
+          let lobby
+          if (data.status === 'ADDED' && !this._lobbyList[otherElementId]) {
+            let needsAdd = false
+            if (!this._watchedLobbyList[elementId]) {
+              lobby = document.createElement('papan-placeholderlobbylistitem')
+              lobby.setAttribute('id', elementId)
+              lobby.lobbyId = id
+              lobby.owner = data.lobby.owner
+              needsAdd = true
+            } else {
+              lobby = this._watchedLobbyList[elementId]
+            }
+            lobby.name = data.lobby.name
+            if (needsAdd) {
+              this.$.lobbieslist.appendChild(lobby)
+              this._watchedLobbyList[elementId] = lobby
+            }
+          } else {
+            lobby = this._watchedLobbyList[elementId]
+            if (lobby) {
+              this.$.lobbieslist.removeChild(lobby)
+              this._watchedLobbyList[elementId] = undefined
+            }
+          }
         })
       },
 

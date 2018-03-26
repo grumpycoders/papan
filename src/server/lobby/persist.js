@@ -22,17 +22,16 @@ if (!argv.use_redis_mock && !argv.use_redis_server) {
 const redis = mock ? require('redis-mock') : require('redis')
 const client = redis.createClient()
 
-if (mock) {
-  client.duplicate = () => client
-}
-
 const promised = PapanServerUtils.promisifyClass(client)
 
 exports.userSubscribe = (userId, callback) => {
-  const subscriber = client.duplicate()
+  const subscriber = redis.createClient()
   const key = 'usersub:' + userId
-  subscriber.subscribe(key, (channel, message) => {
-    callback(JSON.parse(message))
+  subscriber.subscribe(key)
+  subscriber.on('message', (channel, message) => {
+    if (channel === key) {
+      callback(JSON.parse(message))
+    }
   })
 
   const ret = {
@@ -126,17 +125,28 @@ exports.setLobbyPublic = data => setLobbyField(deepmerge(data, { field: 'public'
   let ret
   if (data.public) {
     ret = promised.sadd('publiclobbies', data.id)
+    client.publish('publiclobbies', JSON.stringify({
+      id: data.id,
+      status: 0
+    }))
   } else {
     ret = promised.srem('publiclobbies', data.id)
+    client.publish('publiclobbies', JSON.stringify({
+      id: data.id,
+      status: 1
+    }))
   }
   return ret.then(() => info)
 })
 
 exports.lobbySubscribe = (id, callback) => {
-  const subscriber = client.duplicate()
+  const subscriber = redis.createClient()
   const key = 'lobbysub:' + id
-  subscriber.subscribe(key, (channel, message) => {
-    callback(JSON.parse(message))
+  subscriber.subscribe(key)
+  subscriber.on('key', (channel, message) => {
+    if (channel === key) {
+      callback(JSON.parse(message))
+    }
   })
 
   const ret = {
@@ -148,4 +158,33 @@ exports.lobbySubscribe = (id, callback) => {
 
 exports.lobbySendMessage = (id, message) => {
   client.publish('lobbysub:' + id, JSON.stringify(message))
+}
+
+exports.getPublicLobbies = () => {
+  return promised.smembers('publiclobbies')
+}
+
+exports.lobbyListSubscribe = callback => {
+  const subscriber = redis.createClient()
+  const key = 'publiclobbies'
+  subscriber.subscribe(key)
+  subscriber.on('message', (channel, message) => {
+    const data = JSON.parse(message)
+    if (data.status === 0) {
+      this.getLobbyInfo({ id: data.id })
+      .then(info => {
+        data.lobby = info
+        callback(data)
+      })
+    } else {
+      data.lobby = { id: data.id }
+      callback(data)
+    }
+  })
+
+  const ret = {
+    subscriber: subscriber,
+    close: () => subscriber.unsubscribe(key)
+  }
+  return ret
 }

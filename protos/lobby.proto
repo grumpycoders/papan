@@ -86,8 +86,8 @@ message LobbyUpdate {
 }
 
 enum LobbyStatus {
-  CREATED = 0;
-  DESTROYED = 1;
+  ADDED = 0;
+  REMOVED = 1;
 }
 
 message ListLobbiesRequest { }
@@ -99,5 +99,5 @@ message ListLobbiesResponse {
 service PlayerLobbyService {
   rpc Subscribe (stream Action) returns (stream Update);
   rpc Lobby (stream LobbyAction) returns (stream LobbyUpdate);
-  rpc ListLobbies (ListLobbiesRequest) returns (stream ListLobbiesResponse);
+  rpc ListLobbies (stream ListLobbiesRequest) returns (stream ListLobbiesResponse);
 }
