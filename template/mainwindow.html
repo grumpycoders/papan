@@ -19,6 +19,7 @@
 <link rel="import" href="server.html">
 <link rel="import" href="serverlist.html">
 <link rel="import" href="startupscreen.html">
+<link rel="import" href="placeholder.html">
 
 <dom-module id="papan-main-window">
   <link rel="import" type="css" href="mainwindow.css">
@@ -103,6 +104,10 @@
         id="serverlist"
         language="{{language}}">
       </papan-server-list>
+      <papan-placeholder
+        id="placeholder"
+        language="{{language}}">
+      </papan-placeholder>
       <div id="error">404</div>
     </iron-pages>
 

@@ -16,7 +16,7 @@ const readFile = path => new Promise((resolve, reject) =>
   )
 )
 
-module.exports = {
+exports = {
   up: function (sequelize) {
     const Sequelize = sequelize.constructor
 

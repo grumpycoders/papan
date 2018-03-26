@@ -1,0 +1,258 @@
+<link rel="import" href="../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../bower_components/paper-toggle-button/paper-toggle-button.html">
+
+<dom-module id="papan-placeholderlobbylistitem">
+  <template>
+    <paper-button on-tap="_joinLobby">Join lobby [[name]]</paper-button>
+  </template>
+  <script>
+    'use strict'
+
+    Polymer({
+      is: 'papan-placeholderlobbylistitem',
+
+      properties: {
+        name: {
+          type: String
+        },
+        owner: {
+          type: Object
+        },
+        lobbyId: {
+          type: String
+        }
+      },
+
+      _joinLobby: function() {
+        channel.send('join', { id: this.lobbyId })
+      }
+    })
+  </script>
+</dom-module>
+
+<dom-module id="papan-placeholderlobby">
+  <template>
+    <paper-input always-float-label label="Lobby name" id="lobbyName" value="{{name}}"></paper-input>
+    Public: <paper-toggle-button id="public"></paper-toggle-button>
+  </template>
+  <script>
+    'use strict'
+
+    Polymer({
+      is: 'papan-placeholderlobby',
+
+      ready: function() {
+        if (this.userInfo.id !== this.owner.id) {
+          this._isowner = false
+          this.$.public.disabled = true
+          this.$.lobbyName.disabled = true
+        } else {
+          this._isowner = true
+        }
+        if (this.name == '') {
+          this.$.public.disabled = true
+          this.$.public.checked = false
+        }
+        this.$.public.addEventListener('change', () => {
+          if (this._isowner) channel.send('setPublic', {
+            id: this.lobbyId,
+            public: this.$.public.checked
+          })
+        })
+      },
+
+      _nameChange: function() {
+        if (this._isowner) {
+          channel.send('setName', {
+            id: this.lobbyId,
+            name: this.name
+          })
+          if (this.name == '') {
+            this.$.public.disabled = true
+            this.$.public.checked = false
+            channel.send('setPublic', {
+              id: this.lobbyId,
+              public: false
+            })
+          } else {
+            this.$.public.disabled = false
+          }
+        }
+      },
+
+      _publicChange: function() {
+        this.$.public.checked = this.public
+      },
+
+      properties: {
+        name: {
+          type: String,
+          observer: '_nameChange'
+        },
+        public: {
+          type: Boolean,
+          value: false,
+          observer: '_publicChange'
+        },
+        userInfo: {
+          type: Object
+        },
+        owner: {
+          type: Object
+        },
+        lobbyId: {
+          type: String
+        },
+        _isowner: {
+          type: Boolean,
+          value: false
+        }
+      }
+    })
+  </script>
+</dom-module>
+
+<dom-module id="papan-placeholder">
+  <template>
+    <paper-button on-tap="_connectToLocalLobbyServer">Launch and connect to local lobby</paper-button>
+    <paper-input always-float-label label="Lobby Server" value="{{lobbyServer}}"></paper-input>
+    <paper-button on-tap="_connectToLobbyServer">Connect to lobby server {{lobbyServer}}</paper-button>
+    <div>Connection status: [[_status]]</div>
+    <div>Local server address: [[_myIP]]</div>
+    <paper-button id="createLobby" disabled on-tap="_createLobby">Create lobby</paper-button>
+
+    <paper-dialog id="errorMessage" modal>
+      <div>[[_errorMessage]]</div>
+      <paper-button dialog-confirm autofocus>Close</paper-button>
+    </paper-dialog>
+
+    <div id="lobbies"></div>
+
+    Watch lobbies: <paper-toggle-button id="watchLobbies" disabled></paper-toggle-button>
+    <div id="lobbieslist"></div>
+  </template>
+  <script>
+    'use strict'
+
+    Polymer({
+      is: 'papan-placeholder',
+
+      properties: {
+        lobbyServer: {
+          type: String,
+          value: 'localhost'
+        },
+
+        userInfo: {
+          type: Object
+        },
+
+        _lobbies: {
+          type: Array,
+          value: () => []
+        },
+      },
+
+      ready() {
+        this._lobbyList = {}
+        this._watchedLobbyList = {}
+        channel.send('getLobbyConnectionStatus')
+        channel.on('subscribed', data => {
+          this.userInfo = data.self
+        })
+        channel.on('error', data => {
+          this._errorMessage = data.error.message
+          this.$.errorMessage.open()
+        })
+        channel.on('lobbyConnectionStatus', data => {
+          this._status = data.status
+          this.$.createLobby.disabled = this._status !== 'CONNECTED'
+          this.$.watchLobbies.disabled = this._status !== 'CONNECTED'
+        })
+        channel.on('info', data => {
+          const id = data.id
+          const elementId = 'lobby-' + id
+          let lobby
+          let needsAdd = false
+          if (!this._lobbyList[elementId]) {
+            lobby = document.createElement('papan-placeholderlobby')
+            lobby.setAttribute('id', elementId)
+            lobby.lobbyId = id
+            lobby.owner = data.owner
+            needsAdd = true
+          } else {
+            lobby = this._lobbyList[elementId]
+          }
+          lobby.name = data.name
+          lobby.userInfo = this.userInfo
+          lobby.public = data.public
+          if (needsAdd) {
+            this.$.lobbies.appendChild(lobby)
+            this._lobbyList[elementId] = lobby
+          }
+          const otherElementId = 'lobbylistitem-' + id
+          lobby = this._watchedLobbyList[otherElementId]
+          if (lobby) {
+            this.$.lobbieslist.removeChild(lobby)
+            this._watchedLobbyList[otherElementId] = undefined
+          }
+        })
+        channel.on('localServerIP', data => {
+          this._myIP = data.ip
+        })
+        this.$.watchLobbies.addEventListener('change', () => {
+          if (this.$.watchLobbies.checked) {
+            channel.send('startWatchingLobbies')
+          } else {
+            channel.send('stopWatchingLobbies')
+          }
+        })
+        channel.on('publicLobbyUpdate', data => {
+          const id = data.lobby.id
+          const elementId = 'lobbylistitem-' + id
+          const otherElementId = 'lobby-' + id
+          let lobby
+          if (data.status === 'ADDED' && !this._lobbyList[otherElementId]) {
+            let needsAdd = false
+            if (!this._watchedLobbyList[elementId]) {
+              lobby = document.createElement('papan-placeholderlobbylistitem')
+              lobby.setAttribute('id', elementId)
+              lobby.lobbyId = id
+              lobby.owner = data.lobby.owner
+              needsAdd = true
+            } else {
+              lobby = this._watchedLobbyList[elementId]
+            }
+            lobby.name = data.lobby.name
+            if (needsAdd) {
+              this.$.lobbieslist.appendChild(lobby)
+              this._watchedLobbyList[elementId] = lobby
+            }
+          } else {
+            lobby = this._watchedLobbyList[elementId]
+            if (lobby) {
+              this.$.lobbieslist.removeChild(lobby)
+              this._watchedLobbyList[elementId] = undefined
+            }
+          }
+        })
+      },
+
+      _connectToLocalLobbyServer: function() {
+        channel.send('connectToLobbyServer', { connectLocal: true })
+      },
+
+      _connectToLobbyServer: function() {
+        channel.send('connectToLobbyServer', { lobbyServer: this.lobbyServer })
+      },
+
+      _createLobby: function() {
+        channel.send('join')
+      },
+    })
+  </script>
+</dom-module>

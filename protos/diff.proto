@@ -1,4 +1,4 @@
-package papan;
+package Papan;
 
 /* This is a maximally type-safe description of the diffs output by the npm
    package deep-diff */

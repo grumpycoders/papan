@@ -1,33 +1,42 @@
 'use strict'
 
 const PapanUtils = require('./src/common/utils.js')
-const fs = require('fs')
-const argv = require('minimist')(process.argv.slice(2))
+const PapanServerUtils = require('./src/server/utils.js')
+const commandline = require('command-line-args')
+const optionDefinitions = [
+  { name: 'auth_server', type: Boolean }
+]
+const argv = commandline(optionDefinitions, { partial: true, argv: process.argv })
 
-if (PapanUtils.isElectron()) {
-  const mainElectron = require('./src/server/main-electron.js')
-  mainElectron.main()
-}
+const electronStartup = () => PapanUtils.isElectron()
+? require('./src/server/main-electron.js').main()
+: Promise.resolve()
 
-const mainNode = require('./src/server/main-node.js')
-mainNode.main()
+const nodeStartup = () => require('./src/server/main-node.js').main()
 
-function readJSON (filename) {
-  return new Promise((resolve, reject) => {
-    fs.readFile(filename, (err, data) => {
-      resolve(err ? undefined : JSON.parse(data))
-    })
-  })
-}
+Promise.all([
+  electronStartup(),
+  nodeStartup()
+])
+.then(results => {
+  console.log('Started')
+})
+.catch(err => {
+  console.error(err)
+  process.exit()
+})
+
+// process.env['GRPC_VERBOSITY'] = 'DEBUG'
+// process.env['GRPC_TRACE'] = 'all'
 
 if (argv.auth_server) {
   Promise.all([
-    readJSON('config/google-auth-config.json'),
-    readJSON('config/facebook-auth-config.json'),
-    readJSON('config/twitter-auth-config.json'),
-    readJSON('config/steam-auth-config.json'),
-    readJSON('config/pg-config.json'),
-    readJSON('config/http-config.json')
+    PapanServerUtils.readJSON('config/google-auth-config.json'),
+    PapanServerUtils.readJSON('config/facebook-auth-config.json'),
+    PapanServerUtils.readJSON('config/twitter-auth-config.json'),
+    PapanServerUtils.readJSON('config/steam-auth-config.json'),
+    PapanServerUtils.readJSON('config/pg-config.json'),
+    PapanServerUtils.readJSON('config/http-config.json')
   ]).then(values => {
     const config = {
       googleAuthConfig: values[0],

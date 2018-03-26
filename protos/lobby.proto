@@ -1,112 +1,103 @@
-import "game_info.proto"
+syntax = "proto3";
+package PapanLobby;
 
-package papan;
+message User {
+  string id = 1;
+}
 
-message RegisterUpdate {
-  oneof update {
-    GameType type_added = 1;
-    /* We assume that a server will not concurrently add two game types of the
-       same name. If one attempts to do so, the second one should be ignored */
-    string type_removed = 2;
+message ChatMessage {
+  User user = 1;
+  string message = 2;
+}
+
+message GetJoinedLobbies { }
+
+message Action {
+  oneof action {
+    ChatMessage message = 1;
+    GetJoinedLobbies get_joined_lobbies = 2;
   }
 }
 
-message RegisterServerResponse {
+message Error {
+  string message = 1;
 }
 
-message CreateGameLobby {
-  uint32 game_type_id = 1;
-  repeated map<string, string> exclusive_options = 2;
-  repeated map<string, OptionValues> group_options = 3;
+message Subscribed {
+  User self = 1;
+}
+
+message LobbyInfo {
+  string id = 1;
+  string name = 2;
+  User owner = 3;
+  bool public = 4;
+  repeated User members = 5;
+}
+
+message JoinedLobbies {
+  repeated LobbyInfo lobbies = 1;
+}
+
+message Update {
+  oneof update {
+    Error error = 1;
+    Subscribed subscribed = 2;
+    ChatMessage message = 3;
+    JoinedLobbies joined_lobbies = 4;
+  }
+}
+
+message JoinLobby {
+  string id = 1;
+}
+
+message LeaveLobby { }
+
+message SetReady {
+  bool ready = 1;
 }
 
 message LobbyAction {
-  CreateGameLobby create = 1;
+  oneof action {
+    JoinLobby join = 1;
+    LeaveLobby leave = 2;
+    ChatMessage message = 3;
+    SetReady set_ready = 4;
+    User kick_user = 5;
+    LobbyInfo set_name = 6;
+    LobbyInfo set_public = 7;
+  }
 }
 
-message GameInstance {
-  uint32 game_type_id = 1;
-  uint32 current_players = 2;
-  uint32 game_lobby_id = 3;
-  map<string, string> exclusive_options = 4;
-  repeated map<string, OptionValues> group_options = 3;
+message UserReadyUpdate {
+  User user = 1;
+  bool ready = 2;
 }
 
 message LobbyUpdate {
   oneof update {
-    // A server registered a new game types.
-    GameType type_added = 1;
-    // A server unregistered a game type, or disconnected
-    uint32 type_id_removed = 2;
-    // A player created or joined a game lobby
-    GameInstance instance_updated = 3;
-    // A game lobby became unavailable
-    uint32 instance_removed = 4;
-    // The player making this call created a game lobby
-    GameInstance instace_created = 5;
+    LobbyInfo info = 1;
+    User user_joined = 2;
+    User user_left = 3;
+    ChatMessage message = 4;
+    UserReadyUpdate ready_update = 5;
   }
 }
 
-enum GameLobbyStateChange {
-  // When all players are ready
-  SET_READY = 0;
-  UNSET_READY = 1;
-  LEAVE = 2;
+enum LobbyStatus {
+  ADDED = 0;
+  REMOVED = 1;
 }
 
-message GameLobbyAction {
-  oneof action {
-    string send_chat_message = 1;
-    GameLobbyStateChange finish = 2;
-    // Only the host can do this
-    string kick_player_id = 3;
-  }
+message ListLobbiesRequest { }
+message ListLobbiesResponse {
+  LobbyInfo lobby = 1;
+  LobbyStatus status = 2;
 }
 
-message Player {
-  /* I expect ID to be specific to a single connection to the lobby by that
-     player */
-  string player_id = 1;
-  string player_name = 2;
-}
-
-message GameLobbyChatMessage {
-  string sender_player_id = 1;
-  string message_text = 2;
-}
-
-message GameInfo {
-  /* Both of these will be passed in the metadata of the RPC to the game server
-     that joins the game */
-  string game_instance_id = 1;
-  string game_instance_player_id = 2;
-}
-
-message PlayerReadyUpdate {
-  string player_id = 1;
-  bool ready = 2;
-}
-
-message GameLobbyUpdate {
-  oneof update {
-    GameLobbyChatMessage new_chat_message = 1;
-    Player player_joined = 2;
-    // ID of the player that left
-    string player_left = 3;
-    // Should be followed by a server-side half-close
-    GameInfo game_started = 4;
-    PlayerReadyUpdate player_read_update = 5;
-  }
-}
-
-service Lobby {
-  /* The diffs sent via this method should apply to an array of the information
-     contained in a game.json file */
-  rpc RegisterServer (stream RegisterUpdate) returns (RegisterServerResponse);
-  
+service PlayerLobbyService {
+  rpc Subscribe (stream Action) returns (stream Update);
   rpc Lobby (stream LobbyAction) returns (stream LobbyUpdate);
-
-  /* Client metadata contains game lobby ID. Server metadata contains server
-     address */
-  rpc GameLobby (stream GameLobbyAction) returns (stream GameLobbyUpdate);
+  rpc ListLobbies (stream ListLobbiesRequest) returns (stream ListLobbiesResponse);
 }

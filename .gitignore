@@ -7,11 +7,11 @@
 # MAC temp files
 .DS_Store
 
-# The levelup, jsondown local database
-/database
-
 # Log failures from Mocha
 *.log
 
 # The configuration files
 /config
+
+# Builds
+/out

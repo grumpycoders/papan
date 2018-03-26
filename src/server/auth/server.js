@@ -10,12 +10,11 @@ const session = require('express-session')
 const pg = require('pg')
 const PGSession = require('connect-pg-simple')(session)
 const assert = require('assert')
-const crypto = require('crypto')
-const base64url = require('base64url')
 
 const passport = require('passport')
 
 const userDB = require('./userdb.js')
+const PapanServerUtils = require('../common/utils.js')
 
 const root = path.normalize(path.join(__dirname, '..', '..', '..'))
 
@@ -81,16 +80,6 @@ exports.registerServer = (app, config) => {
       saveUninitialized: false
     }))
 
-    const generateToken = () => new Promise((resolve, reject) => {
-      crypto.randomBytes(48, (err, buffer) => {
-        if (err) {
-          reject(err)
-        } else {
-          resolve(base64url(buffer))
-        }
-      })
-    })
-
     // we'll do ajax
     app.use(bodyParser.json())
 
@@ -129,7 +118,7 @@ exports.registerServer = (app, config) => {
     ))
     app.get('/auth/getcode',
       passport.authenticated(),
-      (req, res, next) => generateToken()
+      (req, res, next) => PapanServerUtils.generateToken()
       .then(token => users.addTemporaryCode(req.user, token))
       .then(token => res.json({ code: token.dataValues.id }))
       .catch(err => next(err))
@@ -137,7 +126,7 @@ exports.registerServer = (app, config) => {
     app.get('/auth/forwardcode',
       passport.authenticated(),
       (req, res, next) => (req.query.returnURL && req.query.returnURL.indexOf('?') < 0
-        ? generateToken()
+        ? PapanServerUtils.generateToken()
         : Promise.reject(Error('Invalid returnURL query parameter'))
       ).then(token => users.addTemporaryCode(req.user, token))
       .then(token => res.redirect(req.query.returnURL + '?code=' + token.dataValues.id))
