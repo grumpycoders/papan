@@ -8,11 +8,13 @@
 
 <link rel="import" href="auth-login.html">
 <link rel="import" href="auth-profile.html">
+<link rel="import" href="data/auth-info.html">
 
 <dom-module id="auth-main-window">
   <link rel="import" type="css" href="auth-mainwindow.css">
 
   <template>
+    <auth-info auth-info="{{_authInfo}}" is-logged-in="{{_isLoggedIn}}" is-logged-out="{{_isLoggedOut}}"></auth-info>
     <app-location
       url-space-regex="^/render"
       route="{{_route}}">
@@ -33,7 +35,16 @@
       selected="[[_routeData.view]]"
       attr-for-selected="id"
       fallback-selection="startupscreen">
-      <div id="startupscreen">Welcome</div>
+      <div id="startupscreen">
+        Welcome<br />
+        <template is="dom-if" if="[[_isLoggedIn]]">
+          <a href="/render/profile">Profile</a><br />
+          <a href="/logout">Logout</a>
+        </template>
+        <template is="dom-if" if="[[_isLoggedOut]]">
+          <a href="/render/login">Login</a>
+        </template>
+      </div>
       <auth-login id="login">Login</auth-login>
       <auth-profile id="profile">Profile</auth-profile>
     </iron-pages>
