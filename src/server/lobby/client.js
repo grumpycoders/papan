@@ -176,7 +176,8 @@ class LobbyClient extends EventEmitter {
 const clientDefaults = {
   connectLocal: false,
   lobbyServer: 'lobby.papan.online',
-  lobbyServerPort: 9999
+  lobbyServerPort: 9999,
+  useLocalCA: true
 }
 
 exports.CreateClient = (clientInterface, options) => {
@@ -184,6 +185,7 @@ exports.CreateClient = (clientInterface, options) => {
   if (options.connectLocal) {
     options.lobbyServer = 'localhost'
     options.lobbyServerPort = 9999
+    options.useLocalCA = true
   }
   const serverAddress = options.lobbyServer + ':' + options.lobbyServerPort
   clientInterface.setLobbyConnectionStatus('CONNECTING')
@@ -196,14 +198,19 @@ exports.CreateClient = (clientInterface, options) => {
   return Promise.all(work).then(results => {
     const client = new LobbyClient()
     const lobbyProto = results[1].PapanLobby
-    const sslCreds = options.connectLocal ? grpc.credentials.createSsl(results[0]) : grpc.credentials.createSsl()
+    const sslCreds = options.useLocalCA ? grpc.credentials.createSsl(results[0]) : grpc.credentials.createSsl()
     const callCreds = grpc.credentials.createFromMetadataGenerator((args, callback) => {
       const metadata = client.getAuthMetadata()
       callback(null, metadata)
     })
     const creds = grpc.credentials.combineChannelCredentials(sslCreds, callCreds)
+    let localChannelOptions = {
+      'grpc.ssl_target_name_override': 'localhost'
+    }
+    let channelOptions = {}
+    if (options.useLocalCA) channelOptions = merge(channelOptions, localChannelOptions)
 
-    let grpcClient = new lobbyProto.PlayerLobbyService(serverAddress, creds)
+    let grpcClient = new lobbyProto.PlayerLobbyService(serverAddress, creds, channelOptions)
     client.grpcClient = grpcClient
     client.clientInterface = clientInterface
     client.subscribe()
