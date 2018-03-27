@@ -101,3 +101,20 @@ service PlayerLobbyService {
   rpc Lobby (stream LobbyAction) returns (stream LobbyUpdate);
   rpc ListLobbies (stream ListLobbiesRequest) returns (stream ListLobbiesResponse);
 }
+
+message RegisterGameServer {
+  string api_key = 1;
+}
+
+message GameAction {
+  oneof action {
+    RegisterGameServer register = 1;
+  }
+}
+
+message GameUpdate {
+}
+
+service GameLobbyService {
+  rpc Subscribe (stream GameAction) returns (GameUpdate);
+}
