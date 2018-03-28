@@ -11,16 +11,18 @@
       <server-info serverlist={{_serverlistold}}></server-info>
     <div id="server-list">
       <template is="dom-repeat" items="[[_serverlistold]]">
-        <a href="#/server/[[item]]/home" tabindex="-1"><div class="server">[[item]]</div></a>
+        <a href="#/server/[[item.id]]/home" tabindex="-1"><div class="server">[[item.name]]</div></a>
       </template>
     </div>
     <div id="server-list2">
       <template is="dom-repeat" items="{{_serverlist}}">
-        <a href="#/server/[[item.name]]/home" tabindex="-1"><div class="server">[[item.name]]</div></a>
+        <a href="#/server/[[item.id]]/home" tabindex="-1"><div class="server">[[item.name]]</div></a>
       </template>  
     </div>
     <div>
-      <paper-input label="address" value="{{newservername}}">
+      <iron-icon icon="lock" slot="prefix"></iron-icon>
+      <paper-toggle-button value="{{newserverssl}}"></paper-toggle-button>
+      <paper-input label="address" value="{{newserveraddress}}">
         <iron-icon icon="language" slot="prefix"></iron-icon>
       </paper-input>
       <paper-button raised on-tap="_addserver">Add</paper-button>
@@ -42,8 +44,7 @@
       },
 
       _addserver: function() {
-        //this._serverlist.push({ name: this.newservername })
-        this.push('_serverlist', { name: this.newservername });
+        this.push('_serverlist', { id: 0, name: this.newserveraddress });
         console.log(this._serverlist)
       }
     })
