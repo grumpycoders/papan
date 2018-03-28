@@ -1,13 +1,29 @@
 <link rel="import" href="data/serverinfo.html">
+<link rel="import" href="../bower_components/app-storage/app-localstorage/app-localstorage-document.html">
+<link rel="import" href="../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../bower_components/paper-button/paper-button.html">
 
 <dom-module id="papan-server-list">
   <link rel="import" type="css" href="serverlist.css">
   <template>
-    <server-info serverlist={{_serverlist}}></server-info>
+      <app-localstorage-document key="serverlist" data="{{_serverlist}}"></app-localstorage-document>
+      <server-info serverlist={{_serverlistold}}></server-info>
     <div id="server-list">
-      <template is="dom-repeat" items="[[_serverlist]]">
+      <template is="dom-repeat" items="[[_serverlistold]]">
         <a href="#/server/[[item]]/home" tabindex="-1"><div class="server">[[item]]</div></a>
       </template>
+    </div>
+    <div id="server-list2">
+      <template is="dom-repeat" items="{{_serverlist}}">
+        <a href="#/server/[[item.name]]/home" tabindex="-1"><div class="server">[[item.name]]</div></a>
+      </template>  
+    </div>
+    <div>
+      <paper-input label="address" value="{{newservername}}">
+        <iron-icon icon="language" slot="prefix"></iron-icon>
+      </paper-input>
+      <paper-button raised on-tap="_addserver">Add</paper-button>
     </div>
   </template>
 
@@ -15,7 +31,21 @@
     'use strict'
 
     Polymer({
-      is: "papan-server-list"
+      is: "papan-server-list",
+
+      properties: {
+        _serverlist : {
+          type: Array,
+          notify: true,
+          value: []
+        }
+      },
+
+      _addserver: function() {
+        //this._serverlist.push({ name: this.newservername })
+        this.push('_serverlist', { name: this.newservername });
+        console.log(this._serverlist)
+      }
     })
   </script>
 </dom-module>
