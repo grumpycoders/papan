@@ -26,7 +26,9 @@
     "hour": "hour",
     "hours": "hours",
     "achievements": "Achievements",
-    "onlineusers": "Online users"
+    "onlineusers": "Online users",
+    "add": "Add",
+    "address": "Address"
   },
   "fr": {
     "english": "Anglais",
@@ -55,6 +57,8 @@
     "hour": "heure",
     "hours": "heures",
     "achievements": "Réalisations",
-    "onlineusers": "Utilisateurs connectés"
+    "onlineusers": "Utilisateurs connectés",
+    "add": "Ajouter",
+    "address": "Addresse"
   }
 }

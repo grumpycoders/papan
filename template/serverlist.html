@@ -5,6 +5,8 @@
 <link rel="import" href="../bower_components/paper-input/paper-input.html">
 <link rel="import" href="../bower_components/paper-button/paper-button.html">
 
+<link rel="import" href="data/localize.html">
+
 <dom-module id="papan-server-list">
   <link rel="import" type="css" href="serverlist.css">
   <template>
@@ -24,10 +26,10 @@
     <div class="layout horizontal end">
       <iron-icon id="sslicon" icon="lock-outline" slot="prefix" class="spaced"></iron-icon>
       <paper-toggle-button checked="{{newserverssl}}" on-change="_toggleSSL" class="spaced"></paper-toggle-button>
-      <paper-input noLabelFloat="true" label="address" value="{{newserveraddress}}" class="spaced flex">
+      <paper-input label="[[localize('address')]]" value="{{newserveraddress}}" class="spaced flex">
         <iron-icon icon="language" slot="prefix"></iron-icon>
       </paper-input>
-      <paper-button raised on-tap="_addserver">Add</paper-button>
+      <paper-button raised on-tap="_addserver">[[localize('add')]]</paper-button>
     </div>
   </template>
 
@@ -60,7 +62,11 @@
           this.$.sslicon.icon = "lock-outline"
         else
           this.$.sslicon.icon = "lock-open"
-      }
+      },
+
+      behaviors: [
+        PapanLocalize
+      ]
     })
   </script>
 </dom-module>
