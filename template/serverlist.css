@@ -14,3 +14,13 @@ a {
 a :hover {
   color: #555599;
 }
+
+paper-input {
+  --paper-input-container: {
+    padding: 0;
+  };
+}
+
+.spaced {
+  padding-right: 5px;
+}
