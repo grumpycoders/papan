@@ -27,6 +27,30 @@
       }
     </style>
 
+    <script>
+      (() => {
+        console.log('start')
+        let documentLoaded = new Promise((resolve, reject) => {
+          window.addEventListener('load', () => resolve())
+        })
+        let channelReady = new Promise((resolve, reject) => {
+          if (channel.ready()) {
+            resolve()
+          } else {
+            channel.onready = resolve
+          }
+        })
+        Promise.all([
+          documentLoaded,
+          channelReady
+        ])
+        .then(() => {
+          const main = document.createElement('papan-main-window')
+          document.getElementById('maindiv').appendChild(main)
+        })
+      })()
+    </script>
+
     <noscript>
       <style is="papan-js-off">
         .js-on {
@@ -40,9 +64,7 @@
     </noscript>
   </head>
   <body>
-    <div class="js-on">
-      <papan-main-window></papan-main-window>
-    </div>
+    <div class="js-on" id="maindiv"></div>
     <div class="js-off">
       <h2>Very sorry, but JavaScript is absolutely required here.</h2>
     </div>

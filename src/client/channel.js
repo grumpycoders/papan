@@ -4,6 +4,9 @@ if (this.PapanUtils.isElectron()) {
   const electron = require('electron')
   const ipc = electron.ipcRenderer
   class Channel {
+    ready () {
+      return true
+    }
     on (event, callback) {
       ipc.on(event, (event, data) => callback(data))
     }
@@ -39,6 +42,10 @@ if (this.PapanUtils.isElectron()) {
       })
     }
 
+    ready () {
+      return true
+    }
+
     on (event, callback) {
       if (!this.listeners[event]) {
         this.listeners[event] = []
@@ -62,9 +69,11 @@ if (this.PapanUtils.isElectron()) {
   const iojs = document.createElement('script')
   iojs.onload = () => {
     socket = this.io()
-    let channel = new Channel()
+    const channel = new Channel()
     this.channel.spillover(channel)
+    const onready = this.channel.onready
     this.channel = channel
+    if (onready) onready()
   }
   iojs.src = iojspath
   this.document.head.appendChild(iojs)
@@ -74,6 +83,10 @@ if (this.PapanUtils.isElectron()) {
       this.ons = []
       this.onces = []
       this.sends = []
+    }
+
+    ready () {
+      return false
     }
 
     on (event, callback) {
