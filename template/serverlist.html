@@ -28,7 +28,7 @@
           <template is="dom-if" if="[[!item.ssl]]">
               <iron-icon icon="lock-open" class="spaced"></iron-icon>
           </template>
-          <paper-icon-button raised icon="send" serveruurl="[[item.url]]" on-tap="_joinServer"></paper-button>
+          <paper-icon-button raised icon="send" serveruurl="[[item.url]]" serverport="[[item.port]]" serverssl="[[item.ssl]]" on-tap="_joinServer"></paper-button>
         </div>
       </template>  
     </div>
@@ -64,13 +64,13 @@
       },
 
       _addserver: function() {
-        this.push('_serverlist', { id: 0, name: this.newserveraddress, url: this.newserveraddress, ssl: this.newserverssl });
+        this.push('_serverlist', { id: 0, name: this.newserveraddress, url: this.newserveraddress, port: 9999, ssl: this.newserverssl });
         console.log(this._serverlist)
         this.newserveraddress = ""
       },
 
       _joinServer: function(event) {
-        lobbyInterface.connectToLobbyServer({ lobbyServer: event.target.serveruurl })
+        lobbyInterface.connectToLobbyServer({ connectLocal: true, lobbyServer: event.target.serveruurl, lobbyServerPort: event.target.serverport, useLocalCA: !event.target.serverssl })
       },
 
       _toggleSSL: function() {
