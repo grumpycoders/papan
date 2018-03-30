@@ -16,7 +16,7 @@
     <div id="server-list">
       <div class="server layout horizontal end">
         <div class="flex">[[localize('localserver')]]</div>
-        <paper-icon-button raised icon="send" on-tap="_joinLocalServer"></paper-button>
+        <paper-icon-button icon="send" title="[[localize('connect')]]" on-tap="_joinLocalServer"></paper-button>
       </div>
       <template is="dom-repeat" items="[[_serverlistold]]">
         <a href="#/server/[[item.id]]/home" tabindex="-1"><div class="server">[[item.name]]</div></a>
@@ -30,7 +30,7 @@
           <template is="dom-if" if="[[!item.ssl]]">
               <iron-icon icon="lock-open" class="spaced"></iron-icon>
           </template>
-          <paper-icon-button raised icon="send" serveruurl="[[item.url]]" serverport="[[item.port]]" serverssl="[[item.ssl]]" on-tap="_joinServer"></paper-button>
+          <paper-icon-button icon="send" title="[[localize('connect')]]" serveruurl="[[item.url]]" serverport="[[item.port]]" serverssl="[[item.ssl]]" on-tap="_joinServer"></paper-button>
         </div>
       </template>  
     </div>

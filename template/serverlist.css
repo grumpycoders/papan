@@ -26,7 +26,18 @@ paper-icon-button {
   height: 22px;
   width: 22px;
   padding: 0;
+  border-radius: 50%;
 }
+/*
+paper-icon-button.pink {
+  color: var(--paper-pink-500);
+  --paper-icon-button-ink-color: var(--paper-indigo-500);
+}*/
+
+paper-icon-button:hover {
+  color: #d36d0e;
+}
+
 
 .spaced {
   padding-right: 5px;
