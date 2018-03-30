@@ -139,7 +139,7 @@ exports.main = () => {
   function createWindow () {
     mainWindow = new BrowserWindow({ width: 1100, height: 800 })
     mainWindow.loadURL(url.format({
-      'pathname': path.join(__dirname, '../..', 'index.html'),
+      'pathname': path.join(__dirname, '../..', 'lobby-index.html'),
       protocol: 'file:',
       slashes: true
     }))
