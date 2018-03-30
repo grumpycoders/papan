@@ -85,7 +85,7 @@ class LobbyInterface extends this.EventEmitter {
         }
         this.publicLobbyList[id] = data.lobby
       } else {
-        this.emit('publicLobbyRemove')
+        this.emit('publicLobbyRemove', data.lobby)
         delete this.publicLobbyList[id]
       }
     })
