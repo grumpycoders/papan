@@ -28,7 +28,8 @@
     "achievements": "Achievements",
     "onlineusers": "Online users",
     "add": "Add",
-    "address": "Address"
+    "address": "Address",
+    "localserver": "Local server"
   },
   "fr": {
     "english": "Anglais",
@@ -59,6 +60,7 @@
     "achievements": "Réalisations",
     "onlineusers": "Utilisateurs connectés",
     "add": "Ajouter",
-    "address": "Addresse"
+    "address": "Addresse",
+    "localserver": "Serveur local"
   }
 }

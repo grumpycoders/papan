@@ -14,11 +14,13 @@
     <app-localstorage-document key="serverlist" data="{{_serverlist}}"></app-localstorage-document>
     <server-info serverlist={{_serverlistold}}></server-info>
     <div id="server-list">
+      <div class="server layout horizontal end">
+        <div class="flex">[[localize('localserver')]]</div>
+        <paper-icon-button raised icon="send" on-tap="_joinLocalServer"></paper-button>
+      </div>
       <template is="dom-repeat" items="[[_serverlistold]]">
         <a href="#/server/[[item.id]]/home" tabindex="-1"><div class="server">[[item.name]]</div></a>
       </template>
-    </div>
-    <div id="server-list2">
       <template is="dom-repeat" items="{{_serverlist}}">
         <div class="server layout horizontal end">
           <div class="flex">[[item.name]]</div>
@@ -51,8 +53,7 @@
       properties: {
         _serverlist : {
           type: Array,
-          notify: true,
-          value: []
+          notify: true
         },
         newserverssl : {
           type: Boolean,
@@ -70,7 +71,11 @@
       },
 
       _joinServer: function(event) {
-        lobbyInterface.connectToLobbyServer({ connectLocal: true, lobbyServer: event.target.serveruurl, lobbyServerPort: event.target.serverport, useLocalCA: !event.target.serverssl })
+        lobbyInterface.connectToLobbyServer({ lobbyServer: event.target.serveruurl, lobbyServerPort: event.target.serverport, useLocalCA: !event.target.serverssl })
+      },
+
+      _joinLocalServer: function(event) {
+        lobbyInterface.connectToLobbyServer({ connectLocal: true })
       },
 
       _toggleSSL: function() {
