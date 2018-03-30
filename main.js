@@ -1,7 +1,7 @@
 'use strict'
 
 const PapanUtils = require('./src/common/utils.js')
-const PapanServerUtils = require('./src/server/utils.js')
+const PapanServerUtils = require('./src/server/common/utils.js')
 const commandline = require('command-line-args')
 const optionDefinitions = [
   { name: 'auth_server', type: Boolean }
