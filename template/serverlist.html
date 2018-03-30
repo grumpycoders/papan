@@ -20,7 +20,16 @@
     </div>
     <div id="server-list2">
       <template is="dom-repeat" items="{{_serverlist}}">
-        <a href="#/server/[[item.id]]/home" tabindex="-1"><div class="server">[[item.name]]</div></a>
+        <div class="server layout horizontal end">
+          <div class="flex">[[item.name]]</div>
+          <template is="dom-if" if="[[item.ssl]]">
+              <iron-icon icon="lock-outline" class="spaced"></iron-icon>
+          </template>
+          <template is="dom-if" if="[[!item.ssl]]">
+              <iron-icon icon="lock-open" class="spaced"></iron-icon>
+          </template>
+          <paper-icon-button raised icon="send" serveruurl="[[item.url]]" on-tap="_joinServer"></paper-button>
+        </div>
       </template>  
     </div>
     <div class="layout horizontal end">
@@ -50,11 +59,18 @@
           value: true
         }
       },
+      ready: function() {
+        //lobbyInterface.on('connected', function(…){…})
+      },
 
       _addserver: function() {
-        this.push('_serverlist', { id: 0, name: this.newserveraddress });
+        this.push('_serverlist', { id: 0, name: this.newserveraddress, url: this.newserveraddress, ssl: this.newserverssl });
         console.log(this._serverlist)
         this.newserveraddress = ""
+      },
+
+      _joinServer: function(event) {
+        lobbyInterface.connectToLobbyServer({ lobbyServer: event.target.serveruurl })
       },
 
       _toggleSSL: function() {

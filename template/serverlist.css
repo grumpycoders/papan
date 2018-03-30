@@ -1,9 +1,10 @@
 .server {
-  width: 100%;
+  width: 90%;
   background-color: lightblue;
   font-size: 15pt;
   margin: 10px;
   padding:10px;
+  height: 20px;
 }
 
 a {
@@ -19,6 +20,12 @@ paper-input {
   --paper-input-container: {
     padding: 0;
   };
+}
+
+paper-icon-button {
+  height: 22px;
+  width: 22px;
+  padding: 0;
 }
 
 .spaced {
