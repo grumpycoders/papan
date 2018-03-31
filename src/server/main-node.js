@@ -6,6 +6,8 @@ const express = require('express')
 const socketio = require('socket.io')
 const ClientInterface = require('./lobby/clientinterface.js').ClientInterface
 
+const gamesList = require('./game/games-list.js')
+
 class Channel {
   constructor (socket) {
     this.socket = socket
@@ -72,7 +74,6 @@ exports.main = () => {
     })
   })
 
-  return new Promise((resolve, reject) => {
-    server.listen(port, resolve)
-  })
+  return gamesList.getGamesList()
+  .then(games => new Promise((resolve, reject) => server.listen(port, resolve)))
 }

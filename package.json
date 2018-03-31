@@ -76,6 +76,8 @@
     "socket.io-client": "^1.7.4",
     "umzug": "^2.0.1",
     "uuid": "^3.2.1",
+    "webtorrent": "^0.98.24",
+    "webtorrent-hybrid": "^1.0.6",
     "winston": "^2.3.1"
   }
 }
