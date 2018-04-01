@@ -24,13 +24,14 @@
       <template is="dom-repeat" items="{{_serverlist}}">
         <div class="server layout horizontal end">
           <div class="flex">[[item.name]]</div>
+          <paper-icon-button icon="delete-forever" title="[[localize('remove')]]" servername="[[item.name]]" on-tap="_removeServer"></paper-icon-button>
           <template is="dom-if" if="[[item.ssl]]">
               <iron-icon icon="lock-outline" class="spaced"></iron-icon>
           </template>
           <template is="dom-if" if="[[!item.ssl]]">
               <iron-icon icon="lock-open" class="spaced"></iron-icon>
           </template>
-          <paper-icon-button icon="send" title="[[localize('connect')]]" serveruurl="[[item.url]]" serverport="[[item.port]]" serverssl="[[item.ssl]]" on-tap="_joinServer"></paper-button>
+          <paper-icon-button icon="send" title="[[localize('connect')]]" serveruurl="[[item.url]]" serverport="[[item.port]]" serverssl="[[item.ssl]]" on-tap="_joinServer"></paper-icon-button>
         </div>
       </template>  
     </div>
@@ -42,6 +43,14 @@
       </paper-input>
       <paper-button raised on-tap="_addserver">[[localize('add')]]</paper-button>
     </div>
+    <paper-dialog id="removedialog">
+      <h2>[[localize('confirmrem')]]</h2>
+      <p>[[localize('confirmremservertext')]]</p>
+      <div class="buttons">
+        <paper-button dialog-dismiss autofocus>[[localize('no')]]</paper-button>
+        <paper-button dialog-confirm on-tap="_removeServerConfirmed">[[localize('yes')]]</paper-button>
+      </div>
+    </paper-dialog>
   </template>
 
   <script>
@@ -68,6 +77,15 @@
         this.push('_serverlist', { id: 0, name: this.newserveraddress, url: this.newserveraddress, port: 9999, ssl: this.newserverssl });
         console.log(this._serverlist)
         this.newserveraddress = ""
+      },
+
+      _removeServer: function(event) {
+        this._serverToDelete = this._serverlist.map(function(e) { return e.name; }).indexOf(event.target.servername);
+        this.$.removedialog.open()
+      },
+
+      _removeServerConfirmed: function(event) {
+        this.splice('_serverlist', this._serverToDelete, 1);
       },
 
       _joinServer: function(event) {

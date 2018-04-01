@@ -29,7 +29,11 @@
     "onlineusers": "Online users",
     "add": "Add",
     "address": "Address",
-    "localserver": "Local server"
+    "localserver": "Local server",
+    "yes": "Yes",
+    "no": "No",
+    "confirmrem": "Confirm remove",
+    "confirmremservertext": "Do you really want to remove this server from the list?"
   },
   "fr": {
     "english": "Anglais",
@@ -61,6 +65,10 @@
     "onlineusers": "Utilisateurs connectés",
     "add": "Ajouter",
     "address": "Addresse",
-    "localserver": "Serveur local"
+    "localserver": "Serveur local",
+    "yes": "Oui",
+    "no": "Non",
+    "confirmrem": "Confirmer la suppression",
+    "confirmremservertext": "Voulez-vous vraiment supprimer ce serveur de la liste ?"
   }
 }
