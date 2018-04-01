@@ -266,7 +266,10 @@ exports.registerServer = options => {
           call.write(data)
         })
         persist.getPublicLobbies()
-        .then(lobbies => Promise.all(lobbies.map(id => persist.getLobbyInfo({ id: id }))))
+        .then(lobbies => {
+          if (!lobbies) lobbies = []
+          return Promise.all(lobbies.map(id => persist.getLobbyInfo({ id: id })))
+        })
         .then(lobbies => {
           lobbies.forEach(info => {
             call.write({

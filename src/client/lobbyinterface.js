@@ -3,11 +3,11 @@
 const channel = this.channel
 
 class Lobby extends this.EventEmitter {
-  constructor (info) {
+  constructor (info, lobbyInterface) {
     super()
 
     this.info = info
-    this.isOwner = this.lobbyInterface.getUserInfo().id === info.owner.id
+    this.isOwner = lobbyInterface.getUserInfo().id === info.owner.id
   }
 
   update (info) {
@@ -71,7 +71,7 @@ class LobbyInterface extends this.EventEmitter {
       if (this.lobbyList[id]) {
         this.lobbyList[id].update(data)
       } else {
-        this.lobbyList[id] = new Lobby(data)
+        this.lobbyList[id] = new Lobby(data, this)
         this.emit('lobbyJoin', this.lobbyList[id])
       }
     })

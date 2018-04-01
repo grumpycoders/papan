@@ -36,7 +36,7 @@ exports.getGamesList = () => recursive(base)
     games[game] = {}
     return PapanServerUtils.readJSON(path.join(gamepath, jsonName))
     .then(gameJson => {
-      if (games[game]) return Promise.resolve()
+      if (games[game].info) return Promise.resolve()
       games[game].info = gameJson
       return new Promise((resolve, reject) => {
         Promise.all(files
