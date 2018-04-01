@@ -25,9 +25,13 @@ class ClientInterface extends EventEmitter {
       let premise
       if (data.connectLocal && !this.localLobbyServer) {
         this.setLobbyConnectionStatus('STARTINGLOBBY')
-        premise = require('./server.js').registerServer()
-        .then(server => {
-          this.localLobbyServer = server
+        premise = Promise.all([
+          require('./server.js').registerServer(),
+          require('../game/games-list.js').getGamesList()
+        ])
+        .then(results => {
+          this.localLobbyServer = results[0]
+          this.gamesList = results[1]
           const setMapping = () => {
             natUPNP.portMapping({
               public: 9999,

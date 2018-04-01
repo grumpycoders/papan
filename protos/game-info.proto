@@ -19,3 +19,15 @@ message GameType {
   map<string, OptionValues> available_exclusive_options = 7;
   map<string, OptionValues> available_group_options = 8;
 }
+
+message Players {
+  uint32 min = 1;
+  uint32 max = 2;
+}
+
+message GameInfo {
+  string name = 1;
+  string main = 2;
+  string webcomponent = 3;
+  Players players = 4;
+}

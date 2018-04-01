@@ -35,7 +35,11 @@ exports.load = (filenames, paths = ['protos']) => {
     return Promise.all(filenames.map(filename => protobufjs.load(filename, root)))
   })
   .then(protos => {
-    const results = protos.map(proto => grpc.loadObject(proto))
+    const results = protos.map(proto => {
+      const ret = grpc.loadObject(proto, { protobufjsVersion: 6 })
+      ret.rootProto = proto
+      return ret
+    })
     return singleResult ? results[0] : results
   })
 }

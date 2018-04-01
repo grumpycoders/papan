@@ -2,6 +2,7 @@
 
 const PapanUtils = require('../../common/utils.js')
 const PapanServerUtils = require('../common/utils.js')
+const proto = require('../common/proto.js')
 
 const path = require('path')
 const recursive = require('recursive-readdir')
@@ -14,10 +15,14 @@ const jsonName = 'game.json'
 
 client.on('error', error => console.log('WebTorrent - main process error: ' + error))
 
+const gameInfoProtoLoader = proto.load('game-info.proto')
+
+gameInfoProtoLoader.catch(error => { throw error })
+
 exports.base = base
 exports.getGamesList = () => recursive(base)
-.then(files => {
-  const gamesJson = files.filter(fname => path.basename(fname).endsWith(jsonName))
+.then(allFiles => {
+  const gamesJson = allFiles.filter(fname => path.basename(fname).endsWith(jsonName))
   gamesJson.sort((a, b) => {
     function prefix (str) {
       if (str.startsWith('builtins')) return '001-' + str
@@ -31,33 +36,39 @@ exports.getGamesList = () => recursive(base)
     if (a > b) return 1
     return 0
   })
-  return Promise.all(gamesJson.map(path.dirname).map(gamepath => {
-    const game = gamepath.slice(base.length + 1).replace('\\', '/')
-    games[game] = {}
-    return PapanServerUtils.readJSON(path.join(gamepath, jsonName))
-    .then(gameJson => {
-      if (games[game].info) return Promise.resolve()
-      games[game].info = gameJson
-      return new Promise((resolve, reject) => {
-        Promise.all(files
-          .filter(fname => !path.relative(gamepath, fname).startsWith('.'))
-          .map(fname => path.relative(gamepath, fname))
-          .sort()
-          .map(fname => {
-            return PapanServerUtils.readFile(path.join(gamepath, fname))
-            .then(buffer => {
-              buffer.name = fname.replace('\\', '/')
-              return buffer
+  return gameInfoProtoLoader
+  .then(result => {
+    const GameInfoMessageType = result.rootProto.lookupType('Papan.GameInfo')
+    return Promise.all(gamesJson.map(path.dirname).map(gamepath => {
+      const game = gamepath.slice(base.length + 1).replace('\\', '/')
+      games[game] = {}
+      return PapanServerUtils.readJSON(path.join(gamepath, jsonName))
+      .then(gameJson => {
+        if (games[game].info) return Promise.resolve()
+        const error = GameInfoMessageType.verify(gameJson)
+        if (error) throw Error(error)
+        games[game].info = GameInfoMessageType.create(gameJson)
+        return new Promise((resolve, reject) => {
+          Promise.all(allFiles
+            .filter(fname => !path.relative(gamepath, fname).startsWith('.'))
+            .map(fname => path.relative(gamepath, fname))
+            .sort()
+            .map(fname => {
+              return PapanServerUtils.readFile(path.join(gamepath, fname))
+              .then(buffer => {
+                buffer.name = fname.replace('\\', '/')
+                return buffer
+              })
+            }
+          )).then(input => {
+            client.seed(input, torrent => {
+              games[game].torrent = torrent
+              resolve()
             })
-          }
-        )).then(input => {
-          client.seed(input, torrent => {
-            games[game].torrent = torrent
-            resolve()
           })
         })
       })
-    })
-  }))
+    }))
+  })
 })
 .then(() => games)
