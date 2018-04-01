@@ -9,7 +9,7 @@ const WebTorrent = PapanUtils.isElectron() ? require('webtorrent') : require('we
 
 const client = new WebTorrent()
 const games = {}
-const base = path.join(__dirname, '..', '..', 'games')
+const base = path.join(__dirname, '..', '..', '..', 'games')
 const jsonName = 'game.json'
 
 client.on('error', error => console.log('WebTorrent - main process error: ' + error))
