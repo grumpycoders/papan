@@ -31,3 +31,7 @@ message GameInfo {
   string webcomponent = 3;
   Players players = 4;
 }
+
+message GameData {
+  
+}

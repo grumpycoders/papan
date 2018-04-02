@@ -35,6 +35,14 @@ message LobbyInfo {
   repeated User members = 5;
 }
 
+message UserJoined {
+  User user = 1;
+}
+
+message UserLeft {
+  User user = 1;
+}
+
 message JoinedLobbies {
   repeated LobbyInfo lobbies = 1;
 }
@@ -58,15 +66,27 @@ message SetReady {
   bool ready = 1;
 }
 
+message KickUser {
+  User user = 1;
+}
+
+message SetLobbyName {
+  string name = 1;
+}
+
+message SetLobbyPublic {
+  bool public = 1;
+}
+
 message LobbyAction {
   oneof action {
     JoinLobby join = 1;
     LeaveLobby leave = 2;
     ChatMessage message = 3;
     SetReady set_ready = 4;
-    User kick_user = 5;
-    LobbyInfo set_name = 6;
-    LobbyInfo set_public = 7;
+    KickUser kick_user = 5;
+    SetLobbyName set_name = 6;
+    SetLobbyPublic set_public = 7;
   }
 }
 
@@ -78,8 +98,8 @@ message UserReadyUpdate {
 message LobbyUpdate {
   oneof update {
     LobbyInfo info = 1;
-    User user_joined = 2;
-    User user_left = 3;
+    UserJoined user_joined = 2;
+    UserLeft user_left = 3;
     ChatMessage message = 4;
     UserReadyUpdate ready_update = 5;
   }
@@ -91,15 +111,18 @@ enum LobbyStatus {
 }
 
 message ListLobbiesRequest { }
-message ListLobbiesResponse {
+message PublicLobbyUpdate {
   LobbyInfo lobby = 1;
   LobbyStatus status = 2;
 }
 
+message StartWatchingLobbies { }
+message StopWatchingLobbies { }
+
 service PlayerLobbyService {
   rpc Subscribe (stream Action) returns (stream Update);
   rpc Lobby (stream LobbyAction) returns (stream LobbyUpdate);
-  rpc ListLobbies (stream ListLobbiesRequest) returns (stream ListLobbiesResponse);
+  rpc ListLobbies (stream ListLobbiesRequest) returns (stream PublicLobbyUpdate);
 }
 
 message RegisterGameServer {

@@ -4,26 +4,32 @@ const EventEmitter = require('events')
 const natUPNP = require('nat-upnp').createClient()
 const ip = require('ip')
 const Client = require('./client.js')
+const createSerializer = require('../../common/serializer.js').createSerializer
+const protoLoader = require('../common/proto.js').load
+const Queuer = require('../../common/utils.js').Queuer
+
 let natRefreshInterval
 
 class ClientInterface extends EventEmitter {
-  constructor (channel) {
+  constructor () {
     super()
 
-    this.channel = channel
+    this.channel = new Queuer(this)
     this.lobbyConnectionStatus = 'NOTCONNECTED'
     this.localLobbyServer = null
 
-    channel.on('getLobbyConnectionStatus', data => {
+    this.protoPromise = protoLoader(['lobby.proto', 'channel.proto'])
+
+    this.channel.on('PapanChannel.GetLobbyConnectionStatus', () => {
       this.sendLobbyConnectionStatus()
     })
 
-    channel.on('connectToLobbyServer', data => {
+    this.channel.on('PapanChannel.ConnectToLobbyServer', message => {
       if (this.getLobbyConnectionStatus() !== 'NOTCONNECTED') {
         return
       }
       let premise
-      if (data.connectLocal && !this.localLobbyServer) {
+      if (message.connectLocal && !this.localLobbyServer) {
         this.setLobbyConnectionStatus('STARTINGLOBBY')
         premise = Promise.all([
           require('./server.js').registerServer(),
@@ -44,7 +50,7 @@ class ClientInterface extends EventEmitter {
                 if (err) {
                   myIP = ip.address()
                 }
-                channel.send('localServerIP', { ip: myIP })
+                this.channel.send('PapanChannel.LocalServerIP', { ip: myIP })
               })
             })
           }
@@ -55,7 +61,7 @@ class ClientInterface extends EventEmitter {
         premise = Promise.resolve()
       }
       premise
-      .then(() => Client.CreateClient(this, data))
+      .then(() => Client.CreateClient(this, message))
       .then(createdClient => {
         this.emit('CreatedClient', createdClient)
         this.client = createdClient
@@ -63,38 +69,58 @@ class ClientInterface extends EventEmitter {
     })
 
     const clientToServerMessage = [
-      'join',
-      'setName',
-      'setPublic',
-      'getJoinedLobbies',
-      'startWatchingLobbies',
-      'stopWatchingLobbies'
+      'PapanLobby.JoinLobby',
+      'PapanLobby.SetLobbyName',
+      'PapanLobby.SetLobbyPublic',
+      'PapanLobby.GetJoinedLobbies',
+      'PapanLobby.StartWatchingLobbies',
+      'PapanLobby.StopWatchingLobbies'
     ]
-    clientToServerMessage.forEach(message => {
-      channel.on(message, this.connectedCall(data => {
-        this.client[message](data)
+    clientToServerMessage.forEach(type => {
+      this.channel.on(type, this.connectedCall((message, metadata) => {
+        this.client[type](message, metadata)
       }))
     })
 
     const serverToClientMessages = [
-      'subscribed',
-      'error',
-      'info',
-      'userJoined',
-      'joinedLobbies'
+      'PapanLobby.Subscribed',
+      'PapanLobby.Error',
+      'PapanLobby.LobbyInfo',
+      'PapanLobby.UserJoined',
+      'PapanLobby.JoinedLobbies',
+      'PapanLobby.PublicLobbyUpdate'
     ]
-    serverToClientMessages.forEach(message => {
-      this[message] = data => this.channel.send(message, data)
+    serverToClientMessages.forEach(type => {
+      this[type] = (message = {}, metadata = {}) => this.channel.send(type, message, metadata)
     })
   }
 
+  getSerializer () {
+    return this.protoPromise
+    .then(proto => {
+      if (!this.serializer) {
+        this.serializer = createSerializer(proto.rootProto)
+      }
+
+      return this.serializer
+    })
+  }
+
+  setChannel (channel) {
+    if (this.channel instanceof Queuer) {
+      this.channel.spillover(channel)
+    } else {
+      throw Error('Channel already set')
+    }
+  }
+
   connectedCall (callback) {
-    return data => {
+    return (data, metadata) => {
       if (this.getLobbyConnectionStatus() !== 'CONNECTED' || !this.client) {
         return
       }
 
-      callback(data)
+      callback(data, metadata)
     }
   }
 
@@ -126,11 +152,7 @@ class ClientInterface extends EventEmitter {
   }
 
   sendLobbyConnectionStatus () {
-    this.channel.send('lobbyConnectionStatus', { status: this.lobbyConnectionStatus })
-  }
-
-  publicLobbyUpdate (data) {
-    this.channel.send('publicLobbyUpdate', data)
+    this.channel.send('PapanChannel.LobbyConnectionStatus', { status: this.lobbyConnectionStatus })
   }
 }
 

@@ -28,7 +28,7 @@
       },
 
       _joinLobby: function() {
-        channel.send('join', { id: this.lobbyId })
+        channel.send('PapanLobby.JoinLobby', { id: this.lobbyId })
       }
     })
   </script>
@@ -58,25 +58,28 @@
           this.$.public.checked = false
         }
         this.$.public.addEventListener('change', () => {
-          if (this._isowner) channel.send('setPublic', {
-            id: this.lobbyId,
+          if (this._isowner) channel.send('PapanLobby.SetLobbyPublic', {
             public: this.$.public.checked
+          }, {
+            id: this.lobbyId,
           })
         })
       },
 
       _nameChange: function() {
         if (this._isowner) {
-          channel.send('setName', {
-            id: this.lobbyId,
+          channel.send('PapanLobby.SetLobbyName', {
             name: this.name
+          }, {
+            id: this.lobbyId,
           })
           if (this.name == '') {
             this.$.public.disabled = true
             this.$.public.checked = false
-            channel.send('setPublic', {
-              id: this.lobbyId,
+            channel.send('PapanLobby.SetLobbyPublic', {
               public: false
+            }, {
+              id: this.lobbyId,
             })
           } else {
             this.$.public.disabled = false
@@ -160,20 +163,20 @@
       ready() {
         this._lobbyList = {}
         this._watchedLobbyList = {}
-        channel.send('getLobbyConnectionStatus')
-        channel.on('subscribed', data => {
+        channel.send('PapanChannel.GetLobbyConnectionStatus')
+        channel.on('PapanLobby.Subscribed', data => {
           this.userInfo = data.self
         })
-        channel.on('error', data => {
+        channel.on('PapanLobby.Error', data => {
           this._errorMessage = data.error.message
           this.$.errorMessage.open()
         })
-        channel.on('lobbyConnectionStatus', data => {
+        channel.on('PapanChannel.LobbyConnectionStatus', data => {
           this._status = data.status
           this.$.createLobby.disabled = this._status !== 'CONNECTED'
           this.$.watchLobbies.disabled = this._status !== 'CONNECTED'
         })
-        channel.on('info', data => {
+        channel.on('PapanLobby.LobbyInfo', data => {
           const id = data.id
           const elementId = 'lobby-' + id
           let lobby
@@ -201,17 +204,17 @@
             this._watchedLobbyList[otherElementId] = undefined
           }
         })
-        channel.on('localServerIP', data => {
+        channel.on('PapanChannel.LocalServerIP', data => {
           this._myIP = data.ip
         })
         this.$.watchLobbies.addEventListener('change', () => {
           if (this.$.watchLobbies.checked) {
-            channel.send('startWatchingLobbies')
+            channel.send('PapanLobby.StartWatchingLobbies')
           } else {
-            channel.send('stopWatchingLobbies')
+            channel.send('PapanLobby.StopWatchingLobbies')
           }
         })
-        channel.on('publicLobbyUpdate', data => {
+        channel.on('PapanLobby.PublicLobbyUpdate', data => {
           const id = data.lobby.id
           const elementId = 'lobbylistitem-' + id
           const otherElementId = 'lobby-' + id
@@ -243,15 +246,15 @@
       },
 
       _connectToLocalLobbyServer: function() {
-        channel.send('connectToLobbyServer', { connectLocal: true })
+        channel.send('PapanChannel.ConnectToLobbyServer', { connectLocal: true })
       },
 
       _connectToLobbyServer: function() {
-        channel.send('connectToLobbyServer', { lobbyServer: this.lobbyServer })
+        channel.send('PapanChannel.ConnectToLobbyServer', { lobbyServer: this.lobbyServer })
       },
 
       _createLobby: function() {
-        channel.send('join')
+        channel.send('PapanLobby.JoinLobby')
       },
     })
   </script>

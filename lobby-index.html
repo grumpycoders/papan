@@ -4,12 +4,30 @@
     <meta charset="UTF-8">
     <title>Papan</title>
 
-    <script src="node_modules/event-emitter-es6/dist/event-emitter.min.js"></script>
+    <script>
+      Papan = {
+        jsLoader: path => new Promise((resolve, reject) => {
+          const js = document.createElement('script')
+          js.onload = () => {
+            console.log('Loaded ' + path)
+            resolve()
+          }
+          js.src = path
+          document.head.appendChild(js)
+        }),
 
-    <script src="src/common/utils.js"></script>
-    <script src="src/client/channel.js"></script>
-    <script src="src/client/lobbyinterface.js"></script>
-    <script src="src/client/webtorrent.js"></script>
+        importLoader: path => new Promise((resolve, reject) => {
+          const element = document.createElement('link')
+          element.onload = () => {
+            console.log('Loaded ' + path)
+            resolve()
+          }
+          element.rel = 'import'
+          element.href = path
+          document.head.appendChild(element)
+        })
+      }
+    </script>
 
     <style is="papan-style">
       html:not([style-scope]):not(.style-scope),body:not([style-scope]):not(.style-scope) {
@@ -91,56 +109,43 @@
     </style>
 
     <script>
-      (() => {
+      setTimeout(() => {
         console.log('Papan Loading...')
 
-        const jsLoader = path => new Promise((resolve, reject) => {
-          const js = document.createElement('script')
-          js.onload = () => {
-            resolve()
-          }
-          js.src = path
-          document.head.appendChild(js)
-        })
-
-        const importLoader = path => new Promise((resolve, reject) => {
-          const element = document.createElement('link')
-          element.onload = () => {
-            resolve()
-          }
-          element.rel = 'import'
-          element.href = path
-          document.head.appendChild(element)
-        })
-
-        const documentLoaded = new Promise((resolve, reject) => {
-          window.addEventListener('load', () => resolve())
-        })
-
-        const channelReady = new Promise((resolve, reject) => {
-          if (channel.ready()) {
-            resolve()
-          } else {
-            channel.onready = resolve
-          }
-        })
-
-        const wtReady = new Promise((resolve, reject) => {
-          if (webtorrentReady) {
-            resolve()
-          } else {
-            webtorrentOnReady = resolve
-          }
-        })
-
         Promise.all([
-          documentLoaded,
-          jsLoader('bower_components/webcomponentsjs/webcomponents-lite.js'),
-          jsLoader('node_modules/deep-diff/releases/deep-diff-0.3.4.min.js'),
-          importLoader('template/mainwindow.html'),
-          channelReady,
-          wtReady
+          Papan.jsLoader('node_modules/deep-diff/releases/deep-diff-0.3.4.min.js'),
+          Papan.jsLoader('node_modules/event-emitter-es6/dist/event-emitter.min.js'),
+          Papan.jsLoader('bower_components/webcomponentsjs/webcomponents-lite.js'),
+          Papan.jsLoader('src/common/utils.js')
         ])
+        .then(() => Promise.all([
+          Papan.jsLoader('src/client/channel.js')
+        ]))
+        .then(() => Promise.all([
+          Papan.jsLoader('src/client/lobbyinterface.js'),
+          Papan.jsLoader('src/client/webtorrent.js'),
+          Papan.importLoader('template/mainwindow.html')
+        ]))
+        .then(() => Promise.all([
+          new Promise((resolve, reject) => {
+            if (global.channel.ready()) {
+              console.log('Channel already live, not waiting')
+              resolve()
+            } else {
+              console.log('Channel not yet live, waiting...')
+              global.channel.onready = resolve
+            }
+          }),
+          new Promise((resolve, reject) => {
+            if (webtorrentReady) {
+              console.log('Webtorrent already live, not waiting')
+              resolve()
+            } else {
+              console.log('Webtorrent not yet live, waiting...')
+              webtorrentOnReady = resolve
+            }
+          })
+        ]))
         .then(() => {
           const main = document.createElement('papan-main-window')
           const loader = document.getElementById('mainloader')
@@ -149,7 +154,7 @@
           document.getElementById('maindiv').appendChild(main)
           console.log('Papan Loaded.')
         })
-      })()
+      }, 0)
     </script>
 
     <noscript>
@@ -168,7 +173,9 @@
     <div class="js-off">
       <h2>Very sorry, but JavaScript is absolutely required here.</h2>
     </div>
-    <div class="loader" id="mainloader">Loading...</div>
+    <div id="mainloader" class="js-on">
+      <div class="loader" id="mainloader">Loading...</div>
+    </div>
     <div class="js-on" id="maindiv"></div>
   </body>
 </html>

@@ -9,30 +9,50 @@ const PapanServerUtils = require('../common/utils.js')
 const protoLoader = require('../common/proto.js')
 
 class LobbyClient extends EventEmitter {
-  constructor () {
+  constructor (lobbyProto) {
     super()
 
+    this.lobbyProto = lobbyProto
+    this.ActionFields = lobbyProto.rootProto.lookupType('PapanLobby.Action').fields
+    this.UpdateFields = lobbyProto.rootProto.lookupType('PapanLobby.Update').fields
+    this.LobbyActionFields = lobbyProto.rootProto.lookupType('PapanLobby.LobbyAction').fields
+    this.LobbyUpdateFields = lobbyProto.rootProto.lookupType('PapanLobby.LobbyUpdate').fields
+
+    const lookupField = (fields, type) => Object.keys(fields).reduce((result, field) => {
+      return ('PapanLobby.' + fields[field].type) === type ? field : result
+    }, '')
+
+    const mapping = {
+      'PapanLobby.JoinLobby': 'join',
+      'PapanLobby.StartWatchingLobby': 'startWatchingLobby',
+      'PapanLobby.stopWatchingLobby': 'stopWatchingLobby'
+    }
+    Object.keys(mapping).forEach(type => {
+      this[type] = this[mapping[type]]
+    })
+
     const subscribedMessages = [
-      'message',
-      'getJoinedLobbies'
+      'PapanLobby.GetJoinedLobbies'
     ]
-    subscribedMessages.forEach(message => {
-      this[message] = data => {
+    subscribedMessages.forEach(type => {
+      const fieldName = lookupField(this.ActionFields, type)
+      this[type] = (message, metadata) => {
         const obj = {}
-        obj[message] = data
-        this.subscribedWrite(obj)
+        obj[fieldName] = message
+        this.subscribedWrite({obj})
       }
     })
 
     const lobbyMessages = [
-      'setName',
-      'setPublic'
+      'PapanLobby.SetLobbyName',
+      'PapanLobby.SetLobbyPublic'
     ]
-    lobbyMessages.forEach(message => {
-      this[message] = data => {
+    lobbyMessages.forEach(type => {
+      const fieldName = lookupField(this.LobbyActionFields, type)
+      this[type] = (message, metadata) => {
         const obj = {}
-        obj[message] = data
-        const lobby = this.lobbies[data.id]
+        obj[fieldName] = message
+        const lobby = this.lobbies[metadata.id]
         if (lobby) lobby.call.write(obj)
       }
     })
@@ -99,12 +119,14 @@ class LobbyClient extends EventEmitter {
       console.log('end')
     })
     call.on('data', data => {
+      const UpdateField = this.UpdateFields[data.update]
+      let typeName = 'PapanLobby.' + UpdateField.type
       switch (data.update) {
         case 'subscribed':
           this.clientInterface.setLobbyConnectionStatus('CONNECTED')
           // falls through
         default:
-          this.clientInterface[data.update](data[data.update])
+          this.clientInterface[typeName](data[data.update])
           break
       }
     })
@@ -128,11 +150,13 @@ class LobbyClient extends EventEmitter {
       console.log('end')
     })
     call.on('data', data => {
+      const LobbyUpdateField = this.LobbyUpdateFields[data.update]
+      let typeName = 'PapanLobby.' + LobbyUpdateField.type
       if (!id && data.update === 'info') {
         id = data.info.id
         this.lobbies[id] = { call: call }
       }
-      this.clientInterface[data.update](merge(data[data.update], { id: id }))
+      this.clientInterface[typeName](data[data.update], { id: id })
     })
 
     call.write({ join: data })
@@ -162,7 +186,7 @@ class LobbyClient extends EventEmitter {
       console.log('end')
     })
     call.on('data', data => {
-      this.clientInterface.publicLobbyUpdate(data)
+      this.clientInterface['PapanLobby.PublicLobbyUpdate'](data)
     })
   }
 
@@ -196,8 +220,8 @@ exports.CreateClient = (clientInterface, options) => {
   ]
 
   return Promise.all(work).then(results => {
-    const client = new LobbyClient()
     const lobbyProto = results[1].PapanLobby
+    const client = new LobbyClient(results[1])
     const sslCreds = options.useLocalCA ? grpc.credentials.createSsl(results[0]) : grpc.credentials.createSsl()
     const callCreds = grpc.credentials.createFromMetadataGenerator((args, callback) => {
       const metadata = client.getAuthMetadata()

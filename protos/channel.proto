@@ -1,0 +1,28 @@
+syntax = "proto3";
+package PapanChannel;
+
+enum LobbyConnectionStatusEnum {
+  UNKNOWN = 1;
+  NOTCONNECTED = 2;
+  STARTINGLOBBY = 3;
+  CONNECTING = 4;
+  AUTHENTICATING = 5;
+  CONNECTED = 6;
+}
+
+message GetLobbyConnectionStatus {}
+
+message LobbyConnectionStatus {
+  LobbyConnectionStatusEnum status = 1;
+}
+
+message ConnectToLobbyServer {
+  bool connectLocal = 1 [default = false];
+  string lobbyServer = 2 [default = "lobby.papan.online"];
+  uint32 lobbyServerPort = 3 [default = 9999];
+  bool useLocalCA = 4 [default = true];
+}
+
+message LocalServerIP {
+  string ip = 1;
+}
