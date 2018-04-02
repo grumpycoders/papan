@@ -32,8 +32,11 @@
     "localserver": "Local server",
     "yes": "Yes",
     "no": "No",
+    "remove": "Remove",
     "confirmrem": "Confirm remove",
-    "confirmremservertext": "Do you really want to remove this server from the list?"
+    "confirmremservertext": "Do you really want to remove this server from the list?",
+    "SSL": "SSL",
+    "noSSL": "No SSL"
   },
   "fr": {
     "english": "Anglais",
@@ -68,7 +71,10 @@
     "localserver": "Serveur local",
     "yes": "Oui",
     "no": "Non",
+    "remove": "Supprimer",
     "confirmrem": "Confirmer la suppression",
-    "confirmremservertext": "Voulez-vous vraiment supprimer ce serveur de la liste ?"
+    "confirmremservertext": "Voulez-vous vraiment supprimer ce serveur de la liste ?",
+    "SSL": "SSL",
+    "noSSL": "Pas de SSL"
   }
 }
