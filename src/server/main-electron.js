@@ -159,7 +159,7 @@ exports.main = () => {
       slashes: true
     }))
 
-    if (options.debug || true) {
+    if (options.debug) {
       mainWindow.webContents.openDevTools()
     }
 

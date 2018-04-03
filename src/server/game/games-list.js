@@ -40,7 +40,7 @@ exports.getGamesList = () => recursive(base)
   .then(result => {
     const GameInfoMessageType = result.rootProto.lookupType('Papan.GameInfo')
     return Promise.all(gamesJson.map(path.dirname).map(gamepath => {
-      const game = gamepath.slice(base.length + 1).replace('\\', '/')
+      const game = gamepath.slice(base.length + 1).replace(/\\/g, '/')
       games[game] = {}
       return PapanServerUtils.readJSON(path.join(gamepath, jsonName))
       .then(gameJson => {
