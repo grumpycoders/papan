@@ -63,6 +63,7 @@
     "passport-facebook": "^2.1.1",
     "passport-steam": "^1.0.8",
     "passport-twitter": "^1.0.4",
+    "patch-module": "^0.1.0",
     "pg": "^6.4.0",
     "protobufjs": "~6.8.6",
     "recursive-readdir": "^2.2.2",

@@ -1,7 +1,7 @@
 'use strict'
 
 const EventEmitter = require('events')
-const natUPNP = require('nat-upnp').createClient()
+const natUPNP = require('./patch/nat-upnp.js').createClient()
 const ip = require('ip')
 const Client = require('./client.js')
 const createSerializer = require('../../common/serializer.js').createSerializer
