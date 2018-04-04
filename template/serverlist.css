@@ -28,17 +28,38 @@ paper-icon-button {
   padding: 0;
   border-radius: 50%;
 }
-/*
-paper-icon-button.pink {
-  color: var(--paper-pink-500);
-  --paper-icon-button-ink-color: var(--paper-indigo-500);
-}*/
+
+.spaced {
+  padding-right: 5px;
+}
 
 paper-icon-button:hover {
   color: #d36d0e;
 }
 
+#connectionstatus {
+  display: none;
+  background-color: lightblue;
+}
 
-.spaced {
-  padding-right: 5px;
+#connectionstatus paper-icon-button {
+  background-color: royalblue;
+  color: white;
+  border-radius: 3px;
+  padding: 2px;
+}
+
+iron-pages {
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 10px;
+  width: 300px;
+  height: 150px;
+}
+
+iron-pages div {
+  background-color: lightgray;
+  padding: 50px;
+  margin: auto;
+  text-align: center;
 }
