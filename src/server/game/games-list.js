@@ -38,16 +38,18 @@ exports.getGamesList = () => recursive(base)
   })
   return gameInfoProtoLoader
   .then(result => {
-    const GameInfoMessageType = result.rootProto.lookupType('Papan.GameInfo')
+    const GameInfoMessageType = result.rootProto.lookupType('Papan.GameJson')
     return Promise.all(gamesJson.map(path.dirname).map(gamepath => {
       const game = gamepath.slice(base.length + 1).replace(/\\/g, '/')
+      if (games[game] && games[game].id) return Promise.resolve()
       games[game] = {}
       return PapanServerUtils.readJSON(path.join(gamepath, jsonName))
       .then(gameJson => {
-        if (games[game].info) return Promise.resolve()
         const error = GameInfoMessageType.verify(gameJson)
         if (error) throw Error(error)
-        games[game].info = GameInfoMessageType.create(gameJson)
+        games[game].id = game
+        games[game].fullPath = gamepath
+        games[game].json = GameInfoMessageType.create(gameJson)
         return new Promise((resolve, reject) => {
           Promise.all(allFiles
             .filter(fname => !path.relative(gamepath, fname).startsWith('.'))

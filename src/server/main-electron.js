@@ -2,7 +2,6 @@
 
 const commandline = require('command-line-args')
 const request = require('request-promise-native')
-const deepDiff = require('deep-diff')
 const _ = require('lodash')
 
 const optionDefinitions = [
@@ -17,7 +16,6 @@ const ipc = electron.ipcMain
 const path = require('path')
 const url = require('url')
 
-const instance = require('./game/game-instance.js')
 const ClientInterface = require('./lobby/clientinterface.js').ClientInterface
 
 class Channel {
@@ -195,45 +193,6 @@ exports.main = () => {
   app.on('activate', () => {
     if (isAppReady && !mainWindow) {
       createWindow()
-    }
-  })
-
-  let channel = {}
-
-  channel.sendPrivateScene = (oldscene, newscene, player) => {
-    const diff = deepDiff(oldscene, newscene, player)
-    if (diff !== undefined) {
-      mainWindow.webContents.send('privateSceneDelta', { diff: diff, player: player })
-    }
-  }
-
-  channel.sendPublicScene = (oldscene, newscene) => {
-    const diff = deepDiff(oldscene, newscene)
-    if (diff !== undefined) {
-      mainWindow.webContents.send('publicSceneDelta', { diff: diff })
-    }
-  }
-
-  let currentGame
-
-  ipc.on('asynchronous-message', (event, arg) => {
-    switch (arg.type) {
-      case 'startGame':
-        currentGame = instance.createInstance({
-          gameId: 'tic-tac-toe',
-          channel: channel,
-          settings: {
-            players: ['player 1', 'player 2']
-          }
-        })
-        event.sender.send('asynchronous-reply', instance.findGameData('tic-tac-toe'))
-        break
-      case 'refreshPublicScene':
-        currentGame.refreshPublicScene()
-        break
-      case 'action':
-        currentGame.action(arg.data)
-        break
     }
   })
 

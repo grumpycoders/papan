@@ -25,13 +25,22 @@ message Players {
   uint32 max = 2;
 }
 
-message GameInfo {
+message GameJson {
   string name = 1;
   string main = 2;
   string webcomponent = 3;
   Players players = 4;
 }
 
-message GameData {
-  
+message Torrent {
+  string infoHash = 1;
+  string magnetURI = 2;
+  bytes torrentFile = 3;
+}
+
+message GameInfo {
+  string id = 1;
+  string fullPath = 2;
+  GameJson json = 3;
+  Torrent torrent = 4;
 }

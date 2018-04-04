@@ -1,6 +1,6 @@
 'use strict'
 
-exports.setUp = (players) => {
+exports.setUp = ({ players }) => {
   let board = []
   for (let x = 0; x < 3; x++) {
     board[x] = []
@@ -57,7 +57,7 @@ function otherPlayer (state, player) {
   }
 }
 
-exports.transition = (state, action) => {
+exports.transition = ({ state, action }) => {
   if (action.name !== 'take' && !!state.winner) {
     return state
   }
@@ -72,7 +72,7 @@ exports.transition = (state, action) => {
   return state
 }
 
-exports.getPublicScene = (state) => {
+exports.getPublicScene = state => {
   let actors = {}
   for (let x = 0; x < 3; x++) {
     for (let y = 0; y < 3; y++) {
@@ -129,6 +129,5 @@ exports.getPublicScene = (state) => {
   return actors
 }
 
-exports.getPrivateScene = (state, player) => []
-
-exports.isRunning = (state) => !state.winner && state.turns !== 9
+exports.isRunning = state => !state.winner && state.turns !== 9
+exports.getStep = state => state.turns
