@@ -18,6 +18,10 @@ class PRNG {
       throw Error('range needs to be called with integer values')
     }
 
+    if (min >= max) {
+      throw Error('min needs to be less than max')
+    }
+
     const delta = max - min
 
     return Math.floor(this.random() * delta) + min
@@ -36,11 +40,21 @@ class PRNG {
       throw Error('dice needs to be called with a number of faces that is >= 1')
     }
 
-    return this.range(1, faces)
+    return this.range(0, faces) + 1
   }
 
   coin () {
-    return this.dice(2)
+    return this.random() >= 0.5
+  }
+
+  shuffle (a) {
+    const n = a.length
+    for (let i = 0; i <= n - 2; i++) {
+      const j = this.range(i, n)
+      const t = a[j]
+      a[j] = a[i]
+      a[i] = t
+    }
   }
 }
 
