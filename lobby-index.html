@@ -65,12 +65,12 @@
           Papan.jsLoader('src/common/utils.js')
         ]))
         .then(() => Promise.all([
-          Papan.jsLoader('src/client/channel.js')
+          Papan.jsLoader('src/client/channel.js'),
+          Papan.importLoader('template/mainwindow.html')
         ]))
         .then(() => Promise.all([
           Papan.jsLoader('src/client/lobbyinterface.js'),
-          Papan.jsLoader('src/client/webtorrent.js'),
-          Papan.importLoader('template/mainwindow.html')
+          Papan.jsLoader('src/client/webtorrent.js')
         ]))
         .then(() => Promise.all([
           new Promise((resolve, reject) => {
