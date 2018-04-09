@@ -19,37 +19,42 @@
 
     <script>
       Papan = {
-        jsLoader: path => new Promise((resolve, reject) => {
-          const js = document.createElement('script')
-          js.onload = () => {
-            console.log('Loaded ' + path)
-            resolve()
-          }
-          js.src = path
-          document.head.appendChild(js)
-        }),
-
-        cssLoader: path => new Promise((resolve, reject) => {
-          const css = document.createElement('link')
-          css.onload = () => {
-            console.log('Loaded ' + path)
-            resolve()
-          }
-          css.rel = 'stylesheet'
-          css.type = 'text/css'
-          css.href = path
-          document.head.appendChild(css)
-        }),
-
-        importLoader: path => new Promise((resolve, reject) => {
-          const element = document.createElement('link')
+        asyncLoader: ({ path, elementType, baseObj }) => new Promise((resolve, reject) => {
+          const element = document.createElement(elementType)
           element.onload = () => {
-            console.log('Loaded ' + path)
             resolve()
           }
-          element.rel = 'import'
-          element.href = path
+          Object.keys(baseObj).forEach(key => {
+            element[key] = baseObj[key]
+          })
           document.head.appendChild(element)
+        }),
+
+        jsLoader: path => Papan.asyncLoader({
+          path: path,
+          elementType: 'script',
+          baseObj: {
+            src: path
+          }
+        }),
+
+        cssLoader: path => Papan.asyncLoader({
+          path: path,
+          elementType: 'link',
+          baseObj: {
+            rel: 'stylesheet',
+            type: 'text/css',
+            href: path
+          }
+        }),
+
+        importLoader: path => Papan.asyncLoader({
+          path: path,
+          elementType: 'link',
+          baseObj: {
+            rel: 'import',
+            href: path
+          }
         })
       }
 
@@ -74,19 +79,15 @@
         .then(() => Promise.all([
           new Promise((resolve, reject) => {
             if (global.channel.ready()) {
-              console.log('Channel already live, not waiting')
               resolve()
             } else {
-              console.log('Channel not yet live, waiting...')
               global.channel.onready = resolve
             }
           }),
           new Promise((resolve, reject) => {
             if (webtorrentReady) {
-              console.log('Webtorrent already live, not waiting')
               resolve()
             } else {
-              console.log('Webtorrent not yet live, waiting...')
               webtorrentOnReady = resolve
             }
           })
@@ -97,6 +98,7 @@
 
           document.getElementById('body').removeChild(loader)
           document.getElementById('maindiv').appendChild(main)
+
           console.log('Papan Loaded.')
         })
       }, 0)
