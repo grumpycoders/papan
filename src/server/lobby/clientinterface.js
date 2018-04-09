@@ -1,6 +1,7 @@
 'use strict'
 
 const EventEmitter = require('events')
+const deepclone = require('deepclone')
 const natUPNP = require('./patch/nat-upnp.js').createClient()
 const ip = require('ip')
 const Client = require('./client.js')
@@ -25,11 +26,12 @@ class ClientInterface extends EventEmitter {
     })
 
     this.channel.on('PapanChannel.ConnectToLobbyServer', message => {
+      const options = deepclone(message)
       if (this.getLobbyConnectionStatus() !== 'NOTCONNECTED') {
         return
       }
       let premise
-      if (message.connectLocal && !this.localLobbyServer) {
+      if (options.connectLocal && !this.localLobbyServer) {
         this.setLobbyConnectionStatus('STARTINGLOBBY')
         premise = Promise.all([
           require('./server.js').registerServer(),
@@ -56,12 +58,21 @@ class ClientInterface extends EventEmitter {
           }
           setMapping()
           natRefreshInterval = setInterval(setMapping, 300000)
+          return require('../game/client.js').createClient(this.gamesList, options)
+        })
+        .then(gameClient => {
+          this.gameClient = gameClient
+          return new Promise((resolve, reject) => {
+            gameClient.on('ClientConnected', () => {
+              resolve()
+            })
+          })
         })
       } else {
         premise = Promise.resolve()
       }
       premise
-      .then(() => Client.CreateClient(this, message))
+      .then(() => Client.createClient(this, options))
       .then(createdClient => {
         this.emit('CreatedClient', createdClient)
         this.client = createdClient

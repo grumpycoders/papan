@@ -1,6 +1,5 @@
 'use strict'
 
-const EventEmitter = require('events')
 const path = require('path')
 const grpc = require('grpc')
 const merge = require('deepmerge')
@@ -8,11 +7,11 @@ const _ = require('lodash')
 const PapanServerUtils = require('../common/utils.js')
 const protoLoader = require('../common/proto.js')
 
-class LobbyClient extends EventEmitter {
-  constructor (lobbyProto) {
-    super()
-
+class LobbyClient {
+  constructor ({ lobbyProto, grpcClient, clientInterface }) {
     this.lobbyProto = lobbyProto
+    this.grpcClient = grpcClient
+    this.clientInterface = clientInterface
     this.ActionFields = lobbyProto.rootProto.lookupType('PapanLobby.Action').fields
     this.UpdateFields = lobbyProto.rootProto.lookupType('PapanLobby.Update').fields
     this.LobbyActionFields = lobbyProto.rootProto.lookupType('PapanLobby.LobbyAction').fields
@@ -197,14 +196,14 @@ class LobbyClient extends EventEmitter {
   }
 }
 
-const clientDefaults = {
+const clientDefaults = Object.freeze({
   connectLocal: false,
   lobbyServer: 'lobby.papan.online',
   lobbyServerPort: 9999,
   useLocalCA: true
-}
+})
 
-exports.CreateClient = (clientInterface, options) => {
+exports.createClient = (clientInterface, options) => {
   options = _.defaults(options, clientDefaults)
   if (options.connectLocal) {
     options.lobbyServer = 'localhost'
@@ -221,22 +220,21 @@ exports.CreateClient = (clientInterface, options) => {
 
   return Promise.all(work).then(results => {
     const lobbyProto = results[1].PapanLobby
-    const client = new LobbyClient(results[1])
+    let client
     const sslCreds = options.useLocalCA ? grpc.credentials.createSsl(results[0]) : grpc.credentials.createSsl()
     const callCreds = grpc.credentials.createFromMetadataGenerator((args, callback) => {
       const metadata = client.getAuthMetadata()
       callback(null, metadata)
     })
     const creds = grpc.credentials.combineChannelCredentials(sslCreds, callCreds)
-    let localChannelOptions = {
+    const localChannelOptions = {
       'grpc.ssl_target_name_override': 'localhost'
     }
     let channelOptions = {}
     if (options.useLocalCA) channelOptions = merge(channelOptions, localChannelOptions)
 
-    let grpcClient = new lobbyProto.PlayerLobbyService(serverAddress, creds, channelOptions)
-    client.grpcClient = grpcClient
-    client.clientInterface = clientInterface
+    const grpcClient = new lobbyProto.PlayerLobbyService(serverAddress, creds, channelOptions)
+    client = new LobbyClient({ lobbyProto: results[1], grpcClient: grpcClient, clientInterface: clientInterface })
     client.subscribe()
 
     return client

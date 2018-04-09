@@ -4,6 +4,7 @@ const optionDefinitions = [
 ]
 const commandline = require('command-line-args')
 const deepmerge = require('deepmerge')
+const RedisSessions = require('redis-sessions')
 const argv = commandline(optionDefinitions, { partial: true, argv: process.argv })
 
 const PapanUtils = require('../../common/utils.js')
@@ -21,8 +22,61 @@ if (!argv.use_redis_mock && !argv.use_redis_server) {
 
 const redis = mock ? require('redis-mock') : require('redis')
 const client = redis.createClient()
+const rs = new RedisSessions({ client: client })
 
 const promised = PapanServerUtils.promisifyClass(client)
+
+exports.createUserSession = userId => {
+  return new Promise((resolve, reject) => {
+    rs.create({
+      app: 'papanUsers',
+      id: userId,
+      ip: '1'
+    }, (err, resp) => {
+      if (err) reject(err)
+      resolve(resp.token)
+    })
+  })
+}
+
+exports.createGameServerSession = gameServerId => {
+  return new Promise((resolve, reject) => {
+    rs.create({
+      app: 'papanGameServers',
+      id: gameServerId,
+      ip: '1'
+    }, (err, resp) => {
+      if (err) reject(err)
+      resolve(resp.token)
+    })
+  })
+}
+
+exports.getUserFromSession = session => {
+  return new Promise((resolve, reject) => {
+    rs.get({
+      app: 'papanUsers',
+      token: session
+    }, (err, resp) => {
+      if (err) reject(err)
+      if (!resp.id) reject(Error('Empty session'))
+      resolve(resp.id)
+    })
+  })
+}
+
+exports.getGameServerFromSession = session => {
+  return new Promise((resolve, reject) => {
+    rs.get({
+      app: 'papanGameServers',
+      token: session
+    }, (err, resp) => {
+      if (err) reject(err)
+      if (!resp.id) reject(Error('Empty session'))
+      resolve(resp.id)
+    })
+  })
+}
 
 exports.userSubscribe = (userId, callback) => {
   const subscriber = redis.createClient()

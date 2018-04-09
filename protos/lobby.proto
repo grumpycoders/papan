@@ -1,6 +1,8 @@
 syntax = "proto3";
 package PapanLobby;
 
+import "game-info.proto";
+
 message User {
   string id = 1;
 }
@@ -25,6 +27,16 @@ message Error {
 
 message Subscribed {
   User self = 1;
+}
+
+enum JoinStatusEnum {
+  JOINED = 0;
+  LOBBY_FULL = 1;
+  MISSING_PASSWORD = 2;
+}
+
+message JoinStatus {
+  JoinStatusEnum status = 1;
 }
 
 message LobbyInfo {
@@ -78,6 +90,12 @@ message SetLobbyPublic {
   bool public = 1;
 }
 
+message SetLobbyGame {
+  Papan.GameInfo info = 1;
+  bool allocate_game_server = 2 [default = true];
+  bool registered_game_servers_only = 3 [default = true];
+}
+
 message LobbyAction {
   oneof action {
     JoinLobby join = 1;
@@ -87,6 +105,7 @@ message LobbyAction {
     KickUser kick_user = 5;
     SetLobbyName set_name = 6;
     SetLobbyPublic set_public = 7;
+    SetLobbyGame set_game = 8;
   }
 }
 
@@ -97,11 +116,12 @@ message UserReadyUpdate {
 
 message LobbyUpdate {
   oneof update {
-    LobbyInfo info = 1;
-    UserJoined user_joined = 2;
-    UserLeft user_left = 3;
-    ChatMessage message = 4;
-    UserReadyUpdate ready_update = 5;
+    JoinStatus status = 1;
+    LobbyInfo info = 2;
+    UserJoined user_joined = 3;
+    UserLeft user_left = 4;
+    ChatMessage message = 5;
+    UserReadyUpdate ready_update = 6;
   }
 }
 
@@ -129,15 +149,49 @@ message RegisterGameServer {
   string api_key = 1;
 }
 
+message RegisterGame {
+  Papan.GameInfo game_info = 1;
+}
+
 message GameAction {
   oneof action {
     RegisterGameServer register = 1;
   }
 }
 
+message GameServer {
+  string id = 1;
+}
+
+message GameServerSubscribed {
+  GameServer self = 1;
+}
+
+message GameRequest {
+  Papan.GameInfo game_info = 1;
+  string lobby_id = 2;
+}
+
 message GameUpdate {
+  oneof update {
+    GameServerSubscribed subscribed = 1;
+    GameRequest request = 2;
+  }
+}
+
+message GameLobbyAction {
+  oneof action {
+    JoinLobby join = 1;
+  }
+}
+
+message GameLobbyUpdate {
+  oneof update {
+
+  }
 }
 
 service GameLobbyService {
-  rpc Subscribe (stream GameAction) returns (GameUpdate);
+  rpc Subscribe (stream GameAction) returns (stream GameUpdate);
+  rpc Lobby (stream GameLobbyAction) returns (stream GameLobbyUpdate);
 }
