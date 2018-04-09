@@ -76,6 +76,7 @@
     "sequelize": "^4.35.2",
     "socket.io": "^1.7.4",
     "socket.io-client": "^1.7.4",
+    "spinkit": "^1.2.5",
     "umzug": "^2.0.1",
     "uuid": "^3.2.1",
     "webtorrent": "^0.98.24",
