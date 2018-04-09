@@ -21,12 +21,8 @@
       Papan = {
         asyncLoader: ({ path, elementType, baseObj }) => new Promise((resolve, reject) => {
           const element = document.createElement(elementType)
-          element.onload = () => {
-            resolve()
-          }
-          Object.keys(baseObj).forEach(key => {
-            element[key] = baseObj[key]
-          })
+          element.onload = resolve
+          Object.keys(baseObj).forEach(key => { element[key] = baseObj[key] })
           document.head.appendChild(element)
         }),
 
