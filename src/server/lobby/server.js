@@ -378,6 +378,12 @@ exports.registerServer = options => {
             }
           }
         })
+        call.on('end', () => {
+          call.end()
+        })
+        call.on('data', data => {
+          console.log(data)
+        })
       }
     }))
 

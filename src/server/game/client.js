@@ -15,6 +15,10 @@ class LobbyClient extends EventEmitter {
     this.grpcClient = grpcClient
   }
 
+  close () {
+    if (this.subscription) this.subscription.cancel()
+  }
+
   getAuthMetadata () {
     let metadata = new grpc.Metadata()
     if (this.papanSession) {
@@ -35,12 +39,16 @@ class LobbyClient extends EventEmitter {
 
   subscribe () {
     const call = this.grpcClient.Subscribe()
+    this.subscription = call
     this.metadataCatcher(call, console.log)
     call.on('status', status => {
       console.log(status)
     })
     call.on('end', () => {
       console.log('end')
+    })
+    call.on('error', error => {
+      console.log(error)
     })
     call.on('data', data => {
       switch (data.update) {

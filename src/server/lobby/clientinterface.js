@@ -142,6 +142,7 @@ class ClientInterface extends EventEmitter {
 
   shutdown (callback) {
     if (this.client) this.client.close()
+    if (this.gameClient) this.gameClient.close()
     if (this.localLobbyServer) {
       this.localLobbyServer.tryShutdown(callback)
       clearInterval(natRefreshInterval)
