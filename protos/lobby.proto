@@ -1,6 +1,8 @@
 syntax = "proto3";
 package PapanLobby;
 
+import "game-info.proto";
+
 message User {
   string id = 1;
 }
@@ -27,12 +29,30 @@ message Subscribed {
   User self = 1;
 }
 
+enum JoinStatusEnum {
+  JOINED = 0;
+  LOBBY_FULL = 1;
+  MISSING_PASSWORD = 2;
+}
+
+message JoinStatus {
+  JoinStatusEnum status = 1;
+}
+
 message LobbyInfo {
   string id = 1;
   string name = 2;
   User owner = 3;
   bool public = 4;
   repeated User members = 5;
+}
+
+message UserJoined {
+  User user = 1;
+}
+
+message UserLeft {
+  User user = 1;
 }
 
 message JoinedLobbies {
@@ -58,15 +78,34 @@ message SetReady {
   bool ready = 1;
 }
 
+message KickUser {
+  User user = 1;
+}
+
+message SetLobbyName {
+  string name = 1;
+}
+
+message SetLobbyPublic {
+  bool public = 1;
+}
+
+message SetLobbyGame {
+  Papan.GameInfo info = 1;
+  bool allocate_game_server = 2 [default = true];
+  bool registered_game_servers_only = 3 [default = true];
+}
+
 message LobbyAction {
   oneof action {
     JoinLobby join = 1;
     LeaveLobby leave = 2;
     ChatMessage message = 3;
     SetReady set_ready = 4;
-    User kick_user = 5;
-    LobbyInfo set_name = 6;
-    LobbyInfo set_public = 7;
+    KickUser kick_user = 5;
+    SetLobbyName set_name = 6;
+    SetLobbyPublic set_public = 7;
+    SetLobbyGame set_game = 8;
   }
 }
 
@@ -77,11 +116,12 @@ message UserReadyUpdate {
 
 message LobbyUpdate {
   oneof update {
-    LobbyInfo info = 1;
-    User user_joined = 2;
-    User user_left = 3;
-    ChatMessage message = 4;
-    UserReadyUpdate ready_update = 5;
+    JoinStatus status = 1;
+    LobbyInfo info = 2;
+    UserJoined user_joined = 3;
+    UserLeft user_left = 4;
+    ChatMessage message = 5;
+    UserReadyUpdate ready_update = 6;
   }
 }
 
@@ -91,13 +131,67 @@ enum LobbyStatus {
 }
 
 message ListLobbiesRequest { }
-message ListLobbiesResponse {
+message PublicLobbyUpdate {
   LobbyInfo lobby = 1;
   LobbyStatus status = 2;
 }
 
+message StartWatchingLobbies { }
+message StopWatchingLobbies { }
+
 service PlayerLobbyService {
   rpc Subscribe (stream Action) returns (stream Update);
   rpc Lobby (stream LobbyAction) returns (stream LobbyUpdate);
-  rpc ListLobbies (stream ListLobbiesRequest) returns (stream ListLobbiesResponse);
+  rpc ListLobbies (stream ListLobbiesRequest) returns (stream PublicLobbyUpdate);
+}
+
+message RegisterGameServer {
+  string api_key = 1;
+}
+
+message RegisterGame {
+  Papan.GameInfo game_info = 1;
+}
+
+message GameAction {
+  oneof action {
+    RegisterGameServer register = 1;
+  }
+}
+
+message GameServer {
+  string id = 1;
+}
+
+message GameServerSubscribed {
+  GameServer self = 1;
+}
+
+message GameRequest {
+  Papan.GameInfo game_info = 1;
+  string lobby_id = 2;
+}
+
+message GameUpdate {
+  oneof update {
+    GameServerSubscribed subscribed = 1;
+    GameRequest request = 2;
+  }
+}
+
+message GameLobbyAction {
+  oneof action {
+    JoinLobby join = 1;
+  }
+}
+
+message GameLobbyUpdate {
+  oneof update {
+
+  }
+}
+
+service GameLobbyService {
+  rpc Subscribe (stream GameAction) returns (stream GameUpdate);
+  rpc Lobby (stream GameLobbyAction) returns (stream GameLobbyUpdate);
 }

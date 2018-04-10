@@ -3,11 +3,11 @@
 const channel = this.channel
 
 class Lobby extends this.EventEmitter {
-  constructor (info) {
+  constructor (info, lobbyInterface) {
     super()
 
     this.info = info
-    this.isOwner = this.lobbyInterface.getUserInfo().id === info.owner.id
+    this.isOwner = lobbyInterface.getUserInfo().id === info.owner.id
   }
 
   update (info) {
@@ -25,7 +25,7 @@ class Lobby extends this.EventEmitter {
 
   setPublic (pub) {
     if (this.isowner) {
-      channel.send('setPublic', {
+      channel.send('PapanLobby.SetLobbyPublic', {
         id: this.info.id,
         public: pub
       })
@@ -34,7 +34,7 @@ class Lobby extends this.EventEmitter {
 
   setName (name) {
     if (this.isowner) {
-      channel.send('setName', {
+      channel.send('PapanLobby.SetLobbyName', {
         id: this.info.id,
         name: name
       })
@@ -49,19 +49,19 @@ class LobbyInterface extends this.EventEmitter {
     this.status = 'UNKNOWN'
     this.lobbyList = {}
     this.publicLobbyList = {}
-    channel.send('getLobbyConnectionStatus')
-    channel.on('subscribed', data => {
+    channel.send('PapanChannel.GetLobbyConnectionStatus')
+    channel.on('PapanLobby.Subscribed', data => {
       this.userInfo = data.self
       this.emit('connected')
     })
-    channel.on('error', data => {
-      this.emit('error', data.error)
+    channel.on('PapanLobby.Error', data => {
+      this.emit('error', data.message)
     })
-    channel.on('lobbyConnectionStatus', data => {
+    channel.on('PapanChannel.LobbyConnectionStatus', data => {
       this.status = data.status
       this.emit('status', data.status)
     })
-    channel.on('info', data => {
+    channel.on('PapanLobby.LobbyInfo', data => {
       const id = data.id
       if (this.publicLobbyList[id]) {
         const data = this.publicLobbyList[id]
@@ -71,11 +71,11 @@ class LobbyInterface extends this.EventEmitter {
       if (this.lobbyList[id]) {
         this.lobbyList[id].update(data)
       } else {
-        this.lobbyList[id] = new Lobby(data)
+        this.lobbyList[id] = new Lobby(data, this)
         this.emit('lobbyJoin', this.lobbyList[id])
       }
     })
-    channel.on('publicLobbyUpdate', data => {
+    channel.on('PapanLobby.PublicLobbyUpdate', data => {
       const id = data.lobby.id
       if (data.status === 'ADDED' && !this.lobbyList[id]) {
         if (this.publicLobbyList[id]) {
@@ -93,11 +93,11 @@ class LobbyInterface extends this.EventEmitter {
 
   getStatus () { return this.status }
   getUserInfo () { return this.userInfo }
-  startWatchingLobbies () { channel.send('startWatchingLobbies') }
-  stopWatchingLobbies () { channel.send('stopWatchingLobbies') }
-  connectToLobbyServer (serverInfo) { channel.send('connectToLobbyServer', serverInfo) }
-  createLobby () { channel.send('join') }
-  joinLobby (id) { channel.send('join', { id: id }) }
+  startWatchingLobbies () { channel.send('PapanLobby.StartWatchingLobbies') }
+  stopWatchingLobbies () { channel.send('PapanLobby.StopWatchingLobbies') }
+  connectToLobbyServer (serverInfo) { channel.send('PapanChannel.ConnectToLobbyServer', serverInfo) }
+  createLobby () { channel.send('PapanLobby.JoinLobby') }
+  joinLobby (id) { channel.send('PapanLobby.JoinLobby', { id: id }) }
 }
 
 this.lobbyInterface = new LobbyInterface()

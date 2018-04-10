@@ -4,16 +4,6 @@
     <meta charset="UTF-8">
     <title>Papan</title>
 
-    <script src="bower_components/webcomponentsjs/webcomponents-lite.js"></script>
-    <script src="node_modules/deep-diff/releases/deep-diff-0.3.4.min.js"></script>
-    <script src="node_modules/event-emitter-es6/dist/event-emitter.min.js"></script>
-
-    <script src="src/common/utils.js"></script>
-    <script src="src/client/channel.js"></script>
-    <script src="src/client/lobbyinterface.js"></script>
-
-    <link rel="import" href="template/mainwindow.html">
-
     <style is="papan-style">
       html:not([style-scope]):not(.style-scope),body:not([style-scope]):not(.style-scope) {
         margin: 0;
@@ -28,27 +18,93 @@
     </style>
 
     <script>
-      (() => {
-        console.log('start')
-        let documentLoaded = new Promise((resolve, reject) => {
-          window.addEventListener('load', () => resolve())
-        })
-        let channelReady = new Promise((resolve, reject) => {
-          if (channel.ready()) {
-            resolve()
-          } else {
-            channel.onready = resolve
+      Papan = {
+        asyncLoader: ({ path, elementType, baseObj }) => new Promise((resolve, reject) => {
+          const element = document.createElement(elementType)
+          element.onload = resolve
+          Object.keys(baseObj).forEach(key => { element[key] = baseObj[key] })
+          document.head.appendChild(element)
+        }),
+
+        jsLoader: path => Papan.asyncLoader({
+          path: path,
+          elementType: 'script',
+          baseObj: {
+            src: path
+          }
+        }),
+
+        cssLoader: path => Papan.asyncLoader({
+          path: path,
+          elementType: 'link',
+          baseObj: {
+            rel: 'stylesheet',
+            type: 'text/css',
+            href: path
+          }
+        }),
+
+        importLoader: path => Papan.asyncLoader({
+          path: path,
+          elementType: 'link',
+          baseObj: {
+            rel: 'import',
+            href: path
           }
         })
-        Promise.all([
-          documentLoaded,
-          channelReady
-        ])
+      }
+
+      setTimeout(() => {
+        console.log('Papan Loading...')
+
+        // Getting the CSS spinner first to display it as fast as possible.
+        Papan.cssLoader('node_modules/spinkit/css/spinners/3-wave.css')
+        .then(() => Promise.all([
+          // Loading all the code that doesn't depend on anything else first.
+          Papan.jsLoader('node_modules/deep-diff/releases/deep-diff-0.3.4.min.js'),
+          Papan.jsLoader('node_modules/event-emitter-es6/dist/event-emitter.min.js'),
+          Papan.jsLoader('bower_components/webcomponentsjs/webcomponents-lite.js'),
+          Papan.jsLoader('src/common/utils.js')
+        ]))
+        .then(() => Promise.all([
+          // Depend on utils.js
+          Papan.jsLoader('src/client/channel.js'),
+          Papan.jsLoader('src/client/webtorrent.js'),
+          // Depends on webcomponents
+          Papan.importLoader('template/mainwindow.html')
+        ]))
+        .then(() => Promise.all([
+          // Depends on channel.js
+          Papan.jsLoader('src/client/lobbyinterface.js'),
+        ]))
+        .then(() => Promise.all([
+          // Waiting for channels and webtorrents to be ready.
+          new Promise((resolve, reject) => {
+            if (global.channel.ready()) {
+              resolve()
+            } else {
+              global.channel.onready = resolve
+            }
+          }),
+          new Promise((resolve, reject) => {
+            if (webtorrentReady) {
+              resolve()
+            } else {
+              webtorrentOnReady = resolve
+            }
+          })
+        ]))
         .then(() => {
+          // Adding the main window in, and removing the spinner.
           const main = document.createElement('papan-main-window')
+          const loader = document.getElementById('mainloader')
+
+          document.getElementById('body').removeChild(loader)
           document.getElementById('maindiv').appendChild(main)
+
+          console.log('Papan Loaded.')
         })
-      })()
+      }, 0)
     </script>
 
     <noscript>
@@ -63,10 +119,17 @@
       </style>
     </noscript>
   </head>
-  <body>
-    <div class="js-on" id="maindiv"></div>
+  <body id="body">
     <div class="js-off">
       <h2>Very sorry, but JavaScript is absolutely required here.</h2>
     </div>
+    <div class="sk-wave" id="mainloader">
+      <div class="sk-rect sk-rect1"></div>
+      <div class="sk-rect sk-rect2"></div>
+      <div class="sk-rect sk-rect3"></div>
+      <div class="sk-rect sk-rect4"></div>
+      <div class="sk-rect sk-rect5"></div>
+    </div>
+    <div class="js-on" id="maindiv"></div>
   </body>
 </html>
