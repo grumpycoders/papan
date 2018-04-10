@@ -50,12 +50,12 @@
     >
       <div name="UNKNOWN">UNKNOWN</div>
       <div name="NOTCONNECTED">NOTCONNECTED</div>
-      <div name="STARTINGLOBBY">STARTINGLOBBY</div>
+      <div name="STARTINGLOBBY">Starting local server</div>
       <div name="CONNECTING" class="layout vertical">
         <p>Connecting to [[_currentServer]]</p>
         <p id="connectionmsg">[[_connectionTimestamp]]</p>
       </div>
-      <div name="AUTHENTICATING">AUTHENTICATING</div>
+      <div name="AUTHENTICATING">Authentication in progress</div>
       <div name="CONNECTED">
         <p>Connected to [[_currentServer]]</p>
         <paper-button raised>Disconnect</paper-button>
@@ -92,11 +92,12 @@
         }
       },
       ready: function() {
-        channel.on('error', data => {
-          console.log('error: ' + data.error.message)
+        lobbyInterface.on('error', message => {
+          console.log('error: ' + message)
         })
-        channel.on('lobbyConnectionStatus', data => {
-          this._connectionstatus = data.status
+        lobbyInterface.on('status', status => {
+          this._connectionstatus = status
+          console.log('status: ' + status)
         })
       },
 
@@ -123,7 +124,7 @@
 
       _updateConnectionTimer: function() {
         this._connectionTimestamp++
-        if (this._connectionTimestamp > 3)
+        if (this._connectionTimestamp > 30)
           this.$.connectionmsg.style.color = "red"
       },
 
