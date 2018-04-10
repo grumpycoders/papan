@@ -72,7 +72,5 @@ exports.main = () => {
     })
   })
 
-  return new Promise((resolve, reject) => {
-    server.listen(port, resolve)
-  })
+  return new Promise((resolve, reject) => server.listen(port, resolve))
 }

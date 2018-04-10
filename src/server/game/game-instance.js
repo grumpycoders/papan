@@ -1,90 +1,88 @@
 'use strict'
 
-const fs = require('fs')
 const path = require('path')
-
 const redux = require('redux')
+const seedrandom = require('seedrandom').alea
+const PRNG = require('./prng.js')
 
-let registry = {}
+exports.createInstance = args => {
+  const { gameInfo, settings, seed, channel, restoredState } = args
+  const gameLogic = require(path.join(gameInfo.fullPath, gameInfo.json.main))
+  const players = settings.players
+  let initialState
 
-const baseDir = path.join(__dirname, '..', '..', '..')
-
-exports.registerGame = (gameId, gamePath) => {
-  let dataPath = path.join(baseDir, gamePath, 'game.json')
-  if (fs.existsSync(dataPath)) {
-    registry[gameId] = gamePath
-  }
-}
-
-exports.findGameData = (gameId) => {
-  const gamePath = registry[gameId]
-  if (gamePath) {
-    let dataPath = path.join(gamePath, 'game.json')
-    let data = fs.readFileSync(dataPath)
-    return {
-      gameData: JSON.parse(data),
-      gamePath: gamePath
+  if (restoredState) {
+    initialState = restoredState
+  } else {
+    const initialGameState = gameLogic.setUp(settings.players)
+    const initialStep = gameLogic.getStep(initialGameState)
+    const initialRngState = seedrandom(seed, { state: true })
+    initialState = {
+      gameState: initialState,
+      currentStep: initialStep,
+      rngState: initialRngState
     }
   }
 
-  return null
-}
-
-exports.createInstance = (args) => {
-  let { gameId, settings, channel } = args
-  let { gameData, gamePath } = exports.findGameData(gameId)
-  const game = require(path.join(baseDir, gamePath, gameData.main))
-
-  let players = settings.players
-
-  let currentPublicScene = {}
-  let currentPrivateScenes = {}
-  for (let player of players) {
-    currentPrivateScenes[player] = {}
-  }
-
   let store = redux.createStore((state, action) => {
+    let gameState
+    const random = seedrandom('', { state: state.rngState })
+    const prng = new PRNG(() => random())
+    let deadline
+    let deadlineAction
+    let deadlineSet = false
+    const setTimeout = (payload, timeout) => {
+      if (timeout === undefined) {
+        deadline = undefined
+        deadlineAction = undefined
+      } else {
+        deadline = (new Date()).getTime() + timeout
+        deadlineAction = payload
+      }
+      deadlineSet = true
+    }
     switch (action.type) {
       case '@@redux/INIT':
-        return game.setUp(players)
+        return initialState
       case 'action':
-        return game.transition(state, action.data)
+        const gotTimeout = (state.deadline && state.deadline > (new Date().getTime()))
+        gameState = gameLogic.transition({
+          state: state.gameState,
+          action: gotTimeout ? state.deadlineAction : action.data,
+          prng: prng,
+          setTimeout: setTimeout
+        })
+        const currentStep = gameLogic.getStep(gameState)
+        const newStep = currentStep !== state.currentStep
+        return {
+          deadline: deadlineSet ? deadline : state.deadline,
+          deadlineAction: deadlineSet ? deadlineAction : state.deadlineAction,
+          gameState: gameState,
+          currentStep: currentStep,
+          rngState: newStep ? PRNG.state() : state.rngState
+        }
     }
   })
 
   const sceneWatcher = () => {
-    let state = store.getState()
-    let newPublicScene = game.getPublicScene(state)
-    channel.sendPublicScene(currentPublicScene, newPublicScene)
-    currentPublicScene = newPublicScene
+    const state = store.getState()
+    const newPublicScene = gameLogic.getPublicScene(state)
+    const step = gameLogic.getStep(state)
+    channel.sendPublicScene(step, newPublicScene)
+
+    if (!gameLogic.getPrivateScene) return
 
     for (let player of players) {
-      let newPrivateScene = game.getPrivateScene(state, player)
-      channel.sendPrivateScene(currentPrivateScenes[player], newPrivateScene, player)
-      currentPrivateScenes[player] = newPrivateScene
+      const newPrivateScene = gameLogic.getPrivateScene(state, player)
+      channel.sendPrivateScene(step, newPrivateScene, player)
     }
   }
 
   store.subscribe(sceneWatcher)
-  let state = store.getState()
-  currentPublicScene = game.getPublicScene(state)
-  for (let player of players) {
-    currentPrivateScenes[player] = game.getPrivateScene(state, player)
-  }
 
   return {
-    game: game,
-    gameId: gameId,
-    getState: () => {
-      return store.getState()
-    },
-    refreshPublicScene: () => {
-      channel.sendPublicScene({}, currentPublicScene)
-    },
-    refreshPrivateScene: (player) => {
-      channel.sendPrivateScene({}, currentPrivateScenes[player], player)
-    },
-    action: (action) => {
+    serialize: () => store.getState(),
+    action: action => {
       store.dispatch({
         type: 'action',
         data: action
@@ -92,5 +90,3 @@ exports.createInstance = (args) => {
     }
   }
 }
-
-exports.registerGame('tic-tac-toe', 'src/games/tic_tac_toe')

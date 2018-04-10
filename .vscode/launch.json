@@ -11,6 +11,7 @@
       "windows": {
         "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron.cmd"
       },
+      "outputCapture": "std",
       "program": "${workspaceRoot}/main.js"
     },
     {
@@ -44,6 +45,7 @@
       "windows": {
         "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron.cmd"
       },
+      "outputCapture": "std",
       "program": "${workspaceRoot}/node_modules/electron-mocha/index.js"
     }
   ]
