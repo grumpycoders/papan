@@ -31,7 +31,7 @@
           <template is="dom-if" if="[[!item.ssl]]">
               <iron-icon icon="lock-open" title="[[localize('noSSL')]]" class="spaced"></iron-icon>
           </template>
-          <paper-icon-button icon="send" title="[[localize('connect')]]" serveruname="[[item.name]]" serveruurl="[[item.url]]" serverport="[[item.port]]" serverssl="[[item.ssl]]" on-tap="_joinServer"></paper-icon-button>
+          <paper-icon-button icon="send" title="[[localize('connect')]]" servername="[[item.name]]" serverurl="[[item.url]]" serverport="[[item.port]]" serverssl="[[item.ssl]]" on-tap="_joinServer"></paper-icon-button>
         </div>
       </template>  
     </div>
@@ -50,15 +50,15 @@
     >
       <div name="UNKNOWN">UNKNOWN</div>
       <div name="NOTCONNECTED">NOTCONNECTED</div>
-      <div name="STARTINGLOBBY">Starting local server</div>
+      <div name="STARTINGLOBBY">[[localize('startinglocalserver')]]</div>
       <div name="CONNECTING" class="layout vertical">
-        <p>Connecting to [[_currentServer]]</p>
+        <p>[[localize('connectingto')]] [[_currentServer]]</p>
         <p id="connectionmsg">[[_connectionTimestamp]]</p>
       </div>
-      <div name="AUTHENTICATING">Authentication in progress</div>
+      <div name="AUTHENTICATING">[[localize('authenticationinprogress')]]</div>
       <div name="CONNECTED">
-        <p>Connected to [[_currentServer]]</p>
-        <paper-button raised>Disconnect</paper-button>
+        <p>[[localize('connectedto')]] [[_currentServer]]</p>
+        <paper-button raised>[[localize('disconnect')]]</paper-button>
       </div>
     </iron-pages>
     <paper-dialog id="removedialog">

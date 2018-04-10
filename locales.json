@@ -10,6 +10,9 @@
     "username": "Username",
     "password": "Password",
     "connect": "Connect",
+    "disconnect": "Disconnect",
+    "connectingto": "Connecting to",
+    "connectedto": "Connected à",
     "logged": "Logged",
     "friends": "Friends",
     "games": "Games",
@@ -36,7 +39,9 @@
     "confirmrem": "Confirm remove",
     "confirmremservertext": "Do you really want to remove this server from the list?",
     "SSL": "SSL",
-    "noSSL": "No SSL"
+    "noSSL": "No SSL",
+    "startinglocalserver": "Starting local server",
+    "authenticationinprogress": "Authentication in progress"
   },
   "fr": {
     "english": "Anglais",
@@ -49,6 +54,9 @@
     "username": "Pseudo",
     "password": "Mot de passe",
     "connect": "Connecter",
+    "disconnect": "Déconnecter",
+    "connectingto": "Connection à",
+    "connectedto": "Connecté à",
     "logged": "Connecté",
     "friends": "Amis",
     "games": "Jeux",
@@ -75,6 +83,8 @@
     "confirmrem": "Confirmer la suppression",
     "confirmremservertext": "Voulez-vous vraiment supprimer ce serveur de la liste ?",
     "SSL": "SSL",
-    "noSSL": "Pas de SSL"
+    "noSSL": "Pas de SSL",
+    "startinglocalserver": "Démarrage du serveur local",
+    "authenticationinprogress": "Authentification en cours"
   }
 }
