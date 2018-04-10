@@ -23,8 +23,8 @@ class LobbyClient {
 
     const mapping = {
       'PapanLobby.JoinLobby': 'join',
-      'PapanLobby.StartWatchingLobby': 'startWatchingLobby',
-      'PapanLobby.stopWatchingLobby': 'stopWatchingLobby'
+      'PapanLobby.StartWatchingLobbies': 'startWatchingLobbies',
+      'PapanLobby.StopWatchingLobbies': 'stopWatchingLobbies'
     }
     Object.keys(mapping).forEach(type => {
       this[type] = this[mapping[type]]
