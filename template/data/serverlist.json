@@ -1,5 +1,19 @@
 {
-  "list": ["grumpy", "papan"],
+  "list": [{ 
+        "id": "local",
+        "name": "Local",
+        "address": "localhost",
+        "port": 9999,
+        "ssl": false
+      }, 
+      {
+        "id": "papan",
+        "name": "Papan official",
+        "address": "lobby.papan.online",
+        "port": 9999,
+        "ssl": true
+      }
+    ],
   "grumpy": {
     "servername": "Grumpy server",
     "games": [
