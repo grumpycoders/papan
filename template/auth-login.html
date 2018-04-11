@@ -16,7 +16,9 @@
       <div class="profilearea">
         <div class="profiletitle">Sign in with</div>
         <template is="dom-repeat" items="[[_authAvailable]]">
-          <paper-button class$="[[item.provider]] loginbutton" raised ><a href="[[item.loginPath]]">[[item.provider]]</a></paper-button>
+          <paper-button class$="[[item.provider]] loginbutton" papan-path="[[item.loginPath]]" on-tap="_loginClick">
+            <div>[[item.provider]]</div>
+          </paper-button>
           <br />
         </template>
       </div>
@@ -28,6 +30,13 @@
 
     Polymer({
       is: "auth-login",
+
+      _loginClick: function(e) {
+        let path = e.currentTarget.papanPath
+        e.currentTarget.addEventListener('transitionend', () => {
+          location.href = path
+        })
+      }
     })
   </script>
 </dom-module>
