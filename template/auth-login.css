@@ -28,10 +28,10 @@
   margin-left: 30px;
   margin-right: 5px;
 }
-.loginbutton a {
+.loginbutton div {
   text-decoration: none;
   color: inherit;
 }
-.loginbutton a:first-letter {
+.loginbutton div:first-letter {
   text-transform: uppercase;
 }
