@@ -16,7 +16,7 @@
       <div class="profilearea">
         <div class="profiletitle">Sign in with</div>
         <template is="dom-repeat" items="[[_authAvailable]]">
-          <paper-button class$="[[item.provider]] loginbutton" papan-path="[[item.loginPath]]" on-tap="_loginClick">
+          <paper-button class$="[[item.provider]] loginbutton" papan-path="[[item.loginPath]]" on-tap="_loginClick" raised>
             <div>[[item.provider]]</div>
           </paper-button>
           <br />
