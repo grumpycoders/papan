@@ -14,37 +14,34 @@
   <template>
     <app-route
       route="{{route}}"
-      pattern="/:serverid"
+      pattern="/:view"
       data="{{_routeData}}"
       tail="{{_subRoute}}">
-    </app-route>
-    <app-route
-      route="{{_subRoute}}"
-      pattern="/:view"
-      data="{{_subrouteData}}"
-      tail="{{_subsubRoute}}">
     </app-route>
     <server-info serverid=[[_routeData.serverid]] serverinfo={{serverinfo}}></server-info>
 
     <iron-pages
       id="servercontent" 
-      selected="[[_subrouteData.view]]"
+      selected="[[_routeData.view]]"
       attr-for-selected="viewname"
       fallback-selection="home">
       <div viewname="home">
-        <div id="servertitle">[[serverinfo.servername]]</div>
-        <div id="game-list">
-          <div class="category">[[localize('games')]]</div>
-          <template is="dom-repeat" items="[[serverinfo.games]]">
-            <papan-game-badge gameid=[[item]] server=[[_routeData.serverid]]></papan-game-badge>
-          </template>
+        <div class="layout horizontal end">
+          <iron-icon id="publicicon" icon="lock-outline" slot="prefix" class="spaced"></iron-icon>
+          <paper-toggle-button checked="{{newlobbypublic}}" on-change="_togglepublic" class="spaced"></paper-toggle-button>
+          <paper-input label="[[localize('name')]]" value="{{newlobbyname}}" class="spaced flex">
+            <iron-icon icon="language" slot="prefix"></iron-icon>
+          </paper-input>
+          <paper-button raised on-tap="_createlobby">[[localize('add')]]</paper-button>
         </div>
-        <div id="users-list">
-          <div class="category">[[localize('onlineusers')]]</div>
-          <template is="dom-repeat" items="[[serverinfo.usersonline]]">
-            <papan-user-badge userid=[[item]]></papan-user-badge>
-          </template>
-        </div>
+        <p>Not joined</p>
+        <template is="dom-repeat" items="[[_lobbylist]]">
+          <div>Lobby #[[item.id]]</div>
+        </template>
+        <p>Joined</p>
+        <template is="dom-repeat" items="[[_joinedlobbylist]]">
+          <div>Lobby #[[item.id]]</div>
+        </template>
       </div>
       <papan-friend-list
          viewname="friends"
@@ -53,7 +50,7 @@
       </papan-friend-list>
       <papan-game-page 
         viewname="game"
-        route="{{_subsubRoute}}"
+        route="{{_subRoute}}"
         language="{{language}}">
       </papan-game-page>
       <papan-game-list
@@ -63,13 +60,13 @@
       </papan-game-list>
       <papan-lobby
         viewname="lobby"
-        route="{{_subsubRoute}}"
+        route="{{_subRoute}}"
         user={{user}}
         language="{{language}}">
       </papan-lobby>
       <papan-user-profile 
         viewname="profile"
-        route="{{_subsubRoute}}"
+        route="{{_subRoute}}"
         language="{{language}}">
       </papan-user-profile>
     </iron-pages>
@@ -111,8 +108,55 @@
         */
         user: {
           type: Object
+        },
+
+        /*
+          Each item is of type LobbyInfo:
+            string id
+            string name
+            User owner
+            bool public
+            repeated User members
+        */
+        _lobbylist: {
+          type: Array,
+            value: function() {
+              return [];
+            }
+        },
+        _joinedlobbylist: {
+          type: Array,
+            value: function() {
+              return [];
+            }
         }
 
+      },
+
+      ready: function() {
+        lobbyInterface.on('publicLobbyAdd', lobbyinfo => {
+          this.push('_lobbylist', lobbyinfo)
+        })
+        lobbyInterface.on('publicLobbyUpdate', lobbyinfo => {
+          for (var i in this._lobbylist) {
+            if (this._lobbylist[i].id == lobbyinfo.id) {
+              this._lobbylist[i] = lobbyinfo;
+                break;
+            }
+          }
+        })
+        lobbyInterface.on('publicLobbyRemove', lobbyinfo => {
+          lobby = this._lobbylist.map(function(e) { return e.id; }).indexOf(lobbyinfo.id)
+          this.splice('_lobbylist', lobby, 1)
+        })
+        lobbyInterface.on('lobbyJoin', lobby => {
+          this.push('_joinedlobbylist', lobby.getInfo())
+        })
+        lobbyInterface.startWatchingLobbies()
+      },
+
+      _createlobby: function() {
+        lobbyInterface.createLobby()
       },
 
       observers: [

@@ -13,7 +13,15 @@
     <style is="custom-style" include="iron-flex iron-flex-alignment"></style>
     <app-localstorage-document key="serverlist" data="{{_serverlist}}"></app-localstorage-document>
     <server-info serverlist={{_serverlistold}}></server-info>
-    <div id="server-list">
+      <div class="layout horizontal end">
+        <iron-icon id="sslicon" icon="lock-outline" slot="prefix" class="spaced"></iron-icon>
+        <paper-toggle-button checked="{{newserverssl}}" on-change="_toggleSSL" class="spaced"></paper-toggle-button>
+        <paper-input label="[[localize('address')]]" value="{{newserveraddress}}" class="spaced flex">
+          <iron-icon icon="language" slot="prefix"></iron-icon>
+        </paper-input>
+        <paper-button raised on-tap="_addserver">[[localize('add')]]</paper-button>
+      </div>
+      <div id="server-list">
       <div class="server layout horizontal end">
         <div class="flex">[[localize('localserver')]]</div>
         <paper-icon-button icon="send" title="[[localize('connect')]]" on-tap="_joinLocalServer"></paper-button>
@@ -34,14 +42,6 @@
           <paper-icon-button icon="send" title="[[localize('connect')]]" servername="[[item.name]]" serverurl="[[item.url]]" serverport="[[item.port]]" serverssl="[[item.ssl]]" on-tap="_joinServer"></paper-icon-button>
         </div>
       </template>  
-    </div>
-    <div class="layout horizontal end">
-      <iron-icon id="sslicon" icon="lock-outline" slot="prefix" class="spaced"></iron-icon>
-      <paper-toggle-button checked="{{newserverssl}}" on-change="_toggleSSL" class="spaced"></paper-toggle-button>
-      <paper-input label="[[localize('address')]]" value="{{newserveraddress}}" class="spaced flex">
-        <iron-icon icon="language" slot="prefix"></iron-icon>
-      </paper-input>
-      <paper-button raised on-tap="_addserver">[[localize('add')]]</paper-button>
     </div>
     <iron-pages 
       selected="[[_connectionstatus]]"
@@ -89,7 +89,14 @@
         _connectionTimestamp : {
           type: Number,
           value: 0
-        }
+        },
+        /*
+          Route
+        */
+        route: {
+          type: Object,
+          notify: true
+        },
       },
       ready: function() {
         lobbyInterface.on('error', message => {
@@ -97,7 +104,9 @@
         })
         lobbyInterface.on('status', status => {
           this._connectionstatus = status
-          console.log('status: ' + status)
+          if (status == 'CONNECTED') {
+            this.set('route.path', "/server/home")
+          }
         })
       },
 
