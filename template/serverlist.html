@@ -1,21 +1,150 @@
 <link rel="import" href="data/serverinfo.html">
+<link rel="import" href="../bower_components/app-storage/app-localstorage/app-localstorage-document.html">
+<link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+<link rel="import" href="../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../bower_components/paper-button/paper-button.html">
+
+<link rel="import" href="data/localize.html">
 
 <dom-module id="papan-server-list">
   <link rel="import" type="css" href="serverlist.css">
   <template>
-    <server-info serverlist={{_serverlist}}></server-info>
+    <style is="custom-style" include="iron-flex iron-flex-alignment"></style>
+    <app-localstorage-document key="serverlist" data="{{_serverlist}}"></app-localstorage-document>
+    <server-info serverlist={{_serverlistold}}></server-info>
     <div id="server-list">
-      <template is="dom-repeat" items="[[_serverlist]]">
-        <a href="#/server/[[item]]/home" tabindex="-1"><div class="server">[[item]]</div></a>
+      <div class="server layout horizontal end">
+        <div class="flex">[[localize('localserver')]]</div>
+        <paper-icon-button icon="send" title="[[localize('connect')]]" on-tap="_joinLocalServer"></paper-button>
+      </div>
+      <template is="dom-repeat" items="[[_serverlistold]]">
+        <a href="#/server/[[item.id]]/home" tabindex="-1"><div class="server">[[item.name]]</div></a>
       </template>
+      <template is="dom-repeat" items="{{_serverlist}}">
+        <div class="server layout horizontal end">
+          <div class="flex">[[item.name]]</div>
+          <paper-icon-button icon="delete-forever" title="[[localize('remove')]]" servername="[[item.name]]" on-tap="_removeServer"></paper-icon-button>
+          <template is="dom-if" if="[[item.ssl]]">
+              <iron-icon icon="lock-outline" title="[[localize('SSL')]]" class="spaced"></iron-icon>
+          </template>
+          <template is="dom-if" if="[[!item.ssl]]">
+              <iron-icon icon="lock-open" title="[[localize('noSSL')]]" class="spaced"></iron-icon>
+          </template>
+          <paper-icon-button icon="send" title="[[localize('connect')]]" servername="[[item.name]]" serverurl="[[item.url]]" serverport="[[item.port]]" serverssl="[[item.ssl]]" on-tap="_joinServer"></paper-icon-button>
+        </div>
+      </template>  
     </div>
+    <div class="layout horizontal end">
+      <iron-icon id="sslicon" icon="lock-outline" slot="prefix" class="spaced"></iron-icon>
+      <paper-toggle-button checked="{{newserverssl}}" on-change="_toggleSSL" class="spaced"></paper-toggle-button>
+      <paper-input label="[[localize('address')]]" value="{{newserveraddress}}" class="spaced flex">
+        <iron-icon icon="language" slot="prefix"></iron-icon>
+      </paper-input>
+      <paper-button raised on-tap="_addserver">[[localize('add')]]</paper-button>
+    </div>
+    <iron-pages 
+      selected="[[_connectionstatus]]"
+      attr-for-selected="name"
+      default="UNKNOWN"
+    >
+      <div name="UNKNOWN">UNKNOWN</div>
+      <div name="NOTCONNECTED">NOTCONNECTED</div>
+      <div name="STARTINGLOBBY">[[localize('startinglocalserver')]]</div>
+      <div name="CONNECTING" class="layout vertical">
+        <p>[[localize('connectingto')]] [[_currentServer]]</p>
+        <p id="connectionmsg">[[_connectionTimestamp]]</p>
+      </div>
+      <div name="AUTHENTICATING">[[localize('authenticationinprogress')]]</div>
+      <div name="CONNECTED">
+        <p>[[localize('connectedto')]] [[_currentServer]]</p>
+        <paper-button raised>[[localize('disconnect')]]</paper-button>
+      </div>
+    </iron-pages>
+    <paper-dialog id="removedialog">
+      <h2>[[localize('confirmrem')]]</h2>
+      <p>[[localize('confirmremservertext')]]</p>
+      <div class="buttons">
+        <paper-button dialog-dismiss autofocus>[[localize('no')]]</paper-button>
+        <paper-button dialog-confirm on-tap="_removeServerConfirmed">[[localize('yes')]]</paper-button>
+      </div>
+    </paper-dialog>
   </template>
 
   <script>
     'use strict'
 
     Polymer({
-      is: "papan-server-list"
+      is: "papan-server-list",
+
+      properties: {
+        _serverlist : {
+          type: Array,
+          notify: true
+        },
+        newserverssl : {
+          type: Boolean,
+          value: true
+        },
+        _connectionTimestamp : {
+          type: Number,
+          value: 0
+        }
+      },
+      ready: function() {
+        lobbyInterface.on('error', message => {
+          console.log('error: ' + message)
+        })
+        lobbyInterface.on('status', status => {
+          this._connectionstatus = status
+          console.log('status: ' + status)
+        })
+      },
+
+      _addserver: function() {
+        this.push('_serverlist', { id: 0, name: this.newserveraddress, url: this.newserveraddress, port: 9999, ssl: this.newserverssl });
+        this.newserveraddress = ""
+      },
+
+      _removeServer: function(event) {
+        this._serverToDelete = this._serverlist.map(function(e) { return e.name; }).indexOf(event.target.servername)
+        this.$.removedialog.open()
+      },
+
+      _removeServerConfirmed: function(event) {
+        this.splice('_serverlist', this._serverToDelete, 1)
+      },
+
+      _joinServer: function(event) {
+        lobbyInterface.connectToLobbyServer({ lobbyServer: event.target.serveruurl, lobbyServerPort: event.target.serverport, useLocalCA: !event.target.serverssl })
+        this._currentServer = event.target.servername
+        this._connectionTimestamp = 0
+        var ct = setInterval(this._updateConnectionTimer.bind(this), 1000)
+      },
+
+      _updateConnectionTimer: function() {
+        this._connectionTimestamp++
+        if (this._connectionTimestamp > 30)
+          this.$.connectionmsg.style.color = "red"
+      },
+
+      _joinLocalServer: function(event) {
+        lobbyInterface.connectToLobbyServer({ connectLocal: true })
+        this._currentServer = "Local server"
+        this._connectionTimestamp = 0
+        var ct = setInterval(this._updateConnectionTimer.bind(this), 1000)
+      },
+
+      _toggleSSL: function() {
+        if (this.newserverssl)
+          this.$.sslicon.icon = "lock-outline"
+        else
+          this.$.sslicon.icon = "lock-open"
+      },
+
+      behaviors: [
+        PapanLocalize
+      ]
     })
   </script>
 </dom-module>

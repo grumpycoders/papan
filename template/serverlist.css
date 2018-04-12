@@ -1,9 +1,10 @@
 .server {
-  width: 100%;
+  width: 95%;
   background-color: lightblue;
   font-size: 15pt;
   margin: 10px;
   padding:10px;
+  height: 20px;
 }
 
 a {
@@ -13,4 +14,52 @@ a {
 
 a :hover {
   color: #555599;
+}
+
+paper-input {
+  --paper-input-container: {
+    padding: 0;
+  };
+}
+
+paper-icon-button {
+  height: 22px;
+  width: 22px;
+  padding: 0;
+  border-radius: 50%;
+}
+
+.spaced {
+  padding-right: 5px;
+}
+
+paper-icon-button:hover {
+  color: #d36d0e;
+}
+
+#connectionstatus {
+  display: none;
+  background-color: lightblue;
+}
+
+#connectionstatus paper-icon-button {
+  background-color: royalblue;
+  color: white;
+  border-radius: 3px;
+  padding: 2px;
+}
+
+iron-pages {
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 10px;
+  width: 300px;
+  height: 150px;
+}
+
+iron-pages div {
+  background-color: lightgray;
+  padding: 50px;
+  margin: auto;
+  text-align: center;
 }
