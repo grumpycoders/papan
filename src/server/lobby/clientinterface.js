@@ -2,12 +2,14 @@
 
 const EventEmitter = require('events')
 const deepclone = require('deepclone')
+const deepmerge = require('deepmerge')
 const natUPNP = require('./patch/nat-upnp.js').createClient()
 const ip = require('ip')
 const Client = require('./client.js')
 const createSerializer = require('../../common/serializer.js').createSerializer
 const protoLoader = require('../common/proto.js').load
 const Queuer = require('../../common/utils.js').Queuer
+const PapanServerUtils = require('../common/utils.js')
 
 let natRefreshInterval
 
@@ -32,11 +34,16 @@ class ClientInterface extends EventEmitter {
       }
       let premise
       if (options.connectLocal && !this.localLobbyServer) {
+        let localApiKey
         this.setLobbyConnectionStatus('STARTINGLOBBY')
-        premise = Promise.all([
-          require('./server.js').registerServer(),
-          require('../game/games-list.js').getGamesList()
-        ])
+        premise = PapanServerUtils.generateToken()
+        .then(token => {
+          localApiKey = token
+          return Promise.all([
+            require('./server.js').registerServer({ localApiKey: localApiKey }),
+            require('../game/games-list.js').getGamesList()
+          ])
+        })
         .then(results => {
           this.localLobbyServer = results[0]
           this.gamesList = results[1]
@@ -58,7 +65,7 @@ class ClientInterface extends EventEmitter {
           }
           setMapping()
           natRefreshInterval = setInterval(setMapping, 300000)
-          return require('../game/client.js').createClient(this.gamesList, options)
+          return require('../game/client.js').createClient(this.gamesList, deepmerge(options, { apiKey: localApiKey }))
         })
         .then(gameClient => {
           this.gameClient = gameClient

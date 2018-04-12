@@ -37,7 +37,7 @@ class LobbyClient extends EventEmitter {
     })
   }
 
-  subscribe () {
+  subscribe ({ apiKey }) {
     const call = this.grpcClient.Subscribe()
     this.subscription = call
     this.metadataCatcher(call, console.log)
@@ -53,6 +53,13 @@ class LobbyClient extends EventEmitter {
     call.on('data', data => {
       switch (data.update) {
         case 'subscribed':
+          if (apiKey) {
+            call.write({
+              register: {
+                apiKey: apiKey
+              }
+            })
+          }
           this.emit('ClientConnected')
           break
       }
@@ -99,7 +106,7 @@ exports.createClient = (games, options) => {
 
     const grpcClient = new lobbyProto.GameLobbyService(serverAddress, creds, channelOptions)
     client = new LobbyClient({ lobbyProto: results[1], grpcClient: grpcClient })
-    client.subscribe()
+    client.subscribe(options)
 
     return client
   })

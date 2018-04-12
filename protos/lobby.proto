@@ -167,6 +167,10 @@ message GameServerSubscribed {
   GameServer self = 1;
 }
 
+message GameServerRegistered {
+  bool trusted = 1;
+}
+
 message GameRequest {
   Papan.GameInfo game_info = 1;
   string lobby_id = 2;
@@ -175,7 +179,8 @@ message GameRequest {
 message GameUpdate {
   oneof update {
     GameServerSubscribed subscribed = 1;
-    GameRequest request = 2;
+    GameServerRegistered registered = 2;
+    GameRequest request = 3;
   }
 }
 
