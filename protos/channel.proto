@@ -1,6 +1,14 @@
 syntax = "proto3";
 package PapanChannel;
 
+import "game-info.proto";
+
+message GetAvailableGames { }
+
+message AvailableGames {
+  map<string, Papan.GameInfo> games = 1;
+}
+
 enum LobbyConnectionStatusEnum {
   UNKNOWN = 0;
   NOTCONNECTED = 1;

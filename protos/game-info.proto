@@ -36,9 +36,11 @@ message GameJson {
   string name = 1;
   string main = 2;
   string webcomponent = 3;
-  Players players = 4;
-  repeated Team teams = 5;
-  bool has_private_view = 6;
+  string banner = 4;
+  string icon = 5;
+  Players players = 6;
+  repeated Team teams = 7;
+  bool has_private_view = 8;
 }
 
 message Torrent {

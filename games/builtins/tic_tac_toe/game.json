@@ -5,5 +5,7 @@
     "players": {
         "min": 2,
         "max": 2
-    }
+    },
+    "banner": "banner.svg",
+    "icon": "icon.svg"
 }
