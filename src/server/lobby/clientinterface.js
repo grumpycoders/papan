@@ -2,12 +2,14 @@
 
 const EventEmitter = require('events')
 const deepclone = require('deepclone')
+const deepmerge = require('deepmerge')
 const natUPNP = require('./patch/nat-upnp.js').createClient()
 const ip = require('ip')
 const Client = require('./client.js')
 const createSerializer = require('../../common/serializer.js').createSerializer
 const protoLoader = require('../common/proto.js').load
 const Queuer = require('../../common/utils.js').Queuer
+const PapanServerUtils = require('../common/utils.js')
 
 let natRefreshInterval
 
@@ -32,11 +34,16 @@ class ClientInterface extends EventEmitter {
       }
       let premise
       if (options.connectLocal && !this.localLobbyServer) {
+        let localApiKey
         this.setLobbyConnectionStatus('STARTINGLOBBY')
-        premise = Promise.all([
-          require('./server.js').registerServer(),
-          require('../game/games-list.js').getGamesList()
-        ])
+        premise = PapanServerUtils.generateToken()
+        .then(token => {
+          localApiKey = token
+          return Promise.all([
+            require('./server.js').registerServer({ localApiKey: localApiKey }),
+            require('../game/games-list.js').getGamesList()
+          ])
+        })
         .then(results => {
           this.localLobbyServer = results[0]
           this.gamesList = results[1]
@@ -58,7 +65,7 @@ class ClientInterface extends EventEmitter {
           }
           setMapping()
           natRefreshInterval = setInterval(setMapping, 300000)
-          return require('../game/client.js').createClient(this.gamesList, options)
+          return require('../game/client.js').createClient(this.gamesList, deepmerge(options, { apiKey: localApiKey }))
         })
         .then(gameClient => {
           this.gameClient = gameClient
@@ -79,30 +86,40 @@ class ClientInterface extends EventEmitter {
       })
     })
 
-    const clientToServerMessage = [
-      'PapanLobby.JoinLobby',
-      'PapanLobby.SetLobbyName',
-      'PapanLobby.SetLobbyPublic',
-      'PapanLobby.GetJoinedLobbies',
-      'PapanLobby.StartWatchingLobbies',
-      'PapanLobby.StopWatchingLobbies'
-    ]
-    clientToServerMessage.forEach(type => {
-      this.channel.on(type, this.connectedCall((message, metadata) => {
-        this.client[type](message, metadata)
-      }))
-    })
+    this.protoPromise
+    .then(proto => {
+      const getTypes = fields => Object.keys(fields).map(field => 'PapanLobby.' + fields[field].type)
+      const actionMsgs = ['Action', 'LobbyAction']
+      const updateMsgs = ['Update', 'LobbyUpdate']
+      const actionsArray = actionMsgs.map(msg => getTypes(proto.rootProto.PapanLobby[msg].fields))
+      const updatesArray = updateMsgs.map(msg => getTypes(proto.rootProto.PapanLobby[msg].fields))
+      const reduce = (array, initial = []) => array.reduce((result, array) => {
+        const duplicate = array.reduce((duplicate, msg) => result.includes(msg) ? msg : duplicate, undefined)
+        if (duplicate) {
+          throw Error('Duplicated message ' + duplicate)
+        }
+        return result.concat(array)
+      }, initial)
+      const actions = reduce(actionsArray, [
+        'PapanLobby.StartWatchingLobbies',
+        'PapanLobby.StopWatchingLobbies'
+      ])
+      const updates = reduce(updatesArray, [
+        'PapanLobby.PublicLobbyUpdate'
+      ])
 
-    const serverToClientMessages = [
-      'PapanLobby.Subscribed',
-      'PapanLobby.Error',
-      'PapanLobby.LobbyInfo',
-      'PapanLobby.UserJoined',
-      'PapanLobby.JoinedLobbies',
-      'PapanLobby.PublicLobbyUpdate'
-    ]
-    serverToClientMessages.forEach(type => {
-      this[type] = (message = {}, metadata = {}) => this.channel.send(type, message, metadata)
+      actions.forEach(type => {
+        this.channel.on(type, this.connectedCall((message, metadata) => {
+          this.client[type](message, metadata)
+        }))
+      })
+
+      updates.forEach(type => {
+        if (this[type]) return
+        this[type] = (message = {}, metadata = {}) => this.channel.send(type, message, metadata)
+      })
+
+      this.emit('ready')
     })
   }
 
