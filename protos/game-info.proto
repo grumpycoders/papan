@@ -25,11 +25,20 @@ message Players {
   uint32 max = 2;
 }
 
+message Team {
+  string name = 1;
+  uint32 card_min = 2;
+  uint32 card_max = 3;
+  Players players = 4;
+}
+
 message GameJson {
   string name = 1;
   string main = 2;
   string webcomponent = 3;
   Players players = 4;
+  repeated Team teams = 5;
+  bool has_private_view = 6;
 }
 
 message Torrent {
