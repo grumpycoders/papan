@@ -1,4 +1,5 @@
 <link rel="import" href="../bower_components/app-route/app-route.html">
+<link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
 <link rel="import" href="../bower_components/iron-pages/iron-pages.html">
 
 <link rel="import" href="friendlist.html">
@@ -12,7 +13,8 @@
 <dom-module id="papan-server-page">
   <link rel="import" type="css" href="server.css">
   <template>
-    <app-route
+      <style is="custom-style" include="iron-flex iron-flex-alignment"></style>
+      <app-route
       route="{{route}}"
       pattern="/:view"
       data="{{_routeData}}"
@@ -36,11 +38,18 @@
         </div>
         <p>Not joined</p>
         <template is="dom-repeat" items="[[_lobbylist]]">
-          <div>Lobby #[[item.id]]</div>
+          <div class="lobby layout horizontal end">
+            <div class="flex">Lobby #[[item.id]]</div>
+            <paper-icon-button icon="send" title="[[localize('join')]]" lobbyid="[[item.id]]" on-tap="_joinLobby"></paper-icon-button>
+          </div>
         </template>
         <p>Joined</p>
         <template is="dom-repeat" items="[[_joinedlobbylist]]">
-          <div>Lobby #[[item.id]]</div>
+          <div class="lobby layout horizontal end">
+            <div class="flex">Lobby #[[item.id]]</div>
+            <paper-icon-button icon="remove-circle" title="[[localize('leave')]]" lobbyid="[[item.id]]" class="spaced" on-tap="_leaveLobby"></paper-icon-button>
+            <paper-icon-button icon="open-in-browser" title="[[localize('open')]]" lobbyid="[[item.id]]" class="spaced" on-tap="_openLobby"></paper-icon-button>
+          </div>
         </template>
       </div>
       <papan-friend-list

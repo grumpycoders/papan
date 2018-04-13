@@ -16,3 +16,33 @@ a {
   color: black;
   text-decoration: none;
 }
+
+.lobby {
+  background-color: lightgray;
+  width: 95%;
+  font-size: 15pt;
+  margin: 10px;
+  padding:10px;
+  height: 20px;
+}
+
+.spaced {
+  padding-right: 5px;
+}
+
+paper-input {
+  --paper-input-container: {
+    padding: 0;
+  };
+}
+
+paper-icon-button {
+  height: 22px;
+  width: 22px;
+  padding: 0;
+  border-radius: 50%;
+}
+
+paper-icon-button:hover {
+  color: #d36d0e;
+}
