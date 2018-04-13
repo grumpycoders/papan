@@ -43,7 +43,7 @@ exports.registerServer = options => {
     )
     grpcServer.addService(
       lobbyProto.GameLobbyService.service,
-      authsession.checkCredientials(
+      authsession.checkCredentials(
         { requiresAuth: false },
         gameLobbyService.generateService(options)
       )

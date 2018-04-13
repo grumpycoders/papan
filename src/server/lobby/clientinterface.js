@@ -88,23 +88,25 @@ class ClientInterface extends EventEmitter {
 
     this.protoPromise
     .then(proto => {
-      const getTypes = fields => Object.keys(fields).map(field => 'ProtoLobby.' + fields[field].type)
+      const getTypes = fields => Object.keys(fields).map(field => 'PapanLobby.' + fields[field].type)
       const actionMsgs = ['Action', 'LobbyAction']
       const updateMsgs = ['Update', 'LobbyUpdate']
       const actionsArray = actionMsgs.map(msg => getTypes(proto.rootProto.PapanLobby[msg].fields))
       const updatesArray = updateMsgs.map(msg => getTypes(proto.rootProto.PapanLobby[msg].fields))
       const reduce = (array, initial = []) => array.reduce((result, array) => {
-        const duplicate = array.reduce((result, msg) => array.includes(msg) ? msg : result)
+        const duplicate = array.reduce((duplicate, msg) => result.includes(msg) ? msg : duplicate, undefined)
         if (duplicate) {
           throw Error('Duplicated message ' + duplicate)
         }
-        return result + array
+        return result.concat(array)
       }, initial)
       const actions = reduce(actionsArray, [
         'PapanLobby.StartWatchingLobbies',
         'PapanLobby.StopWatchingLobbies'
       ])
-      const updates = reduce(updatesArray)
+      const updates = reduce(updatesArray, [
+        'PapanLobby.PublicLobbyUpdate'
+      ])
 
       actions.forEach(type => {
         this.channel.on(type, this.connectedCall((message, metadata) => {

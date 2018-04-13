@@ -7,9 +7,13 @@ const persist = require('./persist.js')
 const PapanServerUtils = require('../common/utils.js')
 
 const getSession = call => {
-  const session = call.metadata.get('papan-session')
+  let session = call.metadata.get('papan-session')
   if (session.length === 1) {
     return session[0]
+  }
+  session = call.papanSession
+  if (typeof session === 'string' && session.length >= 0) {
+    return session
   }
   return undefined
 }
@@ -73,6 +77,7 @@ const checkCredentialsWrapper = options => checkCredentialsGenerator(call => {
         .then(token => {
           let metadata = new grpc.Metadata()
           metadata.set('papan-session', token)
+          call.papanSession = token
           return metadata
         })
       }
@@ -86,6 +91,7 @@ const checkCredentialsWrapper = options => checkCredentialsGenerator(call => {
       .then(token => {
         let metadata = new grpc.Metadata()
         metadata.set('papan-session', token)
+        call.papanSession = token
         return metadata
       })
     }
@@ -107,7 +113,7 @@ const checkCredentialsWrapper = options => checkCredentialsGenerator(call => {
   }
 })
 
-exports.checkCredientials = (options, handlerOrService) => checkCredentialsWrapper(options)(handlerOrService)
+exports.checkCredentials = (options, handlerOrService) => checkCredentialsWrapper(options)(handlerOrService)
 
 exports.getId = call => {
   const userid = call.metadata.get('papan-userid')
