@@ -2,12 +2,12 @@ syntax = "proto3";
 package PapanChannel;
 
 enum LobbyConnectionStatusEnum {
-  UNKNOWN = 1;
-  NOTCONNECTED = 2;
-  STARTINGLOBBY = 3;
-  CONNECTING = 4;
-  AUTHENTICATING = 5;
-  CONNECTED = 6;
+  UNKNOWN = 0;
+  NOTCONNECTED = 1;
+  STARTINGLOBBY = 2;
+  CONNECTING = 3;
+  AUTHENTICATING = 4;
+  CONNECTED = 5;
 }
 
 message GetLobbyConnectionStatus {}
