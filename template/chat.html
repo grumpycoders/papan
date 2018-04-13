@@ -4,11 +4,13 @@
 <dom-module id="papan-chat">
   <link rel="import" type="css" href="chat.css">
     <template>
+      <style is="custom-style" include="iron-flex iron-flex-alignment"></style>
       <div id="chat" class="layout vertical">
         <div id="chattext" class="layout flex"></div>
         <paper-input
-          class="layout end" 
-          value="{{_text}}" 
+          class="layout end"
+          no-label-float
+          value="{{_text}}"
           on-keypress="_keyPressed">
           <div suffix><paper-icon-button icon="send" on-tap="_localmessage"></paper-icon-button></div>
         </paper-input>
@@ -38,8 +40,10 @@
         writes a message in the chat box.
       */
       sendMessage: function(user, message) {
+        var textzone = this.$.chattext
         if (message != '')
-          this.$.chattext.innerHTML += user + ': ' + message + '<br />'
+          textzone.innerHTML += '<b>' + user + '</b>: ' + message + '<br />'
+        textzone.scrollTop = textzone.scrollHeight;
       },
 
       _localmessage: function(){

@@ -32,9 +32,9 @@
   background-color:#cccccc;
 }
 
-#chat{
-  width: 200px;
-  border: 1px solid grey;
+papan-chat{
+  width: 300px;
+  height: 100%;
 }
 
 #page{

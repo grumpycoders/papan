@@ -13,8 +13,8 @@
 <dom-module id="papan-server-page">
   <link rel="import" type="css" href="server.css">
   <template>
-      <style is="custom-style" include="iron-flex iron-flex-alignment"></style>
-      <app-route
+    <style is="custom-style" include="iron-flex iron-flex-alignment"></style>
+    <app-route
       route="{{route}}"
       pattern="/:view"
       data="{{_routeData}}"
@@ -44,11 +44,13 @@
           </div>
         </template>
         <p>Joined</p>
-        <template is="dom-repeat" items="[[_joinedlobbylist]]">
+        <template is="dom-repeat" items="[[joinedlobbylist]]">
           <div class="lobby layout horizontal end">
             <div class="flex">Lobby #[[item.id]]</div>
             <paper-icon-button icon="remove-circle" title="[[localize('leave')]]" lobbyid="[[item.id]]" class="spaced" on-tap="_leaveLobby"></paper-icon-button>
-            <paper-icon-button icon="open-in-browser" title="[[localize('open')]]" lobbyid="[[item.id]]" class="spaced" on-tap="_openLobby"></paper-icon-button>
+            <a href="#/server/lobby/[[item.id]]" tabindex="-1">
+              <paper-icon-button icon="open-in-browser" title="[[localize('open')]]" lobbyid="[[item.id]]" class="spaced"></paper-icon-button>
+            </a>
           </div>
         </template>
       </div>
@@ -133,7 +135,10 @@
               return [];
             }
         },
-        _joinedlobbylist: {
+        /*
+          List of the lobbies the user joined on this server
+        */
+        joinedlobbylist: {
           type: Array,
             value: function() {
               return [];
@@ -159,7 +164,7 @@
           this.splice('_lobbylist', lobby, 1)
         })
         lobbyInterface.on('lobbyJoin', lobby => {
-          this.push('_joinedlobbylist', lobby.getInfo())
+          this.push('joinedlobbylist', lobby.getInfo())
         })
         lobbyInterface.startWatchingLobbies()
       },
