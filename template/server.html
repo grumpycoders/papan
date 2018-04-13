@@ -48,7 +48,7 @@
           <div class="lobby layout horizontal end">
             <div class="flex">Lobby #[[item.id]]</div>
             <paper-icon-button icon="remove-circle" title="[[localize('leave')]]" lobbyid="[[item.id]]" class="spaced" on-tap="_leaveLobby"></paper-icon-button>
-            <a href="#/server/lobby/[[item.id]]" tabindex="-1">
+            <a href="#/lobby/[[item.id]]" tabindex="-1">
               <paper-icon-button icon="open-in-browser" title="[[localize('open')]]" lobbyid="[[item.id]]" class="spaced"></paper-icon-button>
             </a>
           </div>
@@ -69,12 +69,6 @@
          user={{user}}
          language="{{language}}">
       </papan-game-list>
-      <papan-lobby
-        viewname="lobby"
-        route="{{_subRoute}}"
-        user={{user}}
-        language="{{language}}">
-      </papan-lobby>
       <papan-user-profile 
         viewname="profile"
         route="{{_subRoute}}"
@@ -134,17 +128,7 @@
             value: function() {
               return [];
             }
-        },
-        /*
-          List of the lobbies the user joined on this server
-        */
-        joinedlobbylist: {
-          type: Array,
-            value: function() {
-              return [];
-            }
         }
-
       },
 
       ready: function() {
@@ -162,9 +146,6 @@
         lobbyInterface.on('publicLobbyRemove', lobbyinfo => {
           lobby = this._lobbylist.map(function(e) { return e.id; }).indexOf(lobbyinfo.id)
           this.splice('_lobbylist', lobby, 1)
-        })
-        lobbyInterface.on('lobbyJoin', lobby => {
-          this.push('joinedlobbylist', lobby.getInfo())
         })
         lobbyInterface.startWatchingLobbies()
       },

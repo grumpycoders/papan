@@ -1,0 +1,60 @@
+<link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+<link rel="import" href="../bower_components/iron-icons/av-icons.html">
+<link rel="import" href="../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
+
+<dom-module id="papan-joined-lobbies">
+  <link rel="import" type="css" href="joinedlobbies.css">
+  <template>
+    <style is="custom-style" include="iron-flex iron-flex-alignment"></style>
+    <div id="joinedlobbies" class="layout vertical">
+      <a href="#/server/home" tabindex="-1">
+        <paper-icon-button icon="language" title="server"></paper-icon-button>
+      </a>
+      <template is="dom-repeat" items="[[lobbylist]]">
+        <a href="#/lobby/[[item.id]]" tabindex="-1">
+          <paper-button raised>[[_firstletter(item.id)]]</paper-button>
+        </a>
+      </template>
+      <div class="flex"></div>
+    </div>
+  </template>
+
+  <script>
+    'use strict'
+
+    Polymer({
+      is: "papan-joined-lobbies",
+
+      properties: {
+        /*
+          List of currently joined lobbies
+        */
+        lobbylist: {
+          type: Array,
+            value: function() {
+              return [];
+            }
+        },
+        
+        /*
+          Current lobby information
+        */
+        currentlobby: {
+          type: Object
+        }
+      },
+
+      ready: function() {
+        lobbyInterface.on('lobbyJoin', lobby => {
+          this.push('lobbylist', lobby.getInfo())
+        })
+      },
+
+      _firstletter: function(str) {
+        return str[0]
+      }
+    })
+  </script>
+</dom-module>
