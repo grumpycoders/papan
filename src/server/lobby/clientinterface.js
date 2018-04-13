@@ -86,30 +86,38 @@ class ClientInterface extends EventEmitter {
       })
     })
 
-    const clientToServerMessage = [
-      'PapanLobby.JoinLobby',
-      'PapanLobby.SetLobbyName',
-      'PapanLobby.SetLobbyPublic',
-      'PapanLobby.GetJoinedLobbies',
-      'PapanLobby.StartWatchingLobbies',
-      'PapanLobby.StopWatchingLobbies'
-    ]
-    clientToServerMessage.forEach(type => {
-      this.channel.on(type, this.connectedCall((message, metadata) => {
-        this.client[type](message, metadata)
-      }))
-    })
+    this.protoPromise
+    .then(proto => {
+      const getTypes = fields => Object.keys(fields).map(field => 'ProtoLobby.' + fields[field].type)
+      const actionMsgs = ['Action', 'LobbyAction']
+      const updateMsgs = ['Update', 'LobbyUpdate']
+      const actionsArray = actionMsgs.map(msg => getTypes(proto.rootProto.PapanLobby[msg].fields))
+      const updatesArray = updateMsgs.map(msg => getTypes(proto.rootProto.PapanLobby[msg].fields))
+      const reduce = (array, initial = []) => array.reduce((result, array) => {
+        const duplicate = array.reduce((result, msg) => array.includes(msg) ? msg : result)
+        if (duplicate) {
+          throw Error('Duplicated message ' + duplicate)
+        }
+        return result + array
+      }, initial)
+      const actions = reduce(actionsArray, [
+        'PapanLobby.StartWatchingLobbies',
+        'PapanLobby.StopWatchingLobbies'
+      ])
+      const updates = reduce(updatesArray)
 
-    const serverToClientMessages = [
-      'PapanLobby.Subscribed',
-      'PapanLobby.Error',
-      'PapanLobby.LobbyInfo',
-      'PapanLobby.UserJoined',
-      'PapanLobby.JoinedLobbies',
-      'PapanLobby.PublicLobbyUpdate'
-    ]
-    serverToClientMessages.forEach(type => {
-      this[type] = (message = {}, metadata = {}) => this.channel.send(type, message, metadata)
+      actions.forEach(type => {
+        this.channel.on(type, this.connectedCall((message, metadata) => {
+          this.client[type](message, metadata)
+        }))
+      })
+
+      updates.forEach(type => {
+        if (this[type]) return
+        this[type] = (message = {}, metadata = {}) => this.channel.send(type, message, metadata)
+      })
+
+      this.emit('ready')
     })
   }
 

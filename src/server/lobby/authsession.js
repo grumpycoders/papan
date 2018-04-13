@@ -122,3 +122,9 @@ exports.getSessionData = call => {
   if (!session) return Promise.reject(Error('No session'))
   return persist.getSessionData(session)
 }
+
+exports.setSessionData = (call, sessionData) => {
+  const session = getSession(call)
+  if (!session) return Promise.reject(Error('No session'))
+  return persist.setSessionData(session, sessionData)
+}

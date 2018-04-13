@@ -171,6 +171,7 @@ exports.main = () => {
   let isAppReady = false
 
   const returnPromise = Promise.all([
+    new Promise((resolve, reject) => clientInterface.on('ready', resolve)),
     new Promise((resolve, reject) => {
       app.on('ready', () => {
         isAppReady = true

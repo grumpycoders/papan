@@ -4,7 +4,6 @@ const persist = require('./persist.js')
 const authsession = require('./authsession.js')
 
 const Subscribe = (options, call) => {
-  const gameServerSession = authsession.getSessionData(call)
   const id = authsession.getId(call)
   let trusted = false
   call.write({
@@ -30,7 +29,7 @@ const Subscribe = (options, call) => {
           premise = persist.isApiKeyValid(data.register.apiKey)
         }
         premise
-        .then(result => persist.setGameServerSessionData(gameServerSession, { trusted: result }))
+        .then(trusted => authsession.setSessionData(call, { trusted: trusted }))
         .then(data => {
           trusted = data.trusted
           call.write({
@@ -44,6 +43,9 @@ const Subscribe = (options, call) => {
   })
 }
 
+const Lobby = call => { }
+
 exports.generateService = options => ({
-  Subscribe: call => Subscribe(options, call)
+  Subscribe: call => Subscribe(options, call),
+  Lobby: Lobby
 })
