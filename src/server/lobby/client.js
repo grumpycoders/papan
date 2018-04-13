@@ -17,10 +17,6 @@ class LobbyClient {
     this.LobbyActionFields = lobbyProto.rootProto.lookupType('PapanLobby.LobbyAction').fields
     this.LobbyUpdateFields = lobbyProto.rootProto.lookupType('PapanLobby.LobbyUpdate').fields
 
-    const lookupField = (fields, type) => Object.keys(fields).reduce((result, field) => {
-      return ('PapanLobby.' + fields[field].type) === type ? field : result
-    }, '')
-
     const mapping = {
       'PapanLobby.JoinLobby': 'join',
       'PapanLobby.StartWatchingLobbies': 'startWatchingLobbies',
@@ -30,24 +26,19 @@ class LobbyClient {
       this[type] = this[mapping[type]]
     })
 
-    const subscribedMessages = [
-      'PapanLobby.GetJoinedLobbies'
-    ]
-    subscribedMessages.forEach(type => {
-      const fieldName = lookupField(this.ActionFields, type)
+    Object.keys(this.ActionFields).forEach(fieldName => {
+      const type = 'PapanLobby.' + this.ActionFields[fieldName].type
+      if (this[type]) return
       this[type] = (message, metadata) => {
         const obj = {}
         obj[fieldName] = message
-        this.subscribedWrite({obj})
+        this.subscribedWrite(obj)
       }
     })
 
-    const lobbyMessages = [
-      'PapanLobby.SetLobbyName',
-      'PapanLobby.SetLobbyPublic'
-    ]
-    lobbyMessages.forEach(type => {
-      const fieldName = lookupField(this.LobbyActionFields, type)
+    Object.keys(this.LobbyActionFields).forEach(fieldName => {
+      const type = 'PapanLobby.' + this.LobbyActionFields[fieldName].type
+      if (this[type]) return
       this[type] = (message, metadata) => {
         const obj = {}
         obj[fieldName] = message

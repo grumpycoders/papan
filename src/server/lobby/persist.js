@@ -26,10 +26,10 @@ const rs = new RedisSessions({ client: client })
 
 const promised = PapanServerUtils.promisifyClass(client)
 
-exports.createUserSession = userId => {
+exports.createSession = userId => {
   return new Promise((resolve, reject) => {
     rs.create({
-      app: 'papanUsers',
+      app: 'papan',
       id: userId,
       ip: '1'
     }, (err, resp) => {
@@ -39,23 +39,10 @@ exports.createUserSession = userId => {
   })
 }
 
-exports.createGameServerSession = gameServerId => {
-  return new Promise((resolve, reject) => {
-    rs.create({
-      app: 'papanGameServers',
-      id: gameServerId,
-      ip: '1'
-    }, (err, resp) => {
-      if (err) reject(err)
-      resolve(resp.token)
-    })
-  })
-}
-
-exports.getUserFromSession = session => {
+exports.getIdFromSession = session => {
   return new Promise((resolve, reject) => {
     rs.get({
-      app: 'papanUsers',
+      app: 'papan',
       token: session
     }, (err, resp) => {
       if (err) reject(err)
@@ -65,15 +52,29 @@ exports.getUserFromSession = session => {
   })
 }
 
-exports.getGameServerFromSession = session => {
+exports.getSessionData = session => {
   return new Promise((resolve, reject) => {
     rs.get({
-      app: 'papanGameServers',
+      app: 'papan',
       token: session
     }, (err, resp) => {
       if (err) reject(err)
       if (!resp.id) reject(Error('Empty session'))
-      resolve(resp.id)
+      resolve(resp.d)
+    })
+  })
+}
+
+exports.setSessionData = (session, data) => {
+  return new Promise((resolve, reject) => {
+    rs.set({
+      app: 'papan',
+      token: session,
+      d: data
+    }, (err, resp) => {
+      if (err) reject(err)
+      if (!resp.id) reject(Error('Empty session'))
+      resolve(resp.d)
     })
   })
 }
@@ -242,3 +243,5 @@ exports.lobbyListSubscribe = callback => {
   }
   return ret
 }
+
+exports.isApiKeyValid = apiKey => Promise.resolve(false)

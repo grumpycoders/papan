@@ -12,11 +12,15 @@ message ChatMessage {
   string message = 2;
 }
 
+message WhisperChatMessage {
+  ChatMessage message = 1;
+}
+
 message GetJoinedLobbies { }
 
 message Action {
   oneof action {
-    ChatMessage message = 1;
+    WhisperChatMessage message = 1;
     GetJoinedLobbies get_joined_lobbies = 2;
   }
 }
@@ -63,7 +67,7 @@ message Update {
   oneof update {
     Error error = 1;
     Subscribed subscribed = 2;
-    ChatMessage message = 3;
+    WhisperChatMessage message = 3;
     JoinedLobbies joined_lobbies = 4;
   }
 }
@@ -73,6 +77,10 @@ message JoinLobby {
 }
 
 message LeaveLobby { }
+
+message LobbyChatMessage {
+  ChatMessage message = 1;
+}
 
 message SetReady {
   bool ready = 1;
@@ -100,7 +108,7 @@ message LobbyAction {
   oneof action {
     JoinLobby join = 1;
     LeaveLobby leave = 2;
-    ChatMessage message = 3;
+    LobbyChatMessage message = 3;
     SetReady set_ready = 4;
     KickUser kick_user = 5;
     SetLobbyName set_name = 6;
@@ -120,7 +128,7 @@ message LobbyUpdate {
     LobbyInfo info = 2;
     UserJoined user_joined = 3;
     UserLeft user_left = 4;
-    ChatMessage message = 5;
+    LobbyChatMessage message = 5;
     UserReadyUpdate ready_update = 6;
   }
 }
@@ -167,6 +175,10 @@ message GameServerSubscribed {
   GameServer self = 1;
 }
 
+message GameServerRegistered {
+  bool trusted = 1;
+}
+
 message GameRequest {
   Papan.GameInfo game_info = 1;
   string lobby_id = 2;
@@ -175,7 +187,8 @@ message GameRequest {
 message GameUpdate {
   oneof update {
     GameServerSubscribed subscribed = 1;
-    GameRequest request = 2;
+    GameServerRegistered registered = 2;
+    GameRequest request = 3;
   }
 }
 
