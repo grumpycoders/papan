@@ -10,6 +10,7 @@ const createSerializer = require('../../common/serializer.js').createSerializer
 const protoLoader = require('../common/proto.js').load
 const Queuer = require('../../common/utils.js').Queuer
 const PapanServerUtils = require('../common/utils.js')
+const gamesList = require('../game/games-list.js')
 
 let natRefreshInterval
 
@@ -20,12 +21,16 @@ class ClientInterface extends EventEmitter {
     this.channel = new Queuer(this)
     this.lobbyConnectionStatus = 'NOTCONNECTED'
     this.localLobbyServer = null
+    this.gamesListPromise = gamesList.getGamesList()
 
     this.protoPromise = protoLoader(['lobby.proto', 'channel.proto'])
 
-    this.channel.on('PapanChannel.GetLobbyConnectionStatus', () => {
-      this.sendLobbyConnectionStatus()
+    this.channel.on('PapanChannel.GetAvailableGames', () => {
+      this.gamesListPromise
+      .then(gamesList => this.channel.send('PapanChannel.AvailableGames', { games: gamesList }))
     })
+
+    this.channel.on('PapanChannel.GetLobbyConnectionStatus', () => this.sendLobbyConnectionStatus())
 
     this.channel.on('PapanChannel.ConnectToLobbyServer', message => {
       const options = deepclone(message)
@@ -41,12 +46,12 @@ class ClientInterface extends EventEmitter {
           localApiKey = token
           return Promise.all([
             require('./server.js').registerServer({ localApiKey: localApiKey }),
-            require('../game/games-list.js').getGamesList()
+            this.gamesListPromise
           ])
         })
         .then(results => {
           this.localLobbyServer = results[0]
-          this.gamesList = results[1]
+          let gamesList = results[1]
           const setMapping = () => {
             natUPNP.portMapping({
               public: 9999,
@@ -65,7 +70,7 @@ class ClientInterface extends EventEmitter {
           }
           setMapping()
           natRefreshInterval = setInterval(setMapping, 300000)
-          return require('../game/client.js').createClient(this.gamesList, deepmerge(options, { apiKey: localApiKey }))
+          return require('../game/client.js').createClient(gamesList, deepmerge(options, { apiKey: localApiKey }))
         })
         .then(gameClient => {
           this.gameClient = gameClient

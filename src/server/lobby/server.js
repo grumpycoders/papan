@@ -28,24 +28,24 @@ exports.registerServer = options => {
 
   return Promise.all(work).then(results => {
     const grpcServer = new grpc.Server()
-    const lobbyProto = results[3].PapanLobby
+    const lobbyProto = results[3]
     const sslCreds = grpc.ServerCredentials.createSsl(
       results[0],
       [{ private_key: results[2], cert_chain: results[1] }],
       false
     )
     grpcServer.addService(
-      lobbyProto.PlayerLobbyService.service,
+      lobbyProto.PapanLobby.PlayerLobbyService.service,
       authsession.checkCredentials(
         options,
-        playerLobbyService.generateService(options)
+        playerLobbyService.generateService(lobbyProto.rootProto.PapanLobby, options)
       )
     )
     grpcServer.addService(
-      lobbyProto.GameLobbyService.service,
+      lobbyProto.PapanLobby.GameLobbyService.service,
       authsession.checkCredentials(
         { requiresAuth: false },
-        gameLobbyService.generateService(options)
+        gameLobbyService.generateService(lobbyProto.rootProto.PapanLobby, options)
       )
     )
 

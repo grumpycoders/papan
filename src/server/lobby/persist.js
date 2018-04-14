@@ -182,13 +182,13 @@ exports.setLobbyPublic = data => setLobbyField(deepmerge(data, { field: 'public'
     ret = promised.sadd('publiclobbies', data.id)
     client.publish('publiclobbies', JSON.stringify({
       id: data.id,
-      status: 0
+      status: 'ADDED'
     }))
   } else {
     ret = promised.srem('publiclobbies', data.id)
     client.publish('publiclobbies', JSON.stringify({
       id: data.id,
-      status: 1
+      status: 'REMOVED'
     }))
   }
   return ret.then(() => info)

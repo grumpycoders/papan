@@ -50,6 +50,7 @@ class LobbyInterface extends this.EventEmitter {
     this.lobbyList = {}
     this.publicLobbyList = {}
     channel.send('PapanChannel.GetLobbyConnectionStatus')
+    channel.on('PapanChannel.AvailableGames', data => this.emit('games', data.games))
     channel.on('PapanLobby.Subscribed', data => {
       this.userInfo = data.self
       this.emit('connected')
@@ -98,6 +99,7 @@ class LobbyInterface extends this.EventEmitter {
   connectToLobbyServer (serverInfo) { channel.send('PapanChannel.ConnectToLobbyServer', serverInfo) }
   createLobby () { channel.send('PapanLobby.JoinLobby') }
   joinLobby (id) { channel.send('PapanLobby.JoinLobby', { id: id }) }
+  getAvailableGames () { channel.send('PapanChannel.GetAvailableGames') }
 }
 
 this.lobbyInterface = new LobbyInterface()

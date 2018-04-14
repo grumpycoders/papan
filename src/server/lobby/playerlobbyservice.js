@@ -4,8 +4,98 @@ const grpc = require('grpc')
 const deepclone = require('deepclone')
 const persist = require('./persist.js')
 const authsession = require('./authsession.js')
+const dispatcher = require('./dispatcher.js')
 
-const Subscribe = call => {
+class SubscribeHandlers {
+  'PapanLobby.WhisperChatMessage' (call, data) {
+    const id = authsession.getId(call)
+    const message = deepclone(data)
+    message.id = id
+    persist.sendMessage(data.id, { message: message })
+  }
+
+  'PapanLobby.GetJoinedLobbies' (call, data) {
+    const id = authsession.getId(call)
+    return persist.getJoinedLobbies({ id: id })
+    .then(result => {
+      call.write({
+        joinedLobbies: {
+          lobbies: result
+        }
+      })
+    })
+  }
+}
+
+class LobbyHandlers {
+  'PapanLobby.JoinLobby' (call, data) {
+    const userId = authsession.getId(call)
+    let id = data.id
+    let premise
+    if (id) {
+      premise = persist.joinLobby({
+        userId: userId,
+        id: id
+      })
+    } else {
+      premise = persist.createLobby({
+        userId: userId
+      })
+    }
+    return premise
+    .then(result => {
+      id = result.id
+      call.id = id
+      const sub = persist.lobbySubscribe(id, message => {
+        call.write(message)
+      })
+      call.on('end', () => sub.close())
+      call.write({
+        info: result
+      })
+      persist.lobbySendMessage(id, {
+        userJoined: {
+          id: userId
+        }
+      })
+    })
+  }
+
+  'PapanLobby.SetLobbyName' (call, data) {
+    const userId = authsession.getId(call)
+    return persist.setLobbyName({
+      userId: userId,
+      id: call.id,
+      name: data.setName.name
+    })
+    .then(result => {
+      persist.lobbySendMessage({
+        info: result
+      })
+    })
+  }
+
+  'PapanLobby.SetLobbyPublic' (call, data) {
+    const userId = authsession.getId(call)
+    return persist.setLobbyPublic({
+      userId: userId,
+      id: call.id,
+      public: data.setPublic.public
+    }).then(result => {
+      persist.lobbySendMessage({
+        info: result
+      })
+    })
+  }
+
+  'PapanLobby.LeaveLobby' (call, data) { return Promise.reject(Error('Unimplemented')) }
+  'PapanLobby.LobbyChatMessage' (call, data) { return Promise.reject(Error('Unimplemented')) }
+  'PapanLobby.SetReady' (call, data) { return Promise.reject(Error('Unimplemented')) }
+  'PapanLobby.KickUser' (call, data) { return Promise.reject(Error('Unimplemented')) }
+  'PapanLobby.SetLobbyGame' (call, data) { return Promise.reject(Error('Unimplemented')) }
+}
+
+const Subscribe = (call, dispatcher) => {
   const id = authsession.getId(call)
   call.write({
     subscribed: {
@@ -14,40 +104,16 @@ const Subscribe = call => {
       }
     }
   })
-  const sub = persist.userSubscribe(id, message => {
-    call.write(message)
-  })
-  call.on('data', data => {
-    switch (data.action) {
-      case 'message':
-        let message = deepclone(data)
-        message.message.id = id
-        persist.sendMessage(data.id, message)
-        break
-      case 'getJoinedLobbies':
-        persist.getJoinedLobbies({ id: id })
-        .then(result => {
-          call.write({
-            joinedLobbies: {
-              lobbies: result
-            }
-          })
-        })
-        break
-    }
-  })
+  const sub = persist.userSubscribe(id, call.write)
+  call.on('data', data => dispatcher(call, data))
   call.on('end', () => {
     sub.close()
     call.end()
   })
 }
 
-const Lobby = call => {
-  const userId = authsession.getId(call)
+const Lobby = (call, dispatcher) => {
   let gotJoin = false
-  let id
-  let sub
-  let runningPromise
   call.on('end', () => call.end())
   call.on('data', data => {
     let joinError = false
@@ -72,73 +138,8 @@ const Lobby = call => {
       }
       call.emit('error', error)
       call.end()
-      return
-    }
-    switch (data.action) {
-      case 'join':
-        id = data.join.id
-        let premise
-        if (id) {
-          premise = persist.joinLobby({
-            userId: userId,
-            id: id
-          })
-        } else {
-          premise = persist.createLobby({
-            userId: userId
-          })
-        }
-        runningPromise = premise
-        .then(result => {
-          id = result.id
-          sub = persist.lobbySubscribe(id, message => {
-            call.write(message)
-          })
-          call.on('end', () => sub.close())
-          call.write({
-            info: result
-          })
-          persist.lobbySendMessage(id, {
-            userJoined: {
-              id: userId
-            }
-          })
-        })
-        break
-      case 'setName':
-        runningPromise = persist.setLobbyName({
-          userId: userId,
-          id: id,
-          name: data.setName.name
-        })
-        .then(result => {
-          persist.lobbySendMessage({
-            info: result
-          })
-        })
-        break
-      case 'setPublic':
-        runningPromise = persist.setLobbyPublic({
-          userId: userId,
-          id: id,
-          public: data.setPublic.public
-        }).then(result => {
-          persist.lobbySendMessage({
-            info: result
-          })
-        })
-        break
-    }
-    if (runningPromise) {
-      runningPromise.catch(err => {
-        let error = {
-          code: grpc.status.UNKNOWN,
-          details: err.message,
-          metadata: new grpc.Metadata()
-        }
-        call.emit('error', error)
-        call.end()
-      })
+    } else {
+      dispatcher(call, data)
     }
   })
 }
@@ -166,8 +167,12 @@ const ListLobbies = call => {
   })
 }
 
-exports.generateService = options => ({
-  Subscribe: Subscribe,
-  Lobby: Lobby,
-  ListLobbies: ListLobbies
-})
+exports.generateService = (proto, options) => {
+  const subscribeDispatcher = dispatcher(proto.Action.fields, new SubscribeHandlers())
+  const lobbyDispatcher = dispatcher(proto.LobbyAction.fields, new LobbyHandlers())
+  return {
+    Subscribe: call => Subscribe(call, subscribeDispatcher),
+    Lobby: call => Lobby(call, lobbyDispatcher),
+    ListLobbies: ListLobbies
+  }
+}
