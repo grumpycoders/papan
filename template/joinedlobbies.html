@@ -29,6 +29,13 @@
 
       properties: {
         /*
+          Subroute
+        */
+        route: {
+          type: Object
+        },
+
+        /*
           List of currently joined lobbies
         */
         lobbylist: {
@@ -48,7 +55,9 @@
 
       ready: function() {
         lobbyInterface.on('lobbyJoin', lobby => {
-          this.push('lobbylist', lobby.getInfo())
+          var info = lobby.getInfo()
+          this.push('lobbylist', info)
+          this.set('route.path', "/lobby/" + info.id)
         })
       },
 
