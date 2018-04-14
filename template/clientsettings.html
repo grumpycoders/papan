@@ -1,3 +1,4 @@
+<link rel="import" href="../bower_components/app-storage/app-localstorage/app-localstorage-document.html">
 <link rel="import" href="../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../bower_components/paper-radio-group/paper-radio-group.html">
 <link rel="import" href="../bower_components/paper-radio-button/paper-radio-button.html">
@@ -7,7 +8,8 @@
 <dom-module id="papan-client-settings">
   <link rel="import" type="css" href="clientsettings.css">
   <template>
-    <div id="header">Client Settings</div>
+      <app-localstorage-document key="language" data="{{language}}"></app-localstorage-document>
+      <div id="header">Client Settings</div>
 
     <div id="settings">
       <paper-radio-group selected={{language}}>

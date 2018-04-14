@@ -33,9 +33,9 @@
       use-hash-as-path
       route="{{_route}}">
     </app-location>
-    <papan-user-data
+    <!--papan-user-data
       user="{{_user}}">
-    </papan-user-data>
+    </papan-user-data-->
     <app-route
       route="{{_route}}"
       pattern="/:view"
@@ -51,16 +51,19 @@
         <a href="https://github.com/grumpycoders/papan" style="display: none;" id="github-link">
           <paper-icon-button icon="link"></paper-icon-button>
         </a>
-        <template is="dom-if" if="{{_user.islogged}}">
+        <template is="dom-if" if="{{_loggedin(userinfo)}}">
           <div>
-            <a href="#/server/local/profile/[[_user.username]]">[[_user.username]]</a>
-            <iron-icon icon="account-circle"></iron-icon>
+            <a href="#/server/profile/[[userinfo.id]]">
+              [[_user.username]]
+              <iron-icon icon="account-circle"></iron-icon>
+            </a>
+            
           </div>
           <paper-button on-tap="_signout">
             [[localize('signout')]]
           </paper-button>
         </template>
-        <template is="dom-if" if="{{!_user.islogged}}">
+        <!--template is="dom-if" if="{{!user.islogged}}">
           <div id="login">
             <paper-button on-tap="_showlogin">
               [[localize('loginsignin')]]
@@ -71,16 +74,18 @@
           <paper-button on-tap="_showuserdata">
             DBG:USEREDIT
           </paper-button>
-        </div>
+        </div-->
       </app-toolbar>
     </app-header>
 
     <div id="mainpage" class="layout horizontal">
-      <papan-joined-lobbies lobbylist={{_joinedlobbylist}}></papan-joined-lobbies>
+      <template is="dom-if" if="{{_loggedin(userinfo)}}">
+        <papan-joined-lobbies lobbylist={{_joinedlobbylist}}></papan-joined-lobbies>
+      </template>
       <papan-drawer-menu
         id="appdrawer"
         view="{{_routeData.view}}"
-        user="{{_user}}"
+        user="{{userinfo}}"
         language="{{language}}"
         server={{_server}}>
       </papan-drawer-menu>
@@ -98,14 +103,14 @@
         </papan-startup-screen>
         <papan-client-settings
           id="clientsettings"
-          language="{{_user.language}}">
+          language="{{language}}">
         </papan-client-settings>
         <papan-lobby
           id="lobby"
           route="{{_pagesRoute}}"
           language="{{language}}"
           server={{_server}}
-          user={{_user}}
+          user={{userinfo}}
         >
         </papan-lobby>
         <papan-server-page
@@ -114,13 +119,14 @@
           language="{{language}}"
           server={{_server}}
           serverinfo={{_serverinfo}}
-          user={{_user}}
+          user={{userinfo}}
           joinedlobbylist={{_joinedlobbylist}}>
         </papan-server-page>
         <papan-server-list
           id="serverlist"
           language="{{language}}"
-          route="{{_route}}">
+          route="{{_route}}"
+          userinfo="{{userinfo}}">
         </papan-server-list>
         <papan-placeholder
           id="placeholder"
@@ -150,8 +156,13 @@
     Polymer({
       is: "papan-main-window",
 
+      properties: {
+        userinfo: {
+          type: Object
+        }
+      },
+
       observers: [
-        '_updateLanguage(_user.language)',
         '_updateServer(_serverinfo.servername)'
       ],
 
@@ -193,8 +204,8 @@
           this._title = server
       },
 
-      _updateLanguage: function(language) {
-        this.language = language
+      _loggedin: function(userinfo) {
+        return userinfo != null
       }
     })
 
