@@ -198,7 +198,7 @@ exports.lobbySubscribe = (id, callback) => {
   const subscriber = redis.createClient()
   const key = 'lobbysub:' + id
   subscriber.subscribe(key)
-  subscriber.on('key', (channel, message) => {
+  subscriber.on('message', (channel, message) => {
     if (channel === key) {
       callback(JSON.parse(message))
     }
