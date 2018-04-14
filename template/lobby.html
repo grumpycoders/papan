@@ -7,57 +7,61 @@
 <link rel="import" href="data/gameinfo.html">
 <link rel="import" href="data/localize.html">
 <link rel="import" href="chat.html">
+<link rel="import" href="gamelist.html">
 
 <dom-module id="papan-lobby">
   <link rel="import" type="css" href="lobby.css">
   <script src="../src/common/utils.js"></script>
 
   <template>
+    <style is="custom-style" include="iron-flex iron-flex-alignment"></style>
     <app-route
       route="{{route}}"
-      pattern="/:gameid"
+      pattern="/:lobbyid"
       data="{{_routeData}}">
     </app-route>
-    <game-info gameid=[[_routeData.gameid]] gameinfo={{_game}}></game-info>
+    <!--game-info gameid=[[_routeData.gameid]] gameinfo={{_game}}></game-info-->
 
     <div id="page" class="layout vertical">
-      <div id="banner">
+      <div>[[_routeData.lobbyid]]</div>
+      <!--div id="banner">
         <iron-image 
           src="[[_game.banner]]"
           placeholder="pictures/gamebanner.svg"
           preload>
         </iron-image>
         <div id="bannertitle">[[_game.gamename]]</div>
-      </div>
-
-      <paper-tabs 
-        id="tabs" 
-        selected="{{_view}}" 
-        attr-for-selected="name" 
-        hide-scroll-buttons
-        fit-container 
-        scrollable>
-        <paper-tab name="lobby">[[localize('lobby')]]</paper-tab>
-        <paper-tab name="board" id="boardtab" disabled>[[localize('board')]]</paper-tab>
-      </paper-tabs>
-
+      </div-->
       <div id="lobbycontent" class="layout flex horizontal">
-        <iron-pages 
-          selected="{{_view}}" 
-          attr-for-selected="name" 
-          fallback-selection="lobby"
-          class="layout flex">
-          <div name="lobby">
-            [[localize('connectedtitle')]]
-            <ul>
-              <li><a href="#/profile/foo">foo</a></li>
-              <li><a href="#/profile/bar">bar</a></li>
-            </ul>
-            <paper-button raised on-tap="_start">[[localize('startgame')]]</paper-button>
-          </div>
-          <div id="main-view" name="board"></div>
-        </iron-pages>
+        <div class="layout flex vertical">
+          <!--paper-tabs 
+            id="tabs" 
+            selected="{{_view}}" 
+            attr-for-selected="name" 
+            hide-scroll-buttons
+            fit-container 
+            scrollable>
+            <paper-tab name="lobby">[[localize('lobby')]]</paper-tab>
+            <paper-tab name="board" id="boardtab" disabled>[[localize('board')]]</paper-tab>
+          </paper-tabs-->
 
+          <iron-pages 
+            selected="{{_view}}" 
+            attr-for-selected="name" 
+            fallback-selection="lobby"
+            class="layout flex">
+            <papan-game-list name="gamelist" user="tom" language="{{language}}"></papan-game-list>
+            <div name="lobby">
+              <!--[[localize('connectedtitle')]]-->
+              <!--ul>
+                <li><a href="#/profile/foo">foo</a></li>
+                <li><a href="#/profile/bar">bar</a></li>
+              </ul-->
+              <paper-button raised on-tap="_start">[[localize('startgame')]]</paper-button>
+            </div>
+            <div id="main-view" name="board"></div>
+          </iron-pages>
+        </div>
         <papan-chat user=[[user.username]]></papan-chat>
       </div>
     </div>
@@ -114,7 +118,7 @@
           alert("Browser support not implemented yet")
         }
         this._view = 'board'
-        this.$.boardtab.disabled = false
+        //this.$.boardtab.disabled = false
       }
     })
   </script>

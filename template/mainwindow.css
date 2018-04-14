@@ -38,3 +38,7 @@ app-drawer {
 app-drawer iron-icon {
   margin-right: 5px;
 }
+
+#mainpage{
+  height:100%;
+}

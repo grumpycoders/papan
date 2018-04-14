@@ -1,3 +1,16 @@
 #chat{
   height: 100%;
+  border-left: 1px solid darkgray;
+}
+
+#chattext{
+  padding: 2px;
+  border-bottom: 1px solid darkgray;
+  overflow-x: hidden;
+  overflow-y: auto;
+  word-wrap: break-word;
+}
+
+paper-input{
+  padding: 2px;
 }
