@@ -1,5 +1,6 @@
 'use strict'
 
+const grpc = require('grpc')
 const persist = require('./persist.js')
 const authsession = require('./authsession.js')
 
@@ -20,6 +21,7 @@ const Subscribe = (options, call) => {
     call.end()
   })
   call.on('data', data => {
+    let runningPromise
     switch (data.action) {
       case 'register':
         let premise
@@ -28,7 +30,7 @@ const Subscribe = (options, call) => {
         } else {
           premise = persist.isApiKeyValid(data.register.apiKey)
         }
-        premise
+        runningPromise = premise
         .then(trusted => authsession.setSessionData(call, { trusted: trusted }))
         .then(data => {
           trusted = data.trusted
@@ -40,10 +42,33 @@ const Subscribe = (options, call) => {
         })
         break
     }
+    if (runningPromise) {
+      runningPromise.catch(err => {
+        let error = {
+          code: grpc.status.UNKNOWN,
+          details: err.message,
+          metadata: new grpc.Metadata()
+        }
+        call.emit('error', error)
+        call.end()
+      })
+    }
   })
 }
 
-const Lobby = call => { }
+const Lobby = call => {
+  call.on('error', error => {
+    console.log(error)
+  })
+  call.on('end', () => {
+    call.end()
+  })
+  call.on('data', data => {
+    switch (data.action) {
+      case 'join':
+    }
+  })
+}
 
 exports.generateService = options => ({
   Subscribe: call => Subscribe(options, call),

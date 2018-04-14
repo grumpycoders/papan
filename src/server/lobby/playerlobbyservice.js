@@ -18,6 +18,7 @@ const Subscribe = call => {
     call.write(message)
   })
   call.on('data', data => {
+    let runningPromise
     switch (data.action) {
       case 'message':
         let message = deepclone(data)
@@ -25,7 +26,7 @@ const Subscribe = call => {
         persist.sendMessage(data.id, message)
         break
       case 'getJoinedLobbies':
-        persist.getJoinedLobbies({ id: id })
+        runningPromise = persist.getJoinedLobbies({ id: id })
         .then(result => {
           call.write({
             joinedLobbies: {
@@ -34,6 +35,17 @@ const Subscribe = call => {
           })
         })
         break
+    }
+    if (runningPromise) {
+      runningPromise.catch(err => {
+        let error = {
+          code: grpc.status.UNKNOWN,
+          details: err.message,
+          metadata: new grpc.Metadata()
+        }
+        call.emit('error', error)
+        call.end()
+      })
     }
   })
   call.on('end', () => {
