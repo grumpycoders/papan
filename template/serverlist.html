@@ -112,7 +112,7 @@
         })
         lobbyInterface.on('status', status => {
           this._connectionstatus = status
-          if (status == 'CONNECTED') {
+          if (status === 'CONNECTED') {
             this.userinfo = lobbyInterface.getUserInfo()
             this.set('route.path', "/server/home")
           }
