@@ -13,8 +13,8 @@
         <paper-icon-button icon="language" title="server"></paper-icon-button>
       </a>
       <template is="dom-repeat" items="[[lobbylist]]">
-        <a href="#/lobby/[[item.id]]" tabindex="-1">
-          <paper-button raised>[[_firstletter(item.id)]]</paper-button>
+        <a href="#/lobby/[[_lobbyid(item)]]" tabindex="-1">
+          <paper-button raised>[[_firstletter(item)]]</paper-button>
         </a>
       </template>
       <div class="flex"></div>
@@ -49,20 +49,26 @@
           Current lobby information
         */
         currentlobby: {
-          type: Object
+          type: Object,
+          value: () => {},
+          notify: true
         }
       },
 
       ready: function() {
         lobbyInterface.on('lobbyJoin', lobby => {
-          var info = lobby.getInfo()
-          this.push('lobbylist', info)
-          this.set('route.path', "/lobby/" + info.id)
+          this.push('lobbylist', lobby)
+          this.currentlobby = lobby
+          this.set('route.path', "/lobby/" + lobby.getInfo().id)
         })
       },
 
-      _firstletter: function(str) {
-        return str[0]
+      _lobbyid: function(lobby) {
+        return lobby.getInfo().id
+      },
+
+      _firstletter: function(lobby) {
+        return lobby.getInfo().id[0]
       }
     })
   </script>

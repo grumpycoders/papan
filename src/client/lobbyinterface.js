@@ -10,6 +10,10 @@ class Lobby extends this.EventEmitter {
     this.isOwner = lobbyInterface.getUserInfo().id === info.owner.id
   }
 
+  _send (message, data) {
+    channel.send(message, data, { id: this.info.id })
+  }
+
   update (info) {
     this.info = info
     this.emit('update', this)
@@ -25,8 +29,7 @@ class Lobby extends this.EventEmitter {
 
   setPublic (pub) {
     if (this.isowner) {
-      channel.send('PapanLobby.SetLobbyPublic', {
-        id: this.info.id,
+      this._send('PapanLobby.SetLobbyPublic', {
         public: pub
       })
     }
@@ -34,11 +37,18 @@ class Lobby extends this.EventEmitter {
 
   setName (name) {
     if (this.isowner) {
-      channel.send('PapanLobby.SetLobbyName', {
-        id: this.info.id,
+      this._send('PapanLobby.SetLobbyName', {
         name: name
       })
     }
+  }
+
+  sendChatMessage (message) {
+    this._send('PapanLobby.LobbyChatMessage', {
+      message: {
+        message: message
+      }
+    })
   }
 }
 
@@ -89,6 +99,9 @@ class LobbyInterface extends this.EventEmitter {
         this.emit('publicLobbyRemove', data.lobby)
         delete this.publicLobbyList[id]
       }
+    })
+    channel.on('PapanLobby.LobbyChatMessage', (data, metadata) => {
+      this.lobbyList[metadata.id].emit('chat', data.message)
     })
   }
 

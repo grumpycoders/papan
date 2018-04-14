@@ -69,7 +69,7 @@ class LobbyHandlers {
       name: data.setName.name
     })
     .then(result => {
-      persist.lobbySendMessage({
+      persist.lobbySendMessage(call.id, {
         info: result
       })
     })
@@ -82,14 +82,19 @@ class LobbyHandlers {
       id: call.id,
       public: data.setPublic.public
     }).then(result => {
-      persist.lobbySendMessage({
+      persist.lobbySendMessage(call.id, {
         info: result
       })
     })
   }
 
   'PapanLobby.LeaveLobby' (call, data) { return Promise.reject(Error('Unimplemented')) }
-  'PapanLobby.LobbyChatMessage' (call, data) { return Promise.reject(Error('Unimplemented')) }
+
+  'PapanLobby.LobbyChatMessage' (call, data) {
+    data.message.user = { id: authsession.getId(call) }
+    persist.lobbySendMessage(call.id, { message: data })
+  }
+
   'PapanLobby.SetReady' (call, data) { return Promise.reject(Error('Unimplemented')) }
   'PapanLobby.KickUser' (call, data) { return Promise.reject(Error('Unimplemented')) }
   'PapanLobby.SetLobbyGame' (call, data) { return Promise.reject(Error('Unimplemented')) }

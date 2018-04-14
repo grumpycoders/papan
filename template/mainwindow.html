@@ -80,7 +80,7 @@
 
     <div id="mainpage" class="layout horizontal">
       <template is="dom-if" if="{{_loggedin(userinfo)}}">
-        <papan-joined-lobbies lobbylist={{_joinedlobbylist}} route="{{_route}}"></papan-joined-lobbies>
+        <papan-joined-lobbies lobbylist={{_joinedlobbylist}} route="{{_route}}" currentlobby={{_currentlobby}}></papan-joined-lobbies>
       </template>
       <papan-drawer-menu
         id="appdrawer"
@@ -110,6 +110,7 @@
           route="{{_pagesRoute}}"
           language="{{language}}"
           server={{_server}}
+          currentlobby={{_currentlobby}}
           user={{userinfo}}
         >
         </papan-lobby>

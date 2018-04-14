@@ -62,7 +62,7 @@
             <div id="main-view" name="board"></div>
           </iron-pages>
         </div>
-        <papan-chat user=[[user.username]]></papan-chat>
+        <papan-chat user=[[user.username]] lobby=[[currentlobby]]></papan-chat>
       </div>
     </div>
   </template>
@@ -80,6 +80,10 @@
           User connected to the lobby
         */
         user: {
+          type: Object
+        },
+
+        currentlobby: {
           type: Object
         }
       },
