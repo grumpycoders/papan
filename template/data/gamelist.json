@@ -1,8 +1,8 @@
 {
   "tic_tac_toe": {
     "gamename": "Tic Tac Toe",
-    "icon": "src/games/tic_tac_toe/icon.svg",
-    "banner": "src/games/tic_tac_toe/banner.svg",
+    "icon": "games/builtins/tic_tac_toe/icon.svg",
+    "banner": "games/builtins/tic_tac_toe/banner.svg",
     "minplayers": 2,
     "maxplayers": 2,
     "duration": 1,
@@ -10,8 +10,8 @@
   },
   "poker": {
     "gamename": "Poker",
-    "icon": "src/games/poker/icon.svg",
-    "banner": "src/games/poker/banner.svg",
+    "icon": "games/builtins/poker/icon.svg",
+    "banner": "games/builtins/poker/banner.svg",
     "minplayers": 2,
     "maxplayers": 0,
     "duration": 120,
@@ -19,8 +19,8 @@
   },
   "falken": {
     "gamename": "Falken's Maze",
-    "icon": "src/games/falken/icon.svg",
-    "banner": "src/games/falken/banner.svg",
+    "icon": "games/builtins/icon.svg",
+    "banner": "games/builtins/banner.svg",
     "minplayers": 1,
     "maxplayers": 1,
     "duration": 2,
@@ -28,8 +28,8 @@
   },
   "chess": {
     "gamename": "Chess",
-    "icon": "src/games/chess/icon.svg",
-    "banner": "src/games/chess/banner.svg",
+    "icon": "games/builtins/icon.svg",
+    "banner": "games/builtins/banner.svg",
     "minplayers": 2,
     "maxplayers": 2,
     "duration": 60,
