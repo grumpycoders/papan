@@ -29,8 +29,7 @@ class Lobby extends this.EventEmitter {
 
   setPublic (pub) {
     if (this.isowner) {
-      channel.send('PapanLobby.SetLobbyPublic', {
-        id: this.info.id,
+      this._send('PapanLobby.SetLobbyPublic', {
         public: pub
       })
     }
@@ -38,8 +37,7 @@ class Lobby extends this.EventEmitter {
 
   setName (name) {
     if (this.isowner) {
-      channel.send('PapanLobby.SetLobbyName', {
-        id: this.info.id,
+      this._send('PapanLobby.SetLobbyName', {
         name: name
       })
     }
