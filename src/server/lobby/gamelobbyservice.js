@@ -1,12 +1,39 @@
 'use strict'
 
-const grpc = require('grpc')
 const persist = require('./persist.js')
 const authsession = require('./authsession.js')
+const dispatcher = require('./dispatcher.js')
 
-const Subscribe = (options, call) => {
+class SubscribeHandlers {
+  'PapanLobby.RegisterGameServer' (call, data) {
+    let premise
+    if (call.localApiKey === data.apiKey) {
+      premise = Promise.resolve(true)
+    } else {
+      premise = persist.isApiKeyValid(data.register.apiKey)
+    }
+    return premise
+    .then(trusted => authsession.setSessionData(call, { trusted: trusted }))
+    .then(data => {
+      call.trusted = data.trusted
+      call.write({
+        registered: {
+          trusted: call.trusted
+        }
+      })
+    })
+  }
+}
+
+class LobbyHandlers {
+  'PapanLobby.JoinLobby' (call, data) {
+    return Promise.reject(Error('unimplemented'))
+  }
+}
+
+const Subscribe = (options, call, dispatcher) => {
   const id = authsession.getId(call)
-  let trusted = false
+  call.localApiKey = options.localApiKey
   call.write({
     subscribed: {
       self: {
@@ -20,40 +47,7 @@ const Subscribe = (options, call) => {
   call.on('end', () => {
     call.end()
   })
-  call.on('data', data => {
-    let runningPromise
-    switch (data.action) {
-      case 'register':
-        let premise
-        if (options.localApiKey === data.register.apiKey) {
-          premise = Promise.resolve(true)
-        } else {
-          premise = persist.isApiKeyValid(data.register.apiKey)
-        }
-        runningPromise = premise
-        .then(trusted => authsession.setSessionData(call, { trusted: trusted }))
-        .then(data => {
-          trusted = data.trusted
-          call.write({
-            registered: {
-              trusted: trusted
-            }
-          })
-        })
-        break
-    }
-    if (runningPromise) {
-      runningPromise.catch(err => {
-        let error = {
-          code: grpc.status.UNKNOWN,
-          details: err.message,
-          metadata: new grpc.Metadata()
-        }
-        call.emit('error', error)
-        call.end()
-      })
-    }
-  })
+  call.on('data', data => dispatcher(call, data))
 }
 
 const Lobby = call => {
@@ -70,7 +64,11 @@ const Lobby = call => {
   })
 }
 
-exports.generateService = options => ({
-  Subscribe: call => Subscribe(options, call),
-  Lobby: Lobby
-})
+exports.generateService = (proto, options) => {
+  const subscribeDispatcher = dispatcher(proto.GameAction.fields, new SubscribeHandlers())
+  const lobbyDispatcher = dispatcher(proto.GameLobbyAction.fields, new LobbyHandlers())
+  return {
+    Subscribe: call => Subscribe(options, call, subscribeDispatcher),
+    Lobby: call => Lobby(call, lobbyDispatcher)
+  }
+}
