@@ -69,7 +69,7 @@ class LobbyHandlers {
       name: data.setName.name
     })
     .then(result => {
-      persist.lobbySendMessage({
+      persist.lobbySendMessage(call.id, {
         info: result
       })
     })
@@ -82,7 +82,7 @@ class LobbyHandlers {
       id: call.id,
       public: data.setPublic.public
     }).then(result => {
-      persist.lobbySendMessage({
+      persist.lobbySendMessage(call.id, {
         info: result
       })
     })
