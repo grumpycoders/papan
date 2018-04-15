@@ -99,7 +99,7 @@ exports.registerServer = (app, config) => {
 
     // Static files
     function sendRoot (res) {
-      res.sendFile(path.join(root, 'auth-index.html'))
+      res.sendFile(path.join(root, 'render/auth-index.html'))
     }
     app.use('/src/common', express.static(path.join(root, 'src', 'common')))
     app.use('/src/client/auth', express.static(path.join(root, 'src', 'client', 'auth')))

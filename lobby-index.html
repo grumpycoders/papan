@@ -76,8 +76,9 @@
           // Loading all the code that doesn't depend on anything else first.
           Papan.jsLoader('node_modules/deep-diff/releases/deep-diff-0.3.4.min.js'),
           Papan.jsLoader('node_modules/event-emitter-es6/dist/event-emitter.min.js'),
-          Papan.jsLoader('bower_components/webcomponentsjs/webcomponents-lite.js'),
-          Papan.jsLoader('src/common/utils.js')
+          Papan.jsLoader('bower_components/webcomponentsjs/webcomponents-loader.js'),
+          Papan.jsLoader('src/common/utils.js'),
+          new Promise((resolve, reject) => window.addEventListener('WebComponentsReady', resolve))
         ]))
         .then(() => Promise.all([
           // Depend on utils.js
