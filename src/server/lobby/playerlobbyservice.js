@@ -46,10 +46,8 @@ class LobbyHandlers {
     .then(result => {
       id = result.id
       call.id = id
-      const sub = persist.lobbySubscribe(id, message => {
-        call.write(message)
-      })
-      call.on('end', () => sub.close())
+      const sub = persist.lobbySubscribe(id, call.write.bind(call))
+      call.on('end', sub.close.bind(sub))
       call.write({
         info: result
       })
@@ -66,7 +64,7 @@ class LobbyHandlers {
     return persist.setLobbyName({
       userId: userId,
       id: call.id,
-      name: data.setName.name
+      name: data.name
     })
     .then(result => {
       persist.lobbySendMessage(call.id, {
@@ -80,7 +78,7 @@ class LobbyHandlers {
     return persist.setLobbyPublic({
       userId: userId,
       id: call.id,
-      public: data.setPublic.public
+      public: data.public
     }).then(result => {
       persist.lobbySendMessage(call.id, {
         info: result
@@ -88,16 +86,27 @@ class LobbyHandlers {
     })
   }
 
-  'PapanLobby.LeaveLobby' (call, data) { return Promise.reject(Error('Unimplemented')) }
+  'PapanLobby.SetLobbyGame' (call, data) {
+    const userId = authsession.getId(call)
+    return persist.setLobbyGame({
+      userId: userId,
+      id: call.id,
+      gameInfo: data.gameInfo
+    }).then(result => {
+      persist.lobbySendMesasge(call.id, {
+        info: result
+      })
+    })
+  }
 
   'PapanLobby.LobbyChatMessage' (call, data) {
     data.message.user = { id: authsession.getId(call) }
     persist.lobbySendMessage(call.id, { message: data })
   }
 
+  'PapanLobby.LeaveLobby' (call, data) { return Promise.reject(Error('Unimplemented')) }
   'PapanLobby.SetReady' (call, data) { return Promise.reject(Error('Unimplemented')) }
   'PapanLobby.KickUser' (call, data) { return Promise.reject(Error('Unimplemented')) }
-  'PapanLobby.SetLobbyGame' (call, data) { return Promise.reject(Error('Unimplemented')) }
 }
 
 const Subscribe = (call, dispatcher) => {
@@ -150,9 +159,7 @@ const Lobby = (call, dispatcher) => {
 }
 
 const ListLobbies = call => {
-  const sub = persist.lobbyListSubscribe(data => {
-    call.write(data)
-  })
+  const sub = persist.lobbyListSubscribe(call.write.bind(call))
   persist.getPublicLobbies()
   .then(lobbies => {
     if (!lobbies) lobbies = []
