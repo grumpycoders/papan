@@ -50,18 +50,14 @@ const Subscribe = (options, call, dispatcher) => {
   call.on('data', data => dispatcher(call, data))
 }
 
-const Lobby = call => {
+const Lobby = (call, dispatcher) => {
   call.on('error', error => {
     console.log(error)
   })
   call.on('end', () => {
     call.end()
   })
-  call.on('data', data => {
-    switch (data.action) {
-      case 'join':
-    }
-  })
+  call.on('data', data => dispatcher(call, data))
 }
 
 exports.generateService = (proto, options) => {
