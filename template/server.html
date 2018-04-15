@@ -13,6 +13,37 @@
 <link rel="import" href="data/localize.html">
 <link rel="import" href="data/serverinfo.html">
 
+<dom-module id="papan-join-button">
+  <link rel="import" type="css" href="server.css">
+  <template>
+    <paper-icon-button icon="send" title="[[localize('join')]]" on-tap="_joinLobby"></paper-icon-button>
+  </template>
+
+  <script>
+    Polymer({
+      is: 'papan-join-button',
+
+      properties: {
+        route: {
+          type: Object
+        },
+
+        lobbyId: {
+          type: String
+        }
+      },
+
+      _joinLobby: function(event) {
+        this.set('route.path', "/lobby/" + this.lobbyId)
+      },
+
+      behaviors: [
+        PapanLocalize
+      ]
+    })
+  </script>
+</dom-module>
+ 
 <dom-module id="papan-server-page">
   <link rel="import" type="css" href="server.css">
   <template>
@@ -42,7 +73,7 @@
         <template is="dom-repeat" items="[[_lobbylist]]">
           <div class="lobby layout horizontal end">
             <div class="flex">Lobby #[[item.id]]</div>
-            <paper-icon-button icon="send" title="[[localize('join')]]" lobbyid="[[item.id]]" on-tap="_joinLobby"></paper-icon-button>
+            <papan-join-button route="{{route}}" lobby-id="[[item.id]]"></papan-join-button>
           </div>
         </template>
       </div>
@@ -153,10 +184,6 @@
       _createlobby: function() {
         lobbyInterface.createLobby()
         this._newlobbyname = ''
-      },
-
-      _joinLobby: function(event) {
-        this.set('route.path', "/lobby/" + event.target.lobbyid)
       },
 
       observers: [
