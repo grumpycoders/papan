@@ -15,6 +15,29 @@
     return !!p && !!p.versions && !!p.versions.electron
   }
 
+  that.areArraysEqual = (a1, a2) => {
+    if (a1 === a2) return true
+    if (!Array.isArray(a1)) return false
+    if (!Array.isArray(a2)) return false
+    if (a1.length !== a2.length) return false
+    for (let i = 0; i < a1.length; i++) {
+      if (a2.indexOf(a1[i]) < 0) return false
+    }
+    return true
+  }
+
+  that.JSON = {
+    stringify: JSON.stringify,
+    parse: string => JSON.parse(string, (key, value) => {
+      if (value === null) return value
+      if (typeof value !== 'object') return value
+      if (!that.areArraysEqual(Object.keys(value), ['type', 'data'])) return value
+      if (value.type !== 'Buffer') return value
+      if (!Array.isArray(value.data)) return value
+      return Buffer.from(value.data)
+    })
+  }
+
   that.delayedPromise = (time, value, pass = true) => new Promise((resolve, reject) => {
     let wait = setTimeout(() => {
       clearTimeout(wait)

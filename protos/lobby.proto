@@ -49,6 +49,7 @@ message LobbyInfo {
   User owner = 3;
   bool public = 4;
   repeated User members = 5;
+  Papan.GameInfo game_info = 6;
 }
 
 message UserJoined {

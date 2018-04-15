@@ -43,6 +43,14 @@ class Lobby extends this.EventEmitter {
     }
   }
 
+  setGame (gameInfo) {
+    if (this.isowner) {
+      this._send('PapanLobby.SetLobbyGame', {
+        info: gameInfo
+      })
+    }
+  }
+
   sendChatMessage (message) {
     this._send('PapanLobby.LobbyChatMessage', {
       message: {

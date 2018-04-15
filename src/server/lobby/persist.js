@@ -85,7 +85,7 @@ exports.userSubscribe = (userId, callback) => {
   subscriber.subscribe(key)
   subscriber.on('message', (channel, message) => {
     if (channel === key) {
-      callback(JSON.parse(message))
+      callback(PapanUtils.JSON.parse(message))
     }
   })
 
@@ -97,7 +97,7 @@ exports.userSubscribe = (userId, callback) => {
 }
 
 exports.sendMessage = (userId, message) => {
-  client.publish('usersub:' + userId, JSON.stringify(message))
+  client.publish('usersub:' + userId, PapanUtils.JSON.stringify(message))
 }
 
 exports.getJoinedLobbies = data => {
@@ -118,7 +118,7 @@ exports.getLobbyInfo = data => {
     return promised.hgetall('lobbyinfo:' + id)
   })
   .then(results => {
-    if (!results.owner) return Promise.reject(Error('Lobby doesn\t exist'))
+    if (!results.owner) return Promise.reject(Error('Lobby doesn\'t exist'))
     return {
       id: id,
       owner: {
@@ -126,7 +126,8 @@ exports.getLobbyInfo = data => {
       },
       members: members,
       name: results.name,
-      public: results.public
+      public: results.public,
+      gameInfo: results.gameInfo
     }
   })
 }
@@ -151,7 +152,7 @@ exports.joinLobby = data => {
   const { userId, id } = data
   return promised.hget('lobbyinfo:' + id, 'owner')
   .then(result => {
-    if (result === null) Promise.reject(Error('Lobby doesn\t exist'))
+    if (result === null) Promise.reject(Error('Lobby doesn\'t exist'))
     return promised.sadd('lobbymembers:' + id, userId)
   })
   .then(() => promised.sadd('user:' + userId + ':lobbies', id))
@@ -180,13 +181,13 @@ exports.setLobbyPublic = data => setLobbyField(deepmerge(data, { field: 'public'
   let ret
   if (data.public) {
     ret = promised.sadd('publiclobbies', data.id)
-    client.publish('publiclobbies', JSON.stringify({
+    client.publish('publiclobbies', PapanUtils.JSON.stringify({
       id: data.id,
       status: 'ADDED'
     }))
   } else {
     ret = promised.srem('publiclobbies', data.id)
-    client.publish('publiclobbies', JSON.stringify({
+    client.publish('publiclobbies', PapanUtils.JSON.stringify({
       id: data.id,
       status: 'REMOVED'
     }))
@@ -194,13 +195,15 @@ exports.setLobbyPublic = data => setLobbyField(deepmerge(data, { field: 'public'
   return ret.then(() => info)
 })
 
+exports.setLobbyGame = data => setLobbyField(deepmerge(data, { field: 'gameInfo' }))
+
 exports.lobbySubscribe = (id, callback) => {
   const subscriber = redis.createClient()
   const key = 'lobbysub:' + id
   subscriber.subscribe(key)
   subscriber.on('message', (channel, message) => {
     if (channel === key) {
-      callback(JSON.parse(message))
+      callback(PapanUtils.JSON.parse(message))
     }
   })
 
@@ -212,7 +215,7 @@ exports.lobbySubscribe = (id, callback) => {
 }
 
 exports.lobbySendMessage = (id, message) => {
-  client.publish('lobbysub:' + id, JSON.stringify(message))
+  client.publish('lobbysub:' + id, PapanUtils.JSON.stringify(message))
 }
 
 exports.getPublicLobbies = () => {
@@ -224,7 +227,7 @@ exports.lobbyListSubscribe = callback => {
   const key = 'publiclobbies'
   subscriber.subscribe(key)
   subscriber.on('message', (channel, message) => {
-    const data = JSON.parse(message)
+    const data = PapanUtils.JSON.parse(message)
     if (data.status === 0) {
       this.getLobbyInfo({ id: data.id })
       .then(info => {
