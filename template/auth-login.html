@@ -29,7 +29,22 @@
     'use strict'
 
     Polymer({
-      is: "auth-login"
+      is: "auth-login",
+
+      properties: {
+        _authAvailable: {
+          type: Array
+        },
+        _authInfo: {
+          type: Object
+        },
+        _isLoggedIn: {
+          type: Boolean
+        },
+        _isLoggedOut: {
+          type: Boolean
+        }
+      }
     })
   </script>
 </dom-module>
