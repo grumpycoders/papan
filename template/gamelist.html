@@ -1,4 +1,5 @@
 <link rel="import" href="gamebadge.html">
+<link rel="import" href="data/localize.html">
 <link rel="import" href="data/userinfo.html">
 
 <dom-module id="papan-game-list">
@@ -30,7 +31,11 @@
         user: {
           type: Object
         }
-      }
+      },
+
+      behaviors: [
+        PapanLocalize
+      ]
     })
   </script>
 </dom-module>

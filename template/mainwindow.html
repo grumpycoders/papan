@@ -79,12 +79,14 @@
 
     <div id="mainpage" class="layout horizontal">
       <template is="dom-if" if="{{_loggedin(userinfo)}}">
-        <papan-joined-lobbies lobbylist={{_joinedlobbylist}} route="{{_route}}" currentlobby={{_currentlobby}}></papan-joined-lobbies>
+        <papan-joined-lobbies 
+          lobbylist={{_joinedlobbylist}} 
+          route="{{_route}}" 
+          currentlobby={{_currentlobby}}></papan-joined-lobbies>
       </template>
       <papan-drawer-menu
         id="appdrawer"
         view="{{_routeData.view}}"
-        user="{{userinfo}}"
         language="{{language}}"
         server={{_server}}>
       </papan-drawer-menu>
@@ -108,7 +110,6 @@
           id="lobby"
           route="{{_pagesRoute}}"
           language="{{language}}"
-          server={{_server}}
           currentlobby={{_currentlobby}}
           user={{userinfo}}
         >
@@ -119,8 +120,7 @@
           language="{{language}}"
           server={{_server}}
           serverinfo={{_serverinfo}}
-          user={{userinfo}}
-          joinedlobbylist={{_joinedlobbylist}}>
+          user={{userinfo}}>
         </papan-server-page>
         <papan-server-list
           id="serverlist"
@@ -154,6 +154,14 @@
 
       properties: {
         userinfo: {
+          type: Object
+        },
+
+        _title: {
+          type: String
+        },
+
+        _serverinfo: {
           type: Object
         }
       },

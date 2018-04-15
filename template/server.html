@@ -1,6 +1,9 @@
 <link rel="import" href="../bower_components/app-route/app-route.html">
 <link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
 <link rel="import" href="../bower_components/iron-pages/iron-pages.html">
+<link rel="import" href="../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../bower_components/paper-toggle-button/paper-toggle-button.html">
 
 <link rel="import" href="friendlist.html">
 <link rel="import" href="game.html">
@@ -30,8 +33,8 @@
       <div viewname="home">
         <div class="layout horizontal end">
           <iron-icon id="publicicon" icon="lock-outline" slot="prefix" class="spaced"></iron-icon>
-          <paper-toggle-button checked="{{newlobbypublic}}" on-change="_togglepublic" class="spaced"></paper-toggle-button>
-          <paper-input label="[[localize('name')]]" value="{{newlobbyname}}" class="spaced flex">
+          <paper-toggle-button checked="{{_newlobbypublic}}" on-change="_togglepublic" class="spaced"></paper-toggle-button>
+          <paper-input label="[[localize('name')]]" value="{{_newlobbyname}}" class="spaced flex">
             <iron-icon icon="language" slot="prefix"></iron-icon>
           </paper-input>
           <paper-button raised on-tap="_createlobby">[[localize('add')]]</paper-button>
@@ -117,6 +120,14 @@
             value: function() {
               return [];
             }
+        },
+
+        _newlobbypublic: {
+          type: Boolean
+        },
+
+        _newlobbyname: {
+          type: Boolean
         }
       },
 
@@ -141,6 +152,7 @@
 
       _createlobby: function() {
         lobbyInterface.createLobby()
+        this._newlobbyname = ''
       },
 
       _joinLobby: function(event) {

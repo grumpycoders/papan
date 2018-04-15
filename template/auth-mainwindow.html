@@ -54,6 +54,24 @@
 
     Polymer({
       is: 'auth-main-window',
+
+      properties: {
+        _authInfo: {
+          type: Object
+        },
+        _pagesRoute: {
+          type: Object
+        },
+        _routeData: {
+          type: Object
+        },
+        _isLoggedIn: {
+          type: Boolean
+        },
+        _isLoggedOut: {
+          type: Boolean
+        }
+      }
     })
   </script>
 </dom-module>
