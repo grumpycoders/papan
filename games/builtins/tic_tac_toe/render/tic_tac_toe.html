@@ -1,5 +1,12 @@
+<link rel="import" href="../../../../bower_components/paper-card/paper-card.html">
+
 <dom-module id="ttt-square">
   <template>
+    <style>
+      .square {
+        display: none;
+      }
+    </style>
     <div class="outer">
       <div id="circle" class="square">
         <svg height="124px" width="124px">
@@ -21,12 +28,6 @@
       </div>
     </div>
   </template>
-
-  <style>
-    .square {
-      display: none;
-    }
-  </style>
 
   <script>
     Polymer({
@@ -81,8 +82,21 @@
 
 <dom-module id="papan-main-board">
   <template>
+    <style>
+      table {
+        border-collapse: collapse;
+      }
+
+      td {
+        border: 3px;
+        padding: 0px;
+        margin: 0px;
+        border-style: solid;
+        border-color: #ddd;
+      }
+    </style>
     <paper-card class="board" shadow="4">
-      <paper-card-contents>
+      <div class="card-content">
         <table cellspacing="0px" cellpadding="0px">
           <tr>
             <td><ttt-square id="s00"></ttt-square></td>
@@ -100,26 +114,14 @@
             <td><ttt-square id="s22"></ttt-square></td>
           </tr>
         </table>
-      </paper-card-contents>
-      <paper-card-actions border>
+      </div>
+      <div class="card-actions">
         <span id="gameStatus"></span>
-      </paper-card-actions>
+      </div>
     </paper-card>
   </template>
 
-  <style>
-    table {
-      border-collapse: collapse;
-    }
 
-    td {
-      border: 3px;
-      padding: 0px;
-      margin: 0px;
-      border-style: solid;
-      border-color: #ddd;
-    }
-  </style>
 
   <script>
     Polymer({

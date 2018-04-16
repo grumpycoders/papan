@@ -1,6 +1,9 @@
 <link rel="import" href="../bower_components/app-route/app-route.html">
 <link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
 <link rel="import" href="../bower_components/iron-pages/iron-pages.html">
+<link rel="import" href="../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../bower_components/paper-toggle-button/paper-toggle-button.html">
 
 <link rel="import" href="friendlist.html">
 <link rel="import" href="game.html">
@@ -10,6 +13,37 @@
 <link rel="import" href="data/localize.html">
 <link rel="import" href="data/serverinfo.html">
 
+<dom-module id="papan-join-button">
+  <link rel="import" type="css" href="server.css">
+  <template>
+    <paper-icon-button icon="send" title="[[localize('join')]]" on-tap="_joinLobby"></paper-icon-button>
+  </template>
+
+  <script>
+    Polymer({
+      is: 'papan-join-button',
+
+      properties: {
+        route: {
+          type: Object
+        },
+
+        lobbyId: {
+          type: String
+        }
+      },
+
+      _joinLobby: function(event) {
+        this.set('route.path', "/lobby/" + this.lobbyId)
+      },
+
+      behaviors: [
+        PapanLocalize
+      ]
+    })
+  </script>
+</dom-module>
+ 
 <dom-module id="papan-server-page">
   <link rel="import" type="css" href="server.css">
   <template>
@@ -30,8 +64,8 @@
       <div viewname="home">
         <div class="layout horizontal end">
           <iron-icon id="publicicon" icon="lock-outline" slot="prefix" class="spaced"></iron-icon>
-          <paper-toggle-button checked="{{newlobbypublic}}" on-change="_togglepublic" class="spaced"></paper-toggle-button>
-          <paper-input label="[[localize('name')]]" value="{{newlobbyname}}" class="spaced flex">
+          <paper-toggle-button checked="{{_newlobbypublic}}" on-change="_togglepublic" class="spaced"></paper-toggle-button>
+          <paper-input label="[[localize('name')]]" value="{{_newlobbyname}}" class="spaced flex">
             <iron-icon icon="language" slot="prefix"></iron-icon>
           </paper-input>
           <paper-button raised on-tap="_createlobby">[[localize('add')]]</paper-button>
@@ -39,7 +73,7 @@
         <template is="dom-repeat" items="[[_lobbylist]]">
           <div class="lobby layout horizontal end">
             <div class="flex">Lobby #[[item.id]]</div>
-            <paper-icon-button icon="send" title="[[localize('join')]]" lobbyid="[[item.id]]" on-tap="_joinLobby"></paper-icon-button>
+            <papan-join-button route="{{route}}" lobby-id="[[item.id]]"></papan-join-button>
           </div>
         </template>
       </div>
@@ -117,6 +151,14 @@
             value: function() {
               return [];
             }
+        },
+
+        _newlobbypublic: {
+          type: Boolean
+        },
+
+        _newlobbyname: {
+          type: Boolean
         }
       },
 
@@ -141,10 +183,7 @@
 
       _createlobby: function() {
         lobbyInterface.createLobby()
-      },
-
-      _joinLobby: function(event) {
-        this.set('route.path', "/lobby/" + event.target.lobbyid)
+        this._newlobbyname = ''
       },
 
       observers: [

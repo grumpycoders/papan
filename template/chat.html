@@ -1,9 +1,12 @@
-<link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+<link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../bower_components/paper-input/paper-input.html">
 
 <dom-module id="papan-chat">
   <link rel="import" type="css" href="chat.css">
     <template>
+      <style include="iron-flex iron-flex-alignment">
+  </style>
       <style is="custom-style" include="iron-flex iron-flex-alignment"></style>
       <div id="chat" class="layout vertical">
         <div id="chattext" class="layout flex"></div>
@@ -12,14 +15,12 @@
           no-label-float
           value="{{_text}}"
           on-keypress="_keyPressed">
-          <div suffix><paper-icon-button icon="send" on-tap="_localmessage"></paper-icon-button></div>
+          <div suffix slot="suffix"><paper-icon-button icon="send" on-tap="_localmessage"></paper-icon-button></div>
         </paper-input>
       </div>
     </div>
   </template>
 
-  <style include="iron-flex iron-flex-alignment">
-  </style>
 
   <script>
     'use strict'
@@ -31,15 +32,19 @@
         /*
           Name of the user writing in the chat box
         */
-        user : {
+        user: {
           type: String
         },
 
         /*
           Lobby related to the chat
         */
-        lobby : {
+        lobby: {
           type: Object
+        },
+
+        _text: {
+          type: String
         }
       },
 

@@ -2,8 +2,12 @@
 <link rel="import" href="../bower_components/app-storage/app-localstorage/app-localstorage-document.html">
 <link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
 <link rel="import" href="../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../bower_components/iron-pages/iron-pages.html">
+<link rel="import" href="../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../bower_components/paper-input/paper-input.html">
 <link rel="import" href="../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../bower_components/paper-toggle-button/paper-toggle-button.html">
 
 <link rel="import" href="data/localize.html">
 
@@ -15,8 +19,8 @@
     <server-info serverlist={{_serverlistold}}></server-info>
       <div class="layout horizontal end">
         <iron-icon id="sslicon" icon="lock-outline" slot="prefix" class="spaced"></iron-icon>
-        <paper-toggle-button checked="{{newserverssl}}" on-change="_toggleSSL" class="spaced"></paper-toggle-button>
-        <paper-input label="[[localize('address')]]" value="{{newserveraddress}}" class="spaced flex">
+        <paper-toggle-button checked="{{_newserverssl}}" on-change="_toggleSSL" class="spaced"></paper-toggle-button>
+        <paper-input label="[[localize('address')]]" value="{{_newserveraddress}}" class="spaced flex">
           <iron-icon icon="language" slot="prefix"></iron-icon>
         </paper-input>
         <paper-button raised on-tap="_addserver">[[localize('add')]]</paper-button>
@@ -78,18 +82,6 @@
       is: "papan-server-list",
 
       properties: {
-        _serverlist : {
-          type: Array,
-          notify: true
-        },
-        newserverssl : {
-          type: Boolean,
-          value: true
-        },
-        _connectionTimestamp : {
-          type: Number,
-          value: 0
-        },
         /*
           Route
         */
@@ -104,6 +96,28 @@
         userinfo: {
           type: Object,
           notify: true
+        },
+
+        _newserverssl: {
+          type: Boolean,
+          value: true
+        },
+        _newserveraddress: {
+          type: String
+        },
+        _serverlist: {
+          type: Array,
+          notify: true
+        },
+        _connectionTimestamp: {
+          type: Number,
+          value: 0
+        },
+        _connectionstatus: {
+          type: String
+        },
+        _currentServer: {
+          type: String
         }
       },
       ready: function() {
@@ -120,8 +134,8 @@
       },
 
       _addserver: function() {
-        this.push('_serverlist', { id: 0, name: this.newserveraddress, url: this.newserveraddress, port: 9999, ssl: this.newserverssl });
-        this.newserveraddress = ""
+        this.push('_serverlist', { id: 0, name: this._newserveraddress, url: this._newserveraddress, port: 9999, ssl: this._newserverssl });
+        this._newserveraddress = ""
       },
 
       _removeServer: function(event) {
@@ -154,7 +168,7 @@
       },
 
       _toggleSSL: function() {
-        if (this.newserverssl)
+        if (this._newserverssl)
           this.$.sslicon.icon = "lock-outline"
         else
           this.$.sslicon.icon = "lock-open"

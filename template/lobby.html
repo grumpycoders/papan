@@ -1,8 +1,7 @@
 <link rel="import" href="../bower_components/app-route/app-route.html">
 <link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
-<link rel="import" href="../bower_components/iron-image/iron-image.html">
-<link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
-<link rel="import" href="../bower_components/paper-tabs/paper-tabs.html">
+<link rel="import" href="../bower_components/iron-pages/iron-pages.html">
+<link rel="import" href="../bower_components/paper-button/paper-button.html">
 
 <link rel="import" href="data/gameinfo.html">
 <link rel="import" href="data/localize.html">
@@ -14,37 +13,18 @@
   <script src="../src/common/utils.js"></script>
 
   <template>
+    <style include="iron-flex iron-flex-alignment"></style>
     <style is="custom-style" include="iron-flex iron-flex-alignment"></style>
     <app-route
       route="{{route}}"
       pattern="/:lobbyid"
       data="{{_routeData}}">
     </app-route>
-    <!--game-info gameid=[[_routeData.gameid]] gameinfo={{_game}}></game-info-->
 
     <div id="page" class="layout vertical">
       <div>[[_routeData.lobbyid]]</div>
-      <!--div id="banner">
-        <iron-image 
-          src="[[_game.banner]]"
-          placeholder="pictures/gamebanner.svg"
-          preload>
-        </iron-image>
-        <div id="bannertitle">[[_game.gamename]]</div>
-      </div-->
       <div id="lobbycontent" class="layout flex horizontal">
         <div class="layout flex vertical">
-          <!--paper-tabs 
-            id="tabs" 
-            selected="{{_view}}" 
-            attr-for-selected="name" 
-            hide-scroll-buttons
-            fit-container 
-            scrollable>
-            <paper-tab name="lobby">[[localize('lobby')]]</paper-tab>
-            <paper-tab name="board" id="boardtab" disabled>[[localize('board')]]</paper-tab>
-          </paper-tabs-->
-
           <iron-pages 
             selected="{{_view}}" 
             attr-for-selected="name" 
@@ -67,7 +47,6 @@
     </div>
   </template>
 
-  <style include="iron-flex iron-flex-alignment"></style>
 
   <script>
     'use strict'
@@ -83,8 +62,16 @@
           type: Object
         },
 
+        route: {
+          type: Object
+        },
+
         currentlobby: {
           type: Object
+        },
+
+        _view: {
+          type: String
         }
       },
 
@@ -121,8 +108,6 @@
         } else {
           alert("Browser support not implemented yet")
         }
-        this._view = 'board'
-        //this.$.boardtab.disabled = false
       }
     })
   </script>

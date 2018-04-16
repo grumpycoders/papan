@@ -16,6 +16,7 @@
 <dom-module id="papan-drawer-menu">
   <link rel="import" type="css" href="drawermenu.css">
   <template>
+    <style include="iron-flex iron-flex-alignment"></style>
     <app-drawer id="drawermenu" swipe-open>
       <paper-listbox selected="{{view}}" attr-for-selected="name">
         <paper-icon-item class="appmenuitem" name="startupscreen">
@@ -41,7 +42,6 @@
     </app-drawer>
   </template>
 
-  <style include="iron-flex iron-flex-alignment"></style>
 
   <script>
     'use strict'
