@@ -28,9 +28,14 @@
           <iron-pages 
             selected="{{_view}}" 
             attr-for-selected="name" 
-            fallback-selection="lobby"
+            fallback-selection="gamelist"
             class="layout flex">
-            <papan-game-list name="gamelist" user="tom" language="{{language}}"></papan-game-list>
+            <papan-game-list 
+              name="gamelist" 
+              user="tom" 
+              language="{{language}}"
+              serverinfo="[[serverinfo]]">
+            </papan-game-list>
             <div name="lobby">
               <!--[[localize('connectedtitle')]]-->
               <!--ul>
@@ -67,6 +72,10 @@
         },
 
         currentlobby: {
+          type: Object
+        },
+
+        serverinfo: {
           type: Object
         },
 

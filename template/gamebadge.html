@@ -3,16 +3,16 @@
 <link rel="import" href="../bower_components/paper-card/paper-card.html">
 <link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
 
-<link rel="import" href="data/gameinfo.html">
+<!--link rel="import" href="data/gameinfo.html"-->
 
 <dom-module id="papan-game-badge">
   <link rel="import" type="css" href="gamebadge.css">
   <template>
-    <game-info gameid=[[gameid]] gameinfo={{_game}}></game-info>
+    <!--game-info gameid=[[gameid]] gameinfo={{_game}}></game-info-->
 
     <paper-card 
-      heading="[[_game.gamename]]" 
-      image="[[_game.icon]]" 
+      heading="[[gameinfo.json.name]]" 
+      image="[[gameinfo.fullPath]]/[[gameinfo.json.icon]]" 
       placeholder-image="pictures/gameicon.svg" 
       preload-image
       elevation="4">
@@ -31,12 +31,19 @@
 
       properties: {
         /*
-          ID of the game to be displayed
+          name of the game to be displayed
         */
-        gameid: {
+        gamename: {
           type: String
         },
         
+        /*
+          name of the game to be displayed
+        */
+        gameinfo: {
+          type: String
+        },
+
         /*
           server where the game is hosted
         */

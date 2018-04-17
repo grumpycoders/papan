@@ -111,6 +111,7 @@
           route="{{_pagesRoute}}"
           language="{{language}}"
           currentlobby={{_currentlobby}}
+          serverinfo=[[_serverinfo]]
           user={{userinfo}}
         >
         </papan-lobby>
@@ -194,7 +195,7 @@
       _showuserdata: function() {
         this.$.dbglogindata.open()
       },
-
+/*
       _showlogin: function() {
         this.$.logindialog.open()
       },
@@ -202,7 +203,7 @@
       _signout: function() {
         _user.islogged = false
       },
-
+*/
       _updateServer: function(server) {
         if (!server || server == '')
           this._title = 'Papan'
