@@ -18,7 +18,7 @@
       elevation="4">
       <div class="card-actions">
         <a href="#/server/{{server}}/game/[[gameid]]" tabindex="-1"><paper-icon-button icon="icons:info"></paper-icon-button></a>
-        <a href="#/server/{{server}}/lobby/[[gameid]]" tabindex="-1"><paper-icon-button icon="av:play-circle-filled"></paper-icon-button></a>
+        <paper-icon-button icon="av:play-circle-filled" on-tap="_runGame"></paper-icon-button>
       </div>
     </paper-card>
   </template>
@@ -44,12 +44,22 @@
           type: String
         },
 
+        lobby: {
+          type: Object
+        },
+
         /*
           server where the game is hosted
         */
         server: {
           type: String
         }
+      },
+
+      _runGame: function() {
+        console.log('set game to ')
+        console.log(this.gameinfo)
+        this.lobby.setGame(this.gameinfo)
       }
     })
   </script>

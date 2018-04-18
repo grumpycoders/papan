@@ -110,7 +110,7 @@
           id="lobby"
           route="{{_pagesRoute}}"
           language="{{language}}"
-          currentlobby={{_currentlobby}}
+          lobby={{_currentlobby}}
           serverinfo=[[_serverinfo]]
           user={{userinfo}}
         >
@@ -158,6 +158,10 @@
           type: Object
         },
 
+        _currentlobby: {
+          type: Object,
+          notify: true
+        },
         _joinedlobbylist: {
           type: Array
         },

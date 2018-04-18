@@ -9,7 +9,7 @@
       <user-info userid=[[user.username]] userinfo={{_userinfo}}></user-info-->
       <div id="user-games-list">
         <template is="dom-repeat" items="[[_gamelist]]">
-          <papan-game-badge gamename=[[item.name]] gameinfo=[[item.info]] server="[[server]]"></papan-game-badge>
+          <papan-game-badge gamename=[[item.name]] gameinfo=[[item.info]] lobby="[[lobby]]" server="[[server]]"></papan-game-badge>
         </template>
       </div>
     <!--/template>
@@ -33,6 +33,10 @@
         },
 
         server: {
+          type: Object
+        },
+
+        lobby: {
           type: Object
         },
 

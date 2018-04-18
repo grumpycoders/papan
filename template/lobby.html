@@ -34,7 +34,8 @@
               name="gamelist" 
               user="tom" 
               language="{{language}}"
-              serverinfo="[[serverinfo]]">
+              serverinfo="[[serverinfo]]"
+              lobby=[[lobby]]>
             </papan-game-list>
             <div name="lobby">
               <!--[[localize('connectedtitle')]]-->
@@ -47,7 +48,7 @@
             <div id="main-view" name="board"></div>
           </iron-pages>
         </div>
-        <papan-chat user=[[user.username]] lobby=[[currentlobby]]></papan-chat>
+        <papan-chat user=[[user.username]] lobby=[[lobby]]></papan-chat>
       </div>
     </div>
   </template>
@@ -71,7 +72,7 @@
           type: Object
         },
 
-        currentlobby: {
+        lobby: {
           type: Object
         },
 
@@ -84,9 +85,23 @@
         }
       },
 
+      observers: [
+        '_lobbyChanged(lobby)'
+      ],
+
       behaviors: [
         PapanLocalize
       ],
+
+      _lobbyChanged: function() {
+        console.log('lobby changed')
+        console.log(this.lobby)
+        this.lobby.on('update', data => {
+          this._view = 'lobby'
+          console.log('game set?')
+          console.log(data)
+        })
+      },
 
       _start: function() {
         if (PapanUtils.isElectron()) {
