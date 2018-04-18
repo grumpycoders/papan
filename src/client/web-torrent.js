@@ -4,8 +4,6 @@ if (this.PapanUtils.isElectron()) {
   this.webtorrentReady = true
   const WebTorrent = require('webtorrent')
   this.webTorrentClient = new WebTorrent()
-
-  this.webTorrentClient.on('error', console.error)
 } else {
   this.webtorrentReady = false
   const wtjspath = 'node_modules/webtorrent/webtorrent.min.js'
@@ -17,3 +15,5 @@ if (this.PapanUtils.isElectron()) {
   wtjs.src = wtjspath
   this.document.head.appendChild(wtjs)
 }
+
+this.webTorrentClient.on('error', console.error)

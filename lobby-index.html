@@ -74,22 +74,31 @@
         Papan.cssLoader('node_modules/spinkit/css/spinners/3-wave.css')
         .then(() => Promise.all([
           // Loading all the code that doesn't depend on anything else first.
-          Papan.jsLoader('node_modules/deep-diff/releases/deep-diff-0.3.4.min.js'),
-          Papan.jsLoader('node_modules/event-emitter-es6/dist/event-emitter.min.js'),
           Papan.jsLoader('bower_components/webcomponentsjs/webcomponents-loader.js'),
+          Papan.jsLoader('node_modules/acorn/dist/acorn.js'),
+          Papan.jsLoader('node_modules/deep-diff/releases/deep-diff-0.3.4.min.js'),
+          Papan.jsLoader('node_modules/deepmerge/dist/umd.js'),
+          Papan.jsLoader('node_modules/event-emitter-es6/dist/event-emitter.min.js'),
           Papan.jsLoader('src/common/utils.js'),
+          Papan.jsLoader('third_party/escodegen.browser.min.js'),
           new Promise((resolve, reject) => window.addEventListener('WebComponentsReady', resolve))
         ]))
         .then(() => Promise.all([
+          // Depends on acorn
+          Papan.jsLoader('node_modules/acorn/dist/walk.js'),
           // Depend on utils.js
           Papan.jsLoader('src/client/channel.js'),
-          Papan.jsLoader('src/client/webtorrent.js'),
+          Papan.jsLoader('src/client/web-torrent.js'),
           // Depends on webcomponents
           Papan.importLoader('template/mainwindow.html')
         ]))
         .then(() => Promise.all([
           // Depends on channel.js
-          Papan.jsLoader('src/client/lobbyinterface.js'),
+          Papan.jsLoader('src/client/lobby-interface.js')
+        ]))
+        .then(() => Promise.all([
+          // Depends on acorn, escodegen, webtorrent, channel, lobby-interface and webcomponents
+          Papan.jsLoader('src/client/component-loader.js'),
         ]))
         .then(() => Promise.all([
           // Waiting for channels and webtorrents to be ready.
