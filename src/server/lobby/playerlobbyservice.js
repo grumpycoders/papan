@@ -91,9 +91,9 @@ class LobbyHandlers {
     return persist.setLobbyGame({
       userId: userId,
       id: call.id,
-      gameInfo: data.gameInfo
+      gameInfo: data.info
     }).then(result => {
-      persist.lobbySendMesasge(call.id, {
+      persist.lobbySendMessage(call.id, {
         info: result
       })
     })
