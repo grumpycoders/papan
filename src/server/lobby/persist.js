@@ -10,14 +10,15 @@ const argv = commandline(optionDefinitions, { partial: true, argv: process.argv 
 const PapanUtils = require('../../common/utils.js')
 const PapanServerUtils = require('../common/utils.js')
 const protoLoader = require('../common/proto.js')
+const createSerializer = require('../../common/serializer.js').createSerializer
 
 class PersistClient {
   constructor ({ proto, rs, client, redis }) {
-    this._proto = proto
     this._redis = redis
     this._rs = rs
     this._client = client
     this._promised = PapanServerUtils.promisifyClass(client)
+    this._serializer = createSerializer(proto.rootProto)
   }
 
   createSession (userId) {
@@ -121,7 +122,7 @@ class PersistClient {
         members: members,
         name: results.name,
         public: results.public,
-        gameInfo: results.gameInfo
+        gameInfo: results.gameInfo ? this._serializer.deserialize('Papan.GameInfo', Buffer.from(results.gameInfo, 'base64')) : results.gameInfo
       }
     })
   }
@@ -194,8 +195,13 @@ class PersistClient {
     })
   }
 
-  setLobbyGame (data) {
-    return this._setLobbyField(deepmerge(data, { field: 'gameInfo' }))
+  setLobbyGame ({ userId, id, gameInfo }) {
+    return this._setLobbyField({
+      userId: userId,
+      id: id,
+      gameInfo: this._serializer.serialize('Papan.GameInfo', gameInfo).toString('base64'),
+      field: 'gameInfo'
+    })
   }
 
   lobbySubscribe (id, callback) {
