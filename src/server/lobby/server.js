@@ -5,10 +5,11 @@ const path = require('path')
 const _ = require('lodash')
 const protoLoader = require('../common/proto.js')
 const PapanServerUtils = require('../common/utils.js')
-const authsession = require('./authsession.js')
+const SessionManager = require('./session-manager.js')
 
 const playerLobbyService = require('./playerlobbyservice.js')
 const gameLobbyService = require('./gamelobbyservice.js')
+const Persist = require('./persist.js')
 
 const serverDefaults = {
   requiresAuth: true,
@@ -23,12 +24,15 @@ exports.registerServer = options => {
     PapanServerUtils.readFile(path.join(__dirname, '..', '..', '..', 'certs', 'localhost-ca.crt')),
     PapanServerUtils.readFile(path.join(__dirname, '..', '..', '..', 'certs', 'localhost-server.crt')),
     PapanServerUtils.readFile(path.join(__dirname, '..', '..', '..', 'certs', 'localhost-server.key')),
+    Persist.createPersist(),
     protoLoader.load('lobby.proto')
   ]
 
   return Promise.all(work).then(results => {
+    const persist = results[3]
+    const sessionManager = new SessionManager(persist)
     const grpcServer = new grpc.Server()
-    const lobbyProto = results[3]
+    const lobbyProto = results[4]
     const sslCreds = grpc.ServerCredentials.createSsl(
       results[0],
       [{ private_key: results[2], cert_chain: results[1] }],
@@ -36,16 +40,26 @@ exports.registerServer = options => {
     )
     grpcServer.addService(
       lobbyProto.PapanLobby.PlayerLobbyService.service,
-      authsession.checkCredentials(
+      sessionManager.checkCredentials(
         options,
-        playerLobbyService.generateService(lobbyProto.rootProto.PapanLobby, options)
+        playerLobbyService.generateService({
+          proto: lobbyProto.rootProto.PapanLobby,
+          persist: persist,
+          sessionManager: sessionManager,
+          options: options
+        })
       )
     )
     grpcServer.addService(
       lobbyProto.PapanLobby.GameLobbyService.service,
-      authsession.checkCredentials(
+      sessionManager.checkCredentials(
         { requiresAuth: false },
-        gameLobbyService.generateService(lobbyProto.rootProto.PapanLobby, options)
+        gameLobbyService.generateService({
+          proto: lobbyProto.rootProto.PapanLobby,
+          persist: persist,
+          sessionManager: sessionManager,
+          options: options
+        })
       )
     )
 

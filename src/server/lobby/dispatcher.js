@@ -11,9 +11,11 @@ module.exports = (fields, handlerClass) => {
   })
 
   return (call, data) => {
-    const pendingPromise = handlers[data.action](call, data[data.action])
+    const pendingPromise = handlers[data.action].call(handlerClass, call, data[data.action])
     if (pendingPromise) {
       pendingPromise.catch(err => {
+        console.error('Dispatcher error caught:')
+        console.error(err)
         let error = {
           code: grpc.status.UNKNOWN,
           details: err.message,
