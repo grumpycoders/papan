@@ -34,16 +34,22 @@
               name="gamelist" 
               user="tom" 
               language="{{language}}"
-              serverinfo="[[serverinfo]]"
+              server="[[serverinfo]]"
               lobby=[[lobby]]>
             </papan-game-list>
             <div name="lobby">
-              <!--[[localize('connectedtitle')]]-->
+                <div id="ownerview">
+                  Start
+                  <paper-button raised on-tap="_start">[[localize('startgame')]]</paper-button>
+                </div>
+                <div id="joinerview">
+                  Join
+                </div>
+                        <!--[[localize('connectedtitle')]]-->
               <!--ul>
                 <li><a href="#/profile/foo">foo</a></li>
                 <li><a href="#/profile/bar">bar</a></li>
               </ul-->
-              <paper-button raised on-tap="_start">[[localize('startgame')]]</paper-button>
             </div>
             <div id="main-view" name="board"></div>
           </iron-pages>
@@ -94,6 +100,13 @@
       ],
 
       _lobbyChanged: function() {
+        if (this.lobby.isOwner) {
+          this.$.ownerview.style.display = "block"
+          this.$.joinerview.style.display = "none"
+        } else  {
+          this.$.ownerview.style.display = "none"
+          this.$.joinerview.style.display = "block"
+        }
         console.log('lobby changed')
         console.log(this.lobby)
         this.lobby.on('update', data => {

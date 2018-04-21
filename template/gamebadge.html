@@ -17,7 +17,7 @@
       preload-image
       elevation="4">
       <div class="card-actions">
-        <a href="#/server/{{server}}/game/[[gameid]]" tabindex="-1"><paper-icon-button icon="icons:info"></paper-icon-button></a>
+        <a href="#/game/[[gameinfo]]" tabindex="-1"><paper-icon-button icon="icons:info"></paper-icon-button></a>
         <paper-icon-button icon="av:play-circle-filled" on-tap="_runGame"></paper-icon-button>
       </div>
     </paper-card>
@@ -41,7 +41,7 @@
           name of the game to be displayed
         */
         gameinfo: {
-          type: String
+          type: Object
         },
 
         lobby: {
