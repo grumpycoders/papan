@@ -37,22 +37,21 @@
               server="[[serverinfo]]"
               lobby=[[lobby]]>
             </papan-game-list>
-            <div name="lobby">
-                <div id="ownerview">
-                  Start
-                  <paper-button raised on-tap="_start">[[localize('startgame')]]</paper-button>
-                </div>
-                <div id="joinerview">
-                  Join
-                </div>
-                        <!--[[localize('connectedtitle')]]-->
-              <!--ul>
-                <li><a href="#/profile/foo">foo</a></li>
-                <li><a href="#/profile/bar">bar</a></li>
-              </ul-->
+            <div name="lobby" class="layout flex horizontal">
+              <div id="ownerview">
+                <paper-button raised on-tap="_start">[[localize('startgame')]]</paper-button>
+              </div>
+              <div id="joinerview">
+                <paper-button raised on-tap="_join">[[localize('joingame')]]</paper-button>
+              </div>
             </div>
             <div id="main-view" name="board"></div>
           </iron-pages>
+        </div>
+      <div id="memberlist">
+          <template is="dom-repeat" items="[[members]]">
+            <div class="memberitem"><a href="#/profile/[[item.id]]">[[item.id]]</a></div>
+          </template>
         </div>
         <papan-chat user=[[user.username]] lobby=[[lobby]]></papan-chat>
       </div>
@@ -86,6 +85,11 @@
           type: Object
         },
 
+        members: {
+          type: Array,
+          value: () => [{id: 1}, {id: 2}, {id: 32}]
+        },
+
         _view: {
           type: String
         }
@@ -107,12 +111,8 @@
           this.$.ownerview.style.display = "none"
           this.$.joinerview.style.display = "block"
         }
-        console.log('lobby changed')
-        console.log(this.lobby)
         this.lobby.on('update', data => {
           this._view = 'lobby'
-          console.log('game set?')
-          console.log(data)
         })
       },
 

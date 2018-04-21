@@ -44,3 +44,9 @@ papan-chat {
 #ownerview #joinerview{
   display: none
 }
+
+#memberlist {
+  width: 200px;
+  height: 100%;
+  border-left: 1px solid lightgrey;
+}
