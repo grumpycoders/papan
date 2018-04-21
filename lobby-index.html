@@ -118,7 +118,8 @@
           // Depend on utils.js
           Papan.babelLoader('src/client/channel.js'),
           Papan.babelLoader('src/client/web-torrent.js'),
-          // Depends on webcomponents
+          // Depends on webcomponents,
+          Papan.importLoader('bower_components/font-roboto-local/roboto.html'),
           Papan.importLoader('template/mainwindow.html')
         ]))
         .then(() => Promise.all([

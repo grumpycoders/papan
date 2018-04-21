@@ -305,18 +305,23 @@ class ComponentLoader {
         }
       }
     })
-    const transformed = global.Babel.transform(text, {
+    let transformed = global.Babel.transform(text, {
       presets: [
         'es2017',
         'stage-0',
         'react'
       ],
       sourceMaps: 'inline',
-      filename: filename,
+      filename: filename
+    })
+    transformed = global.Babel.transformFromAst(transformed.ast, transformed.code, {
       plugins: [
         plugin
-      ]
+      ],
+      sourceMaps: 'inline',
+      filename: filename
     })
+
     return transformed.code
   }
 }
