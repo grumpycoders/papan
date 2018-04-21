@@ -10,6 +10,7 @@ class ComponentLoader {
     this._resolvers = {}
     this._torrentsInfo = {}
     this._components = {}
+    this._inlineScriptsCounters = {}
     const parser = new global.DOMParser()
     this._parseString = string => parser.parseFromString(string, 'text/html')
   }
@@ -156,7 +157,7 @@ class ComponentLoader {
 
   _loadHTML (infoHash, filename) {
     return this._getFile(infoHash, filename)
-    .then(file => this._transform(infoHash, this._parseString(file.toString())))
+    .then(file => this._transformElement(infoHash, this._parseString(file.toString()), filename))
   }
 
   _encodeToHREF (type, base64) {
@@ -164,11 +165,11 @@ class ComponentLoader {
     return 'data:' + type + ';charset=utf-8;base64,' + encoded
   }
 
-  _transformArrayAndAttach (infoHash, elements, base) {
+  _transformArrayAndAttach (infoHash, elements, base, filename) {
     if (!base) return Promise.resolve(base)
     const promises = []
     for (let i = 0; i < elements.length; i++) {
-      if (elements[i]) promises.push(this._transform(infoHash, elements[i]))
+      if (elements[i]) promises.push(this._transformElement(infoHash, elements[i], filename))
     }
     return Promise.all(promises)
     .then(newElements => {
@@ -184,7 +185,7 @@ class ComponentLoader {
     })
   }
 
-  _transform (infoHash, element) {
+  _transformElement (infoHash, element, filename) {
     const tagName = element.nodeName.toLowerCase()
     const transform = this._components[infoHash].transforms[tagName]
     let newElement
@@ -240,13 +241,21 @@ class ComponentLoader {
           if (src) {
             promise = this._getFile(infoHash, src)
             .then(file => {
-              const newScript = this._transformScript(infoHash, file.toString())
+              const newScript = this._transformScript(infoHash, file.toString(), infoHash + '/' + src)
               element.removeAttribute('src')
               attachScript(element, newScript)
               return element
             })
           } else {
-            const newScript = this._transformScript(infoHash, element.text)
+            let suffix = ''
+            let counter = this._inlineScriptsCounters[infoHash]
+            if (!counter) {
+              this._inlineScriptsCounters[infoHash] = 1
+            } else {
+              suffix = ' ' + ++counter
+              this._inlineScriptsCounters[infoHash] = counter
+            }
+            const newScript = this._transformScript(infoHash, element.text, infoHash + '/' + filename + '/inline script' + suffix)
             attachScript(element, newScript)
           }
           break
@@ -280,14 +289,13 @@ class ComponentLoader {
     }
     if (processChildren) {
       return promise
-      .then(newElement => this._transformArrayAndAttach(infoHash, element.children, newElement))
+      .then(newElement => this._transformArrayAndAttach(infoHash, element.children, newElement, filename))
     } else {
       return promise
     }
   }
 
-  _transformScript (infoHash, text) {
-    const pluginName = 'papan-plugin-' + infoHash
+  _transformScript (infoHash, text, filename) {
     const transforms = this._components[infoHash].transforms
     const plugin = () => ({
       visitor: {
@@ -297,9 +305,20 @@ class ComponentLoader {
         }
       }
     })
-    global.Babel.registerPlugin(pluginName, plugin)
-    return global.Babel.transform(text, { presets: ['es2017', 'stage-0', 'react'], plugins: [ pluginName ] }).code
+    const transformed = global.Babel.transform(text, {
+      presets: [
+        'es2017',
+        'stage-0',
+        'react'
+      ],
+      sourceMaps: 'inline',
+      filename: filename,
+      plugins: [
+        plugin
+      ]
+    })
+    return transformed.code
   }
 }
 
-this.componentLoader = new ComponentLoader()
+global.componentLoader = new ComponentLoader()

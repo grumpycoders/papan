@@ -1,8 +1,8 @@
 'use strict'
 
-const channel = this.channel
+const channel = global.channel
 
-class Lobby extends this.EventEmitter {
+class Lobby extends global.EventEmitter {
   constructor (info, lobbyInterface) {
     super()
 
@@ -60,7 +60,7 @@ class Lobby extends this.EventEmitter {
   }
 }
 
-class LobbyInterface extends this.EventEmitter {
+class LobbyInterface extends global.EventEmitter {
   constructor () {
     super()
 
@@ -127,4 +127,4 @@ class LobbyInterface extends this.EventEmitter {
   sendGameInfo (gameInfo) { channel.send('PapanLobby.SendGameInfo', { info: gameInfo }) }
 }
 
-this.lobbyInterface = new LobbyInterface()
+global.lobbyInterface = new LobbyInterface()

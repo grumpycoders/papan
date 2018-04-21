@@ -7,7 +7,7 @@
     that.PapanUtils = {}
     register(that.PapanUtils)
   }
-})(this, that => {
+})(global, that => {
   'use strict'
 
   that.isElectron = () => {

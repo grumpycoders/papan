@@ -1,19 +1,16 @@
 'use strict'
 
-if (this.PapanUtils.isElectron()) {
-  this.webtorrentReady = true
+if (global.PapanUtils.isElectron()) {
+  global.webtorrentReady = true
   const WebTorrent = require('webtorrent')
-  this.webTorrentClient = new WebTorrent()
+  global.webTorrentClient = new WebTorrent()
 } else {
-  this.webtorrentReady = false
-  const wtjspath = 'node_modules/webtorrent/webtorrent.min.js'
-  const wtjs = document.createElement('script')
-  wtjs.onload = () => {
-    this.webTorrentClient = new this.WebTorrent()
-    if (this.webtorrentOnReady) this.webtorrentOnReady()
-  }
-  wtjs.src = wtjspath
-  this.document.head.appendChild(wtjs)
+  global.webtorrentReady = false
+  global.Papan.jsLoader('node_modules/webtorrent/webtorrent.min.js')
+  .then(() => {
+    global.webTorrentClient = new global.WebTorrent()
+    if (global.webtorrentOnReady) global.webtorrentOnReady()
+  })
 }
 
-this.webTorrentClient.on('error', console.error)
+global.webTorrentClient.on('error', console.error)
