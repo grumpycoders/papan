@@ -43,7 +43,7 @@
     "standard": "^10.0.2"
   },
   "dependencies": {
-    "acorn": "^5.5.3",
+    "babel-standalone": "^6.26.0",
     "base64url": "^2.0.0",
     "body-parser": "^1.17.2",
     "bower": "^1.8.0",

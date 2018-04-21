@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <title>Papan</title>
 
+    <script src="node_modules/babel-standalone/babel.min.js"></script>
+
     <style is="papan-style">
       html:not([style-scope]):not(.style-scope),body:not([style-scope]):not(.style-scope) {
         margin: 0;
@@ -30,8 +32,8 @@
       }
     </style>
 
-    <script>
-      Papan = {
+    <script type="text/babel" data-presets="es2017">
+      var Papan = {
         asyncLoader: ({ path, elementType, baseObj }) => new Promise((resolve, reject) => {
           const element = document.createElement(elementType)
           element.onload = resolve

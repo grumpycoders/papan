@@ -287,21 +287,18 @@ class ComponentLoader {
   }
 
   _transformScript (infoHash, text) {
-    const tree = global.acorn.parse(text)
-    global.acorn.walk.full(tree, node => {
-      if (node.type !== 'CallExpression') return
-      if (node.callee.name !== 'Polymer') return
-      if (node.arguments.length !== 1) return
-      if (node.arguments[0].type !== 'ObjectExpression') return
-      node.arguments[0].properties.forEach(prop => {
-        if (prop.key.type !== 'Identifier') return
-        if (prop.key.name !== 'is') return
-        if (prop.value.type !== 'Literal') return
-        const transform = this._components[infoHash].transforms[prop.value.value]
-        if (transform) prop.value.value = transform
-      })
+    const pluginName = 'papan-plugin-' + infoHash
+    const transforms = this._components[infoHash].transforms
+    const plugin = () => ({
+      visitor: {
+        StringLiteral (path) {
+          const transform = transforms[path.node.value]
+          if (transform) path.node.value = transform
+        }
+      }
     })
-    return global.escodegen.generate(tree)
+    global.Babel.registerPlugin(pluginName, plugin)
+    return global.Babel.transform(text, { presets: ['es2017', 'stage-0', 'react'], plugins: [ pluginName ] }).code
   }
 }
 
