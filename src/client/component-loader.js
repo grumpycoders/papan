@@ -39,7 +39,7 @@ class ComponentLoader {
         const src = this._components[depInfoHash].transforms
         this._components[infoHash].transforms = global.deepmerge(dst, src)
       })
-      this._loadComponent(infoHash)
+      return this._loadComponent(infoHash)
     })
 
     this._components[infoHash] = {
@@ -135,24 +135,29 @@ class ComponentLoader {
     }))
   }
 
+  _attachDocument (doc) {
+    return new Promise((resolve, reject) => {
+      const serialized = doc.firstChild.innerHTML
+      const component = document.createElement('link')
+      component.setAttribute('rel', 'import')
+      component.setAttribute('href', this._encodeToHREF('text/html', global.btoa(serialized)))
+      component.onload = () => resolve()
+      document.head.appendChild(component)
+    })
+  }
+
   _loadComponent (infoHash) {
-    this._getFile(infoHash, 'game.json')
+    return this._getFile(infoHash, 'game.json')
     .then(file => {
       const json = JSON.parse(file.toString())
       const webComponent = json.webcomponent
       if (typeof webComponent === 'string' && webComponent.length !== 0) {
         return this._loadHTML(infoHash, webComponent)
+        .then(doc => this._attachDocument(doc))
+        .then(() => 'papan-infohash-' + infoHash + '-papan-game-board')
       }
       return Promise.reject(Error('Torrent ' + infoHash + ' has no registered web component.'))
     })
-    .then(doc => new Promise((resolve, reject) => {
-      const serialized = doc.firstChild.innerHTML
-      const component = document.createElement('link')
-      component.setAttribute('rel', 'import')
-      component.setAttribute('href', this._encodeToHREF('text/html', global.btoa(serialized)))
-      component.onload = () => resolve(infoHash)
-      document.head.appendChild(component)
-    }))
   }
 
   _loadHTML (infoHash, filename) {
@@ -186,11 +191,21 @@ class ComponentLoader {
   }
 
   _transformElement (infoHash, element, filename) {
+    const base = (new global.PapanUtils.Path(filename)).dirname()
     const tagName = element.nodeName.toLowerCase()
     const transform = this._components[infoHash].transforms[tagName]
     let newElement
     let promise
     let processChildren = true
+    const ifHrefHereThen = (href, cb, outcb) => {
+      const path = new global.PapanUtils.Path(href)
+      const fullPath = base.join(path).normalize()
+      if (!path.isAbsolute() && !path.isBelow() && !fullPath.isBelow()) {
+        if (cb) cb(fullPath.toString())
+      } else {
+        if (outcb) outcb(fullPath.toString())
+      }
+    }
     if (transform) {
       newElement = element.ownerDocument.createElement(transform)
       const attrs = element.attributes
@@ -208,15 +223,23 @@ class ComponentLoader {
           if (getAttribute('rel') === 'import') {
             switch (getAttribute('type')) {
               case 'css':
-                processChildren = false
-                promise = this._getFile(infoHash, href)
-                .then(file => {
-                  const element = newElement.ownerDocument.createElement('style')
-                  element.text = file.toString()
-                  return element
+                ifHrefHereThen(href, path => {
+                  processChildren = false
+                  promise = this._getFile(infoHash, path)
+                  .then(file => {
+                    const element = newElement.ownerDocument.createElement('style')
+                    element.text = file.toString()
+                    return element
+                  })
+                }, path => {
+                  promise = Promise.reject(Error('Script source is outside component: ' + path))
                 })
                 break
               default:
+                ifHrefHereThen(href, path => {
+                  promise = this._loadHTML(infoHash, path)
+                  .then(doc => this._attachDocument(doc))
+                })
                 newElement = null
             }
           }
@@ -224,8 +247,8 @@ class ComponentLoader {
         case 'dom-module':
         case 'template':
           if (id) {
-            this._components[infoHash].transforms[id] = infoHash + '-' + id
-            element.setAttribute('id', infoHash + '-' + id)
+            this._components[infoHash].transforms[id] = 'papan-infohash-' + infoHash + '-' + id
+            element.setAttribute('id', 'papan-infohash-' + infoHash + '-' + id)
           }
           break
         case 'script':
@@ -239,12 +262,16 @@ class ComponentLoader {
             element.appendChild(element.ownerDocument.createTextNode(script))
           }
           if (src) {
-            promise = this._getFile(infoHash, src)
-            .then(file => {
-              const newScript = this._transformScript(infoHash, file.toString(), infoHash + '/' + src)
-              element.removeAttribute('src')
-              attachScript(element, newScript)
-              return element
+            ifHrefHereThen(src, path => {
+              promise = this._getFile(infoHash, path)
+              .then(file => {
+                const newScript = this._transformScript(infoHash, file.toString(), infoHash + '/' + src)
+                element.removeAttribute('src')
+                attachScript(element, newScript)
+                return element
+              })
+            }, path => {
+              promise = Promise.reject(Error('Script source is outside component: ' + path))
             })
           } else {
             let suffix = ''
@@ -261,24 +288,28 @@ class ComponentLoader {
           break
         case 'img':
           if (src && !src.startsWith('data:')) {
-            promise = this._getFile(infoHash, src)
-            .then(file => {
-              const mimeTypes = {
-                'gif': 'image/gif',
-                'png': 'image/png',
-                'jpg': 'image/jpeg',
-                'jpeg': 'image/jpeg',
-                'bmp': 'image/bmp',
-                'svg': 'image/svg+xml'
-              }
-              let mimeType = 'text/plain'
-              Object.keys(mimeTypes).forEach(extension => {
-                if (src.endsWith('.' + extension)) {
-                  mimeType = mimeTypes[extension]
+            ifHrefHereThen(src, path => {
+              promise = this._getFile(infoHash, path)
+              .then(file => {
+                const mimeTypes = {
+                  'gif': 'image/gif',
+                  'png': 'image/png',
+                  'jpg': 'image/jpeg',
+                  'jpeg': 'image/jpeg',
+                  'bmp': 'image/bmp',
+                  'svg': 'image/svg+xml'
                 }
+                let mimeType = 'text/plain'
+                Object.keys(mimeTypes).forEach(extension => {
+                  if (src.endsWith('.' + extension)) {
+                    mimeType = mimeTypes[extension]
+                  }
+                })
+                element.setAttribute('src', this._encodeToHREF(mimeType, file.toString('base64')))
+                return element
               })
-              element.setAttribute('src', this._encodeToHREF(mimeType, file.toString('base64')))
-              return element
+            }, path => {
+              promise = Promise.reject(Error('Asset is outside component: ' + path))
             })
           }
           break
