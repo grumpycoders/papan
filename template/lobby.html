@@ -3,7 +3,6 @@
 <link rel="import" href="../bower_components/iron-pages/iron-pages.html">
 <link rel="import" href="../bower_components/paper-button/paper-button.html">
 
-<link rel="import" href="data/gameinfo.html">
 <link rel="import" href="data/localize.html">
 <link rel="import" href="chat.html">
 <link rel="import" href="gamelist.html">
@@ -22,7 +21,6 @@
     </app-route>
 
     <div id="page" class="layout vertical">
-      <div>[[_routeData.lobbyid]]</div>
       <div id="lobbycontent" class="layout flex horizontal">
         <div class="layout flex vertical">
           <iron-pages 
@@ -35,7 +33,8 @@
               user="tom" 
               language="{{language}}"
               server="[[serverinfo]]"
-              lobby=[[lobby]]>
+              lobby=[[lobby]]
+              gamelist="{{gamelist}}">
             </papan-game-list>
             <div name="lobby" class="layout flex horizontal">
               <div id="ownerview">
@@ -77,6 +76,12 @@
           type: Object
         },
 
+        gamelist: {
+          type: Array,
+          value: () => [],
+          notify: true
+        },
+
         lobby: {
           type: Object
         },
@@ -88,6 +93,10 @@
         members: {
           type: Array,
           value: () => [{id: 1}, {id: 2}, {id: 32}]
+        },
+
+        _routeData: {
+          type: Object
         },
 
         _view: {

@@ -1,21 +1,14 @@
 <link rel="import" href="gamebadge.html">
 <link rel="import" href="data/localize.html">
-<!--link rel="import" href="data/userinfo.html"-->
 
 <dom-module id="papan-game-list">
   <link rel="import" type="css" href="gamelist.css">
   <template>
-    <!--template is="dom-if" if="{{user.islogged}}">
-      <user-info userid=[[user.username]] userinfo={{_userinfo}}></user-info-->
-      <div id="user-games-list">
-        <template is="dom-repeat" items="[[_gamelist]]">
-          <papan-game-badge gamename=[[item.name]] gameinfo=[[item.info]] lobby="[[lobby]]" server="[[server]]"></papan-game-badge>
-        </template>
-      </div>
-    <!--/template>
-    <template is="dom-if" if="{{!user.islogged}}">
-      You have to login
-    </template-->
+    <div id="user-games-list">
+      <template is="dom-repeat" items="[[gamelist]]">
+        <papan-game-badge gameinfo=[[item.info]] lobby="[[lobby]]"></papan-game-badge>
+      </template>
+    </div>
   </template>
 
   <script>
@@ -40,7 +33,7 @@
           type: Object
         },
 
-        _gamelist: {
+        gamelist: {
           type: Array,
           value: () => [],
           notify: true
@@ -53,15 +46,12 @@
 
       ready: function() {
         lobbyInterface.on('games', gamelist => {
-          //gamelist: map<string, Papan.GameInfo>
-          this._gamelist = Object.keys(gamelist).map(function(key) {
-            console.log('Found game: ' + key)
+          this.gamelist = Object.keys(gamelist).map(function(key) {
             return {
               name: key,
               info: gamelist[key]
             };
           });
-          console.log(this._gamelist)
         })
       }
     })

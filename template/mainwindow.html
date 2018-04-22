@@ -17,6 +17,7 @@
 
 <link rel="import" href="clientsettings.html">
 <link rel="import" href="drawermenu.html">
+<link rel="import" href="game.html">
 <link rel="import" href="joinedlobbies.html">
 <link rel="import" href="lobby.html">
 <link rel="import" href="server.html">
@@ -113,7 +114,7 @@
           lobby={{_currentlobby}}
           serverinfo=[[_serverinfo]]
           user={{userinfo}}
-        >
+          gamelist={{_gamelist}}>
         </papan-lobby>
         <papan-server-page
           id="server"
@@ -129,6 +130,13 @@
           route="{{_route}}"
           userinfo="{{userinfo}}">
         </papan-server-list>
+        <papan-game-page 
+          id="game"
+          route="{{_pagesRoute}}"
+          language="{{language}}"
+          lobby="[[_currentlobby]]"
+          gamelist=[[_gamelist]]>
+        </papan-game-page>
         <div id="error">404</div>
       </iron-pages>
     </div>
@@ -158,6 +166,10 @@
           type: Object
         },
 
+        _gamelist: {
+          type: Array,
+          notify: true
+        },
         _currentlobby: {
           type: Object,
           notify: true

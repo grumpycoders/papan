@@ -1,17 +1,14 @@
 <link rel="import" href="../bower_components/app-route/app-route.html">
 <link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+<link rel="import" href="../bower_components/iron-icon/iron-icon.html">
 <link rel="import" href="../bower_components/iron-pages/iron-pages.html">
 <link rel="import" href="../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../bower_components/paper-input/paper-input.html">
 <link rel="import" href="../bower_components/paper-toggle-button/paper-toggle-button.html">
 
-<link rel="import" href="friendlist.html">
-<link rel="import" href="game.html">
-<link rel="import" href="gamelist.html">
-<link rel="import" href="lobby.html">
-<link rel="import" href="profile.html">
+<!--link rel="import" href="friendlist.html"-->
 <link rel="import" href="data/localize.html">
-<link rel="import" href="data/serverinfo.html">
 
 <dom-module id="papan-server-page">
   <link rel="import" type="css" href="server.css">
@@ -20,10 +17,8 @@
     <app-route
       route="{{route}}"
       pattern="/:view"
-      data="{{_routeData}}"
-      tail="{{_subRoute}}">
+      data="{{_routeData}}">
     </app-route>
-    <server-info serverid=[[_routeData.serverid]] serverinfo={{serverinfo}}></server-info>
 
     <iron-pages
       id="servercontent" 
@@ -46,26 +41,16 @@
           </div>
         </template>
       </div>
-      <papan-friend-list
+      <!--papan-friend-list
          viewname="friends"
          user={{user}}
          language="{{language}}">
-      </papan-friend-list>
-      <papan-game-page 
-        viewname="game"
-        route="{{_subRoute}}"
-        language="{{language}}">
-      </papan-game-page>
-      <papan-game-list
-         viewname="games"
-         user={{user}}
-         language="{{language}}">
-      </papan-game-list>
-      <papan-user-profile 
+      </papan-friend-list-->
+      <!--papan-user-profile 
         viewname="profile"
         route="{{_subRoute}}"
         language="{{language}}">
-      </papan-user-profile>
+      </papan-user-profile-->
     </iron-pages>
   </template>
 
