@@ -13,6 +13,8 @@
     "node_test": "mocha ./test/common",
     "electron_test": "electron-mocha ./test/common",
     "electron_rebuild": "npm rebuild --runtime=electron --target=1.8.4 --dist-url=https://atom.io/download/electron",
+    "cover": "istanbul cover node_modules/mocha/bin/_mocha --report lcovonly -- ./test/common",
+    "coveralls": "npm run cover && cat ./coverage/lcov.info | coveralls",
     "test": "npm run node_test && npm run electron_test && npm run lint && npm run polymer_lint",
     "postinstall": "bower install && bower prune && node ./post-install-patch.js",
     "build": "electron-packager . --all --out=out"
@@ -41,12 +43,15 @@
   "devDependencies": {
     "chai": "^4.0.2",
     "chai-as-promised": "^7.0.0",
+    "coveralls": "^3.0.0",
     "devtron": "^1.4.0",
     "electron": "^1.8.4",
     "electron-mocha": "^6.0.1",
     "electron-packager": "^12.0.1",
     "eslint-plugin-html": "^4.0.3",
+    "istanbul": "^0.4.5",
     "mocha": "^5.1.1",
+    "mocha-lcov-reporter": "^1.3.0",
     "polymer-cli": "^1.6.0",
     "snazzy": "^7.1.1",
     "standard": "^11.0.1"
