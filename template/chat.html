@@ -26,7 +26,7 @@
     'use strict'
 
     Polymer({
-      is: "papan-chat",
+      is: 'papan-chat',
 
       properties: {
         /*
@@ -52,10 +52,10 @@
         '_updateLobby(lobby)'
       ],
 
-      _updateLobby: function(lobby) {
-        //lobbyInterface
+      _updateLobby: function (lobby) {
+        // lobbyInterface
         lobby.on('chat', data => {
-          //todo: switch to data.user.name
+          // todo: switch to data.user.name
           this.$.chattext.innerHTML += '<b>' + data.user.id + '</b>: ' + data.message + '<br />'
         })
       },
@@ -63,23 +63,23 @@
       /*
         writes a message in the chat box.
       */
-      sendMessage: function(user, message) {
+      sendMessage: function (user, message) {
         var textzone = this.$.chattext
-        if (message != '') {
+        if (message !== '') {
           this.lobby.sendChatMessage(message)
         }
-        textzone.scrollTop = textzone.scrollHeight;
-      },
+        textzone.scrollTop = textzone.scrollHeight
+  },
 
-      _localmessage: function(){
+      _localmessage: function () {
         var textbox = this._text
-        this.sendMessage(this.user, this._text)
+        this.sendMessage(this.user, textbox)
         this._text = ''
       },
 
-      _keyPressed: function(e) {
-        if (e.charCode === 13) this._localmessage();
-      }
+      _keyPressed: function (e) {
+        if (e.charCode === 13) this._localmessage()
+  }
     })
   </script>
 </dom-module>

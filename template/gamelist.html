@@ -15,7 +15,7 @@
     'use strict'
 
     Polymer({
-      is: "papan-game-list",
+      is: 'papan-game-list',
 
       properties: {
         /*
@@ -44,14 +44,14 @@
         PapanLocalize
       ],
 
-      ready: function() {
-        lobbyInterface.on('games', gamelist => {
-          this.gamelist = Object.keys(gamelist).map(function(key) {
+      ready: function () {
+        global.lobbyInterface.on('games', gamelist => {
+          this.gamelist = Object.keys(gamelist).map(function (key) {
             return {
               name: key,
               info: gamelist[key]
-            };
-          });
+            }
+          })
         })
       }
     })

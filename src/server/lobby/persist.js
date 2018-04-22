@@ -98,76 +98,76 @@ class PersistClient {
   getJoinedLobbies (data) {
     const { id } = data
     return this._promised.smembers('user:' + id + ':lobbies')
-    .then(results => {
-      if (!results) results = []
-      return Promise.all(results.map(id => this.getLobbyInfo({ id: id })))
-    })
+      .then(results => {
+        if (!results) results = []
+        return Promise.all(results.map(id => this.getLobbyInfo({ id: id })))
+      })
   }
 
   getLobbyInfo (data) {
     const { id } = data
     let members
     return this._promised.smembers('lobbymembers:' + id)
-    .then(results => {
-      members = results.map(id => ({ id: id }))
-      return this._promised.hgetall('lobbyinfo:' + id)
-    })
-    .then(results => {
-      if (!results.owner) return Promise.reject(Error('Lobby doesn\'t exist'))
-      return {
-        id: id,
-        owner: {
-          id: results.owner
-        },
-        members: members,
-        name: results.name,
-        public: results.public,
-        gameInfo: results.gameInfo ? this._serializer.deserialize('Papan.GameInfo', Buffer.from(results.gameInfo, 'base64')) : results.gameInfo
-      }
-    })
+      .then(results => {
+        members = results.map(id => ({ id: id }))
+        return this._promised.hgetall('lobbyinfo:' + id)
+      })
+      .then(results => {
+        if (!results.owner) return Promise.reject(Error('Lobby doesn\'t exist'))
+        return {
+          id: id,
+          owner: {
+            id: results.owner
+          },
+          members: members,
+          name: results.name,
+          public: results.public,
+          gameInfo: results.gameInfo ? this._serializer.deserialize('Papan.GameInfo', Buffer.from(results.gameInfo, 'base64')) : results.gameInfo
+        }
+      })
   }
 
   createLobby (data) {
     let id
     const { userId } = data
     return PapanServerUtils.generateToken()
-    .then(token => {
-      id = token
-      return this._promised.hsetnx('lobbyinfo:' + id, 'owner', userId)
-    })
-    .then(result => {
-      if (result === 0) return this.createLobby(data)
-      return this._promised.sadd('lobbymembers:' + id, userId)
-    })
-    .then(() => this._promised.sadd('user:' + userId + ':lobbies', id))
-    .then(() => this.getLobbyInfo({ id: id }))
+      .then(token => {
+        id = token
+        return this._promised.hsetnx('lobbyinfo:' + id, 'owner', userId)
+      })
+      .then(result => {
+        if (result === 0) return this.createLobby(data)
+        return this._promised.sadd('lobbymembers:' + id, userId)
+      })
+      .then(() => this._promised.sadd('user:' + userId + ':lobbies', id))
+      .then(() => this.getLobbyInfo({ id: id }))
   }
 
   joinLobby (data) {
     const { userId, id } = data
     return this._promised.hget('lobbyinfo:' + id, 'owner')
-    .then(result => {
-      if (result === null) Promise.reject(Error('Lobby doesn\'t exist'))
-      return this._promised.sadd('lobbymembers:' + id, userId)
-    })
-    .then(() => this._promised.sadd('user:' + userId + ':lobbies', id))
-    .then(() => this.getLobbyInfo({ id: id }))
+      .then(result => {
+        if (result === null) Promise.reject(Error('Lobby doesn\'t exist'))
+        return this._promised.sadd('lobbymembers:' + id, userId)
+      })
+      .then(() => this._promised.sadd('user:' + userId + ':lobbies', id))
+      .then(() => this.getLobbyInfo({ id: id }))
   }
 
   _setLobbyField (data) {
     const { id, userId, field } = data
     const key = 'lobbyinfo:' + id
     return this._promised.hget(key, 'owner')
-    .then(result => {
-      if (result === null) return Promise.reject(Error('Lobby doesn\'t exist'))
-      let info = this.getLobbyInfo({ id: id })
-      if (userId !== result) {
-        return info
-      } else {
-        return this._promised.hset(key, field, data[field])
-        .then(() => info)
-      }
-    })
+      .then(result => {
+        if (result === null) return Promise.reject(Error('Lobby doesn\'t exist'))
+        let info = this.getLobbyInfo({ id: id })
+        if (userId !== result) {
+          return info
+        } else {
+          return this._promised.hset(key, field, data[field])
+            .then(() => info)
+        }
+      })
   }
 
   setLobbyName (data) {
@@ -176,23 +176,23 @@ class PersistClient {
 
   setLobbyPublic (data) {
     return this._setLobbyField(deepmerge(data, { field: 'public' }))
-    .then(info => {
-      let ret
-      if (data.public) {
-        ret = this._promised.sadd('publiclobbies', data.id)
-        this._client.publish('publiclobbies', PapanUtils.JSON.stringify({
-          id: data.id,
-          status: 'ADDED'
-        }))
-      } else {
-        ret = this._promised.srem('publiclobbies', data.id)
-        this._client.publish('publiclobbies', PapanUtils.JSON.stringify({
-          id: data.id,
-          status: 'REMOVED'
-        }))
-      }
-      return ret.then(() => info)
-    })
+      .then(info => {
+        let ret
+        if (data.public) {
+          ret = this._promised.sadd('publiclobbies', data.id)
+          this._client.publish('publiclobbies', PapanUtils.JSON.stringify({
+            id: data.id,
+            status: 'ADDED'
+          }))
+        } else {
+          ret = this._promised.srem('publiclobbies', data.id)
+          this._client.publish('publiclobbies', PapanUtils.JSON.stringify({
+            id: data.id,
+            status: 'REMOVED'
+          }))
+        }
+        return ret.then(() => info)
+      })
   }
 
   setLobbyGame ({ userId, id, gameInfo }) {
@@ -237,10 +237,10 @@ class PersistClient {
       const data = PapanUtils.JSON.parse(message)
       if (data.status === 0) {
         this.getLobbyInfo({ id: data.id })
-        .then(info => {
-          data.lobby = info
-          callback(data)
-        })
+          .then(info => {
+            data.lobby = info
+            callback(data)
+          })
       } else {
         data.lobby = { id: data.id }
         callback(data)
@@ -275,5 +275,5 @@ exports.createPersist = () => {
   const rs = new RedisSessions({ client: client })
 
   return protoLoader.load('lobby.proto')
-  .then(proto => new PersistClient({ proto: proto, rs: rs, client: client, redis: redis }))
+    .then(proto => new PersistClient({ proto: proto, rs: rs, client: client, redis: redis }))
 }

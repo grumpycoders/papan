@@ -16,15 +16,15 @@ class SubscribeHandlers {
       premise = this._persist.isApiKeyValid(data.register.apiKey)
     }
     return premise
-    .then(trusted => this._sessionManager.setSessionData(call, { trusted: trusted }))
-    .then(data => {
-      call.trusted = data.trusted
-      call.write({
-        registered: {
-          trusted: call.trusted
-        }
+      .then(trusted => this._sessionManager.setSessionData(call, { trusted: trusted }))
+      .then(data => {
+        call.trusted = data.trusted
+        call.write({
+          registered: {
+            trusted: call.trusted
+          }
+        })
       })
-    })
   }
 }
 

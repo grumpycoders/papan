@@ -7,10 +7,10 @@ if (global.PapanUtils.isElectron()) {
 } else {
   global.webtorrentReady = false
   global.Papan.jsLoader('node_modules/webtorrent/webtorrent.min.js')
-  .then(() => {
-    global.webTorrentClient = new global.WebTorrent()
-    if (global.webtorrentOnReady) global.webtorrentOnReady()
-  })
+    .then(() => {
+      global.webTorrentClient = new global.WebTorrent()
+      if (global.webtorrentOnReady) global.webtorrentOnReady()
+    })
 }
 
 global.webTorrentClient.on('error', console.error)

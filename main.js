@@ -9,8 +9,8 @@ const optionDefinitions = [
 const argv = commandline(optionDefinitions, { partial: true, argv: process.argv })
 
 const electronStartup = () => PapanUtils.isElectron()
-? require('./src/server/main-electron.js').main()
-: Promise.resolve()
+  ? require('./src/server/main-electron.js').main()
+  : Promise.resolve()
 
 const nodeStartup = () => require('./src/server/main-node.js').main()
 
@@ -18,13 +18,13 @@ Promise.all([
   electronStartup(),
   nodeStartup()
 ])
-.then(results => {
-  console.log('Started')
-})
-.catch(err => {
-  console.error(err)
-  process.exit()
-})
+  .then(results => {
+    console.log('Started')
+  })
+  .catch(err => {
+    console.error(err)
+    process.exit()
+  })
 
 // process.env['GRPC_VERBOSITY'] = 'DEBUG'
 // process.env['GRPC_TRACE'] = 'all'
@@ -58,6 +58,6 @@ if (argv.auth_server) {
         console.log('Not starting Auth server:')
         console.log(err)
       }
-    )
+      )
   })
 }

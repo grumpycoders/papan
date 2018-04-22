@@ -33,32 +33,32 @@
         authProfileData: {
           type: Object,
           notify: true,
-          observer: "_authProfileDataChanged"
+          observer: '_authProfileDataChanged'
         },
 
         _profileData: {
           type: Object,
           notify: true,
-          observer: "_gotData"
+          observer: '_gotData'
         },
 
         _authAvailable: {
           type: Array,
-          observer: "_gotData"
-        },
+          observer: '_gotData'
+        }
       },
 
       _authProfileDataChanged: profile => {
-        console.log("Got user profile data:")
+        console.log('Got user profile data:')
         console.log(profile)
       },
 
-      _gotData: function() {
+      _gotData: function () {
         if (!this._numRequests) this._numRequests = 0
-        if (++this._numRequests == 2) this._computeAuthProfile()
+        if (++this._numRequests === 2) this._computeAuthProfile()
       },
 
-      _computeAuthProfile: function() {
+      _computeAuthProfile: function () {
         let profile = this._profileData
         if (!profile.providedAuths) {
           this.authProfileData = {}

@@ -15,11 +15,11 @@
     Polymer({
       is: 'achievement-info',
 
-      filter: function(e) {
+      filter: function (e) {
         this.achievementinfo = e.detail.response[this.achievementid]
       },
 
-      _updateAchievementInfo: function() {
+      _updateAchievementInfo: function () {
         this.$.ajax.generateRequest()
       },
 
@@ -29,7 +29,7 @@
         */
         achievementid: {
           type: String,
-          observer: "_updateAchievementInfo"
+          observer: '_updateAchievementInfo'
         },
         /*
           achievement data from the DB
@@ -42,7 +42,7 @@
               achievementpicture: ''
             }
           },
-          notify: true,
+          notify: true
         }
       }
     })
