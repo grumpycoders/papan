@@ -54,7 +54,6 @@
     "deepmerge": "^2.1.0",
     "diff": "^3.5.0",
     "electron-settings": "^3.1.4",
-    "escodegen": "^1.9.1",
     "event-emitter-es6": "^1.1.5",
     "express": "^4.14.1",
     "express-session": "^1.15.3",

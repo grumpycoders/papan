@@ -111,7 +111,6 @@
           Papan.jsLoader('node_modules/deep-diff/releases/deep-diff-0.3.4.min.js'),
           Papan.jsLoader('node_modules/deepmerge/dist/umd.js'),
           Papan.jsLoader('node_modules/event-emitter-es6/dist/event-emitter.min.js'),
-          Papan.jsLoader('third_party/escodegen.browser.min.js'),
           new Promise((resolve, reject) => window.addEventListener('WebComponentsReady', resolve()))
         ]))
         .then(() => Promise.all([
@@ -127,7 +126,7 @@
           Papan.babelLoader('src/client/lobby-interface.js')
         ]))
         .then(() => Promise.all([
-          // Depends on escodegen, webtorrent, channel, lobby-interface and webcomponents
+          // Depends on webtorrent, channel, lobby-interface and webcomponents
           Papan.babelLoader('src/client/component-loader.js'),
         ]))
         .then(() => Promise.all([
