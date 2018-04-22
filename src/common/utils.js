@@ -123,7 +123,10 @@
 
     static _wrappers () {
       return Path._methodList().reduce((output, name) => {
-        output[name] = (path, ...args) => (new Path(path))[name](...args).toString()
+        output[name] = (path, ...args) => {
+          const ret = (new Path(path))[name](...args)
+          return typeof ret === 'object' ? ret.toString() : ret
+        }
         return output
       }, {})
     }
@@ -151,7 +154,9 @@
     }
 
     isValid () {
-      return !this._absolute || this._array[0] !== '..'
+      const path = new Path(this)
+      path._normalize()
+      return !path._absolute || path._array[0] !== '..'
     }
 
     isBelow () {
