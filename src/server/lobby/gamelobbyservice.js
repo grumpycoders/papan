@@ -1,19 +1,22 @@
 'use strict'
 
-const persist = require('./persist.js')
-const authsession = require('./authsession.js')
 const dispatcher = require('./dispatcher.js')
 
 class SubscribeHandlers {
+  constructor ({ persist, sessionManager }) {
+    this._sessionManager = sessionManager
+    this._persist = persist
+  }
+
   'PapanLobby.RegisterGameServer' (call, data) {
     let premise
     if (call.localApiKey === data.apiKey) {
       premise = Promise.resolve(true)
     } else {
-      premise = persist.isApiKeyValid(data.register.apiKey)
+      premise = this._persist.isApiKeyValid(data.register.apiKey)
     }
     return premise
-    .then(trusted => authsession.setSessionData(call, { trusted: trusted }))
+    .then(trusted => this._sessionManager.setSessionData(call, { trusted: trusted }))
     .then(data => {
       call.trusted = data.trusted
       call.write({
@@ -26,13 +29,18 @@ class SubscribeHandlers {
 }
 
 class LobbyHandlers {
+  constructor ({ persist, sessionManager }) {
+    this._sessionManager = sessionManager
+    this._persist = persist
+  }
+
   'PapanLobby.JoinLobby' (call, data) {
     return Promise.reject(Error('unimplemented'))
   }
 }
 
-const Subscribe = (options, call, dispatcher) => {
-  const id = authsession.getId(call)
+const Subscribe = (options, sessionManager, call, dispatcher) => {
+  const id = sessionManager.getId(call)
   call.localApiKey = options.localApiKey
   call.write({
     subscribed: {
@@ -60,11 +68,11 @@ const Lobby = (call, dispatcher) => {
   call.on('data', data => dispatcher(call, data))
 }
 
-exports.generateService = (proto, options) => {
-  const subscribeDispatcher = dispatcher(proto.GameAction.fields, new SubscribeHandlers())
-  const lobbyDispatcher = dispatcher(proto.GameLobbyAction.fields, new LobbyHandlers())
+exports.generateService = ({ proto, persist, sessionManager, options }) => {
+  const subscribeDispatcher = dispatcher(proto.GameAction.fields, new SubscribeHandlers({ persist: persist, sessionManager: sessionManager }))
+  const lobbyDispatcher = dispatcher(proto.GameLobbyAction.fields, new LobbyHandlers({ persist: persist, sessionManager: sessionManager }))
   return {
-    Subscribe: call => Subscribe(options, call, subscribeDispatcher),
+    Subscribe: call => Subscribe(options, sessionManager, call, subscribeDispatcher),
     Lobby: call => Lobby(call, lobbyDispatcher)
   }
 }

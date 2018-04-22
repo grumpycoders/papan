@@ -17,7 +17,6 @@
       "name": "Debug Main Process - nodejs",
       "type": "node",
       "request": "launch",
-      "preLaunchTask": "install",
       "cwd": "${workspaceRoot}",
       "program": "${workspaceRoot}/main.js"
     },
@@ -38,7 +37,6 @@
       "type": "node",
       "request": "launch",
       "args": ["test/common"],
-      "preLaunchTask": "install",
       "cwd": "${workspaceRoot}",
       "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron",
       "windows": {

@@ -13,12 +13,13 @@
 <link rel="import" href="../bower_components/paper-input/paper-input.html">
 
 <link rel="import" href="data/localize.html">
-<link rel="import" href="data/user.html">
 
 <link rel="import" href="clientsettings.html">
 <link rel="import" href="drawermenu.html">
+<link rel="import" href="game.html">
 <link rel="import" href="joinedlobbies.html">
 <link rel="import" href="lobby.html">
+<link rel="import" href="profile.html">
 <link rel="import" href="server.html">
 <link rel="import" href="serverlist.html">
 <link rel="import" href="startupscreen.html">
@@ -32,9 +33,6 @@
       use-hash-as-path
       route="{{_route}}">
     </app-location>
-    <!--papan-user-data
-      user="{{_user}}">
-    </papan-user-data-->
     <app-route
       route="{{_route}}"
       pattern="/:view"
@@ -52,28 +50,15 @@
         </a>
         <template is="dom-if" if="{{_loggedin(userinfo)}}">
           <div>
-            <a href="#/server/profile/[[userinfo.id]]">
-              [[_user.username]]
+            <a href="#/profile/[[userinfo.id]]">
+              [[userinfo.name]]
               <iron-icon icon="account-circle"></iron-icon>
             </a>
-            
           </div>
           <paper-button on-tap="_signout">
             [[localize('signout')]]
           </paper-button>
         </template>
-        <!--template is="dom-if" if="{{!user.islogged}}">
-          <div id="login">
-            <paper-button on-tap="_showlogin">
-              [[localize('loginsignin')]]
-            </paper-button>
-          </div>
-        </template>
-        <div id="fakelogin">
-          <paper-button on-tap="_showuserdata">
-            DBG:USEREDIT
-          </paper-button>
-        </div-->
       </app-toolbar>
     </app-header>
 
@@ -110,10 +95,16 @@
           id="lobby"
           route="{{_pagesRoute}}"
           language="{{language}}"
-          currentlobby={{_currentlobby}}
+          lobby={{_currentlobby}}
+          serverinfo=[[_serverinfo]]
           user={{userinfo}}
-        >
+          gamelist={{_gamelist}}>
         </papan-lobby>
+        <papan-user-profile 
+          id="profile"
+          route="{{_pagesRoute}}"
+          language="{{language}}">
+        </papan-user-profile>
         <papan-server-page
           id="server"
           route="{{_pagesRoute}}"
@@ -128,22 +119,16 @@
           route="{{_route}}"
           userinfo="{{userinfo}}">
         </papan-server-list>
+        <papan-game-page 
+          id="game"
+          route="{{_pagesRoute}}"
+          language="{{language}}"
+          lobby="[[_currentlobby]]"
+          gamelist=[[_gamelist]]>
+        </papan-game-page>
         <div id="error">404</div>
       </iron-pages>
     </div>
-
-    <paper-dialog id="logindialog" modal>
-      <paper-input name="username" label="[[localize('username')]]" value=""></paper-input>
-      <paper-input name="password" label="[[localize('password')]]" value=""></paper-input>
-      <paper-button dialog-confirm autofocus>[[localize('connect')]]</paper-button>
-    </paper-dialog>
-
-    <paper-dialog id="dbglogindata" modal>
-      <div>DBG:USEREDIT</div>
-      <paper-input name="username" label="[[localize('username')]]" value="{{_user.username}}"></paper-input>
-      <paper-checkbox name="logged" checked="{{_user.islogged}}">[[localize('logged')]]</paper-checkbox>
-      <paper-button dialog-confirm autofocus>[[localize('close')]]</paper-button>
-    </paper-dialog>
   </template>
 
   <script>
@@ -157,6 +142,14 @@
           type: Object
         },
 
+        _gamelist: {
+          type: Array,
+          notify: true
+        },
+        _currentlobby: {
+          type: Object,
+          notify: true
+        },
         _joinedlobbylist: {
           type: Array
         },
@@ -193,14 +186,6 @@
 
       _showuserdata: function() {
         this.$.dbglogindata.open()
-      },
-
-      _showlogin: function() {
-        this.$.logindialog.open()
-      },
-
-      _signout: function() {
-        _user.islogged = false
       },
 
       _updateServer: function(server) {

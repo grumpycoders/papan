@@ -3,22 +3,18 @@
 <link rel="import" href="../bower_components/paper-card/paper-card.html">
 <link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
 
-<link rel="import" href="data/gameinfo.html">
-
 <dom-module id="papan-game-badge">
   <link rel="import" type="css" href="gamebadge.css">
   <template>
-    <game-info gameid=[[gameid]] gameinfo={{_game}}></game-info>
-
     <paper-card 
-      heading="[[_game.gamename]]" 
-      image="[[_game.icon]]" 
+      heading="[[gameinfo.json.name]]" 
+      image="[[gameinfo.fullPath]]/[[gameinfo.json.icon]]" 
       placeholder-image="pictures/gameicon.svg" 
       preload-image
       elevation="4">
       <div class="card-actions">
-        <a href="#/server/{{server}}/game/[[gameid]]" tabindex="-1"><paper-icon-button icon="icons:info"></paper-icon-button></a>
-        <a href="#/server/{{server}}/lobby/[[gameid]]" tabindex="-1"><paper-icon-button icon="av:play-circle-filled"></paper-icon-button></a>
+        <a href="#/game/[[gameinfo.id]]" tabindex="-1"><paper-icon-button icon="icons:info"></paper-icon-button></a>
+        <paper-icon-button icon="av:play-circle-filled" on-tap="_runGame"></paper-icon-button>
       </div>
     </paper-card>
   </template>
@@ -31,18 +27,19 @@
 
       properties: {
         /*
-          ID of the game to be displayed
+          name of the game to be displayed
         */
-        gameid: {
-          type: String
+        gameinfo: {
+          type: Object
         },
-        
-        /*
-          server where the game is hosted
-        */
-        server: {
-          type: String
+
+        lobby: {
+          type: Object
         }
+      },
+
+      _runGame: function() {
+        this.lobby.setGame(this.gameinfo)
       }
     })
   </script>

@@ -32,11 +32,21 @@
   background-color:#cccccc;
 }
 
-papan-chat{
+papan-chat {
   width: 300px;
   height: 100%;
 }
 
-#page{
+#page {
   height: calc(100vh - 64px);
+}
+
+#ownerview #joinerview{
+  display: none
+}
+
+#memberlist {
+  width: 200px;
+  height: 100%;
+  border-left: 1px solid lightgrey;
 }

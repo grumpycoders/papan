@@ -3,7 +3,6 @@
 <link rel="import" href="../bower_components/iron-pages/iron-pages.html">
 <link rel="import" href="../bower_components/paper-button/paper-button.html">
 
-<link rel="import" href="data/gameinfo.html">
 <link rel="import" href="data/localize.html">
 <link rel="import" href="chat.html">
 <link rel="import" href="gamelist.html">
@@ -22,27 +21,38 @@
     </app-route>
 
     <div id="page" class="layout vertical">
-      <div>[[_routeData.lobbyid]]</div>
       <div id="lobbycontent" class="layout flex horizontal">
         <div class="layout flex vertical">
           <iron-pages 
             selected="{{_view}}" 
             attr-for-selected="name" 
-            fallback-selection="lobby"
+            fallback-selection="gamelist"
             class="layout flex">
-            <papan-game-list name="gamelist" user="tom" language="{{language}}"></papan-game-list>
-            <div name="lobby">
-              <!--[[localize('connectedtitle')]]-->
-              <!--ul>
-                <li><a href="#/profile/foo">foo</a></li>
-                <li><a href="#/profile/bar">bar</a></li>
-              </ul-->
-              <paper-button raised on-tap="_start">[[localize('startgame')]]</paper-button>
+            <papan-game-list 
+              name="gamelist" 
+              user="tom" 
+              language="{{language}}"
+              server="[[serverinfo]]"
+              lobby=[[lobby]]
+              gamelist="{{gamelist}}">
+            </papan-game-list>
+            <div name="lobby" class="layout flex horizontal">
+              <div id="ownerview">
+                <paper-button raised on-tap="_start">[[localize('startgame')]]</paper-button>
+              </div>
+              <div id="joinerview">
+                <paper-button raised on-tap="_join">[[localize('joingame')]]</paper-button>
+              </div>
             </div>
             <div id="main-view" name="board"></div>
           </iron-pages>
         </div>
-        <papan-chat user=[[user.username]] lobby=[[currentlobby]]></papan-chat>
+      <div id="memberlist">
+          <template is="dom-repeat" items="[[members]]">
+            <div class="memberitem"><a href="#/profile/[[item.id]]">[[item.id]]</a></div>
+          </template>
+        </div>
+        <papan-chat user=[[user.username]] lobby=[[lobby]]></papan-chat>
       </div>
     </div>
   </template>
@@ -66,7 +76,26 @@
           type: Object
         },
 
-        currentlobby: {
+        gamelist: {
+          type: Array,
+          value: () => [],
+          notify: true
+        },
+
+        lobby: {
+          type: Object
+        },
+
+        serverinfo: {
+          type: Object
+        },
+
+        members: {
+          type: Array,
+          value: () => [{id: 1}, {id: 2}, {id: 32}]
+        },
+
+        _routeData: {
           type: Object
         },
 
@@ -75,9 +104,26 @@
         }
       },
 
+      observers: [
+        '_lobbyChanged(lobby)'
+      ],
+
       behaviors: [
         PapanLocalize
       ],
+
+      _lobbyChanged: function() {
+        if (this.lobby.isOwner) {
+          this.$.ownerview.style.display = "block"
+          this.$.joinerview.style.display = "none"
+        } else  {
+          this.$.ownerview.style.display = "none"
+          this.$.joinerview.style.display = "block"
+        }
+        this.lobby.on('update', data => {
+          this._view = 'lobby'
+        })
+      },
 
       _start: function() {
         if (PapanUtils.isElectron()) {

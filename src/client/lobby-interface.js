@@ -17,6 +17,8 @@ class Lobby extends global.EventEmitter {
   update (info) {
     this.info = info
     this.emit('update', this)
+    console.log('update')
+    console.log(info)
   }
 
   getInfo () {
@@ -28,7 +30,7 @@ class Lobby extends global.EventEmitter {
   }
 
   setPublic (pub) {
-    if (this.isowner) {
+    if (this.isOwner) {
       this._send('PapanLobby.SetLobbyPublic', {
         public: pub
       })
@@ -36,7 +38,7 @@ class Lobby extends global.EventEmitter {
   }
 
   setName (name) {
-    if (this.isowner) {
+    if (this.isOwner) {
       this._send('PapanLobby.SetLobbyName', {
         name: name
       })
@@ -44,7 +46,7 @@ class Lobby extends global.EventEmitter {
   }
 
   setGame (gameInfo) {
-    if (this.isowner) {
+    if (this.isOwner) {
       this._send('PapanLobby.SetLobbyGame', {
         info: gameInfo
       })

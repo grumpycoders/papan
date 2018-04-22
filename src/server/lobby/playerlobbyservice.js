@@ -2,21 +2,24 @@
 
 const grpc = require('grpc')
 const deepclone = require('deepclone')
-const persist = require('./persist.js')
-const authsession = require('./authsession.js')
 const dispatcher = require('./dispatcher.js')
 
 class SubscribeHandlers {
+  constructor ({ persist, sessionManager }) {
+    this._sessionManager = sessionManager
+    this._persist = persist
+  }
+
   'PapanLobby.WhisperChatMessage' (call, data) {
-    const id = authsession.getId(call)
+    const id = this._sessionManager.getId(call)
     const message = deepclone(data)
     message.id = id
-    persist.sendMessage(data.id, { message: message })
+    this._persist.sendMessage(data.id, { message: message })
   }
 
   'PapanLobby.GetJoinedLobbies' (call, data) {
-    const id = authsession.getId(call)
-    return persist.getJoinedLobbies({ id: id })
+    const id = this._sessionManager.getId(call)
+    return this._persist.getJoinedLobbies({ id: id })
     .then(result => {
       call.write({
         joinedLobbies: {
@@ -28,17 +31,22 @@ class SubscribeHandlers {
 }
 
 class LobbyHandlers {
+  constructor ({ persist, sessionManager }) {
+    this._sessionManager = sessionManager
+    this._persist = persist
+  }
+
   'PapanLobby.JoinLobby' (call, data) {
-    const userId = authsession.getId(call)
+    const userId = this._sessionManager.getId(call)
     let id = data.id
     let premise
     if (id) {
-      premise = persist.joinLobby({
+      premise = this._persist.joinLobby({
         userId: userId,
         id: id
       })
     } else {
-      premise = persist.createLobby({
+      premise = this._persist.createLobby({
         userId: userId
       })
     }
@@ -46,12 +54,12 @@ class LobbyHandlers {
     .then(result => {
       id = result.id
       call.id = id
-      const sub = persist.lobbySubscribe(id, call.write.bind(call))
+      const sub = this._persist.lobbySubscribe(id, call.write.bind(call))
       call.on('end', sub.close.bind(sub))
       call.write({
         info: result
       })
-      persist.lobbySendMessage(id, {
+      this._persist.lobbySendMessage(id, {
         userJoined: {
           id: userId
         }
@@ -60,56 +68,56 @@ class LobbyHandlers {
   }
 
   'PapanLobby.SetLobbyName' (call, data) {
-    const userId = authsession.getId(call)
-    return persist.setLobbyName({
+    const userId = this._sessionManager.getId(call)
+    return this._persist.setLobbyName({
       userId: userId,
       id: call.id,
       name: data.name
     })
     .then(result => {
-      persist.lobbySendMessage(call.id, {
+      this._persist.lobbySendMessage(call.id, {
         info: result
       })
     })
   }
 
   'PapanLobby.SetLobbyPublic' (call, data) {
-    const userId = authsession.getId(call)
-    return persist.setLobbyPublic({
+    const userId = this._sessionManager.getId(call)
+    return this._persist.setLobbyPublic({
       userId: userId,
       id: call.id,
       public: data.public
     }).then(result => {
-      persist.lobbySendMessage(call.id, {
+      this._persist.lobbySendMessage(call.id, {
         info: result
       })
     })
   }
 
   'PapanLobby.SetLobbyGame' (call, data) {
-    const userId = authsession.getId(call)
-    return persist.setLobbyGame({
+    const userId = this._sessionManager.getId(call)
+    return this._persist.setLobbyGame({
       userId: userId,
       id: call.id,
-      gameInfo: data.gameInfo
+      gameInfo: data.info
     }).then(result => {
-      persist.lobbySendMesasge(call.id, {
+      this._persist.lobbySendMessage(call.id, {
         info: result
       })
     })
   }
 
   'PapanLobby.LobbyChatMessage' (call, data) {
-    data.message.user = { id: authsession.getId(call) }
-    persist.lobbySendMessage(call.id, { message: data })
+    data.message.user = { id: this._sessionManager.getId(call) }
+    this._persist.lobbySendMessage(call.id, { message: data })
   }
 
   'PapanLobby.RequestGameInfo' (call, data) {
-    persist.lobbySendMessage(call.id, { requestGameInfo: data })
+    this._persist.lobbySendMessage(call.id, { requestGameInfo: data })
   }
 
   'PapanLobby.SendGameInfo' (call, data) {
-    persist.lobbySendMessage(call.id, { gameInfo: data })
+    this._persist.lobbySendMessage(call.id, { gameInfo: data })
   }
 
   'PapanLobby.LeaveLobby' (call, data) { return Promise.reject(Error('Unimplemented')) }
@@ -117,8 +125,8 @@ class LobbyHandlers {
   'PapanLobby.KickUser' (call, data) { return Promise.reject(Error('Unimplemented')) }
 }
 
-const Subscribe = (call, dispatcher) => {
-  const id = authsession.getId(call)
+const Subscribe = (persist, sessionManager, call, dispatcher) => {
+  const id = sessionManager.getId(call)
   call.write({
     subscribed: {
       self: {
@@ -134,7 +142,7 @@ const Subscribe = (call, dispatcher) => {
   })
 }
 
-const Lobby = (call, dispatcher) => {
+const Lobby = (persist, call, dispatcher) => {
   let gotJoin = false
   call.on('end', () => call.end())
   call.on('data', data => {
@@ -166,7 +174,7 @@ const Lobby = (call, dispatcher) => {
   })
 }
 
-const ListLobbies = call => {
+const ListLobbies = (persist, call) => {
   const sub = persist.lobbyListSubscribe(call.write.bind(call))
   persist.getPublicLobbies()
   .then(lobbies => {
@@ -187,12 +195,12 @@ const ListLobbies = call => {
   })
 }
 
-exports.generateService = (proto, options) => {
-  const subscribeDispatcher = dispatcher(proto.Action.fields, new SubscribeHandlers())
-  const lobbyDispatcher = dispatcher(proto.LobbyAction.fields, new LobbyHandlers())
+exports.generateService = ({ proto, persist, sessionManager, options }) => {
+  const subscribeDispatcher = dispatcher(proto.Action.fields, new SubscribeHandlers({ persist: persist, sessionManager: sessionManager }))
+  const lobbyDispatcher = dispatcher(proto.LobbyAction.fields, new LobbyHandlers({ persist: persist, sessionManager: sessionManager }))
   return {
-    Subscribe: call => Subscribe(call, subscribeDispatcher),
-    Lobby: call => Lobby(call, lobbyDispatcher),
-    ListLobbies: ListLobbies
+    Subscribe: call => Subscribe(persist, sessionManager, call, subscribeDispatcher),
+    Lobby: call => Lobby(persist, call, lobbyDispatcher),
+    ListLobbies: call => ListLobbies(persist, call)
   }
 }
