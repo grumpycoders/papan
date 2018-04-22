@@ -48,18 +48,3 @@ paper-icon-button:hover {
   border-radius: 3px;
   padding: 2px;
 }
-
-iron-pages {
-  margin-left: auto;
-  margin-right: auto;
-  margin-top: 10px;
-  width: 300px;
-  height: 150px;
-}
-
-iron-pages div {
-  background-color: lightgray;
-  padding: 50px;
-  margin: auto;
-  text-align: center;
-}

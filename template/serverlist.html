@@ -1,6 +1,7 @@
 <link rel="import" href="../bower_components/app-storage/app-localstorage/app-localstorage-document.html">
 <link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
 <link rel="import" href="../bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="../bower_components/iron-overlay-behavior/iron-overlay-behavior.html">
 <link rel="import" href="../bower_components/iron-pages/iron-pages.html">
 <link rel="import" href="../bower_components/paper-dialog/paper-dialog.html">
 <link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
@@ -44,8 +45,11 @@
       },
 
       _joinServer: function(event) {
-        lobbyInterface.connectToLobbyServer({ lobbyServer: event.target.serveruurl, lobbyServerPort: event.target.serverport, useLocalCA: !event.target.serverssl })
-        this.currentServer = event.target.servername
+        this.currentServer = this.servername
+        if (this.currentServer === this.localize('localserver'))
+          lobbyInterface.connectToLobbyServer({ connectLocal: true })
+        else
+          lobbyInterface.connectToLobbyServer({ lobbyServer: event.target.serveruurl, lobbyServerPort: event.target.serverport, useLocalCA: !event.target.serverssl })
         this._connectionTimestamp = 0
         var ct = setInterval(this._updateConnectionTimer.bind(this), 1000)
       },
@@ -107,7 +111,93 @@
     })
   </script>
 </dom-module>
-  
+
+<dom-module id="papan-connection-status">
+  <link rel="import" type="css" href="server.css">
+  <template>
+    <style>
+        :host {
+          background: white;
+          color: black;
+          padding: 24px;
+          box-shadow: rgba(0, 0, 0, 0.24) -2px 5px 12px 0px, rgba(0, 0, 0, 0.12) 0px 0px 12px 0px;
+        }
+
+        div {
+          padding: 50px;
+          text-align: center;
+        }
+      </style>
+
+    <iron-pages 
+      selected="[[connectionStatus]]"
+      attr-for-selected="name"
+      default="UNKNOWN"
+    >
+      <div name="UNKNOWN">UNKNOWN</div>
+      <div name="NOTCONNECTED">NOTCONNECTED</div>
+      <div name="STARTINGLOBBY">[[localize('startinglocalserver')]]</div>
+      <div name="CONNECTING" class="layout vertical">
+        <p>[[localize('connectingto')]] [[currentServer]]</p>
+        <p id="connectionmsg">[[connectionTimestamp]]</p>
+      </div>
+      <div name="AUTHENTICATING">[[localize('authenticationinprogress')]]</div>
+      <div name="CONNECTED">
+        <p>[[localize('connectedto')]] [[currentServer]]</p>
+        <paper-button raised>[[localize('disconnect')]]</paper-button>
+      </div>
+    </iron-pages>
+  </template>
+
+  <script>
+    Polymer({
+      is: 'papan-connection-status',
+
+      properties: {
+        connectionStatus: {
+          type: String
+        },
+
+        currentServer: {
+          type: String
+        },
+
+        connectionTimestamp: {
+          type: Number
+        }
+      },
+
+      observers: [
+        '_updateConnectionTimer(_connectionTimestamp)',
+        '_updatecConnectionStatus(connectionStatus)'
+      ],
+
+      behaviors: [
+        Polymer.IronOverlayBehavior,
+        PapanLocalize
+      ],
+
+      _updateConnectionTimer: function(timestamp) {
+        if (timestamp > 30)
+          this.$.connectionmsg.style.color = "red"
+      },
+
+      _updatecConnectionStatus: function(status) {
+        switch (status) {
+          case 'CONNECTING':
+          case 'STARTINGLOBBY':
+          case 'CONNECTING':
+          case 'AUTHENTICATING':
+            this.opened = true
+            break
+          default:
+            this.opened = false
+        }
+      }
+    })
+  </script>
+</dom-module>
+
 <dom-module id="papan-server-list">
   <link rel="import" type="css" href="serverlist.css">
   <template>
@@ -124,40 +214,23 @@
       <div id="server-list">
       <div class="server layout horizontal end">
         <div class="flex">[[localize('localserver')]]</div>
-        <paper-icon-button icon="send" title="[[localize('connect')]]" on-tap="_joinLocalServer"></paper-button>
+        <papan-connect-button connection-timestamp="{{_connectionTimestamp}}" current-server="{{_currentServer}}" servername="[[localize('localserver')]]" language="[[language]]"></papan-connect-button>
       </div>
       <template is="dom-repeat" items="{{_serverlist}}">
         <div class="server layout horizontal end">
           <div class="flex">[[item.name]]</div>
-          <papan-remove-button servername="[[item.name]]" serverlist="{{_serverlist}}" language=[[language]]></papan-remove-button>
+          <papan-remove-button servername="[[item.name]]" serverlist="{{_serverlist}}" language="[[language]]"></papan-remove-button>
           <template is="dom-if" if="[[item.ssl]]">
-              <iron-icon icon="lock-outline" title="[[localize('SSL')]]" class="spaced"></iron-icon>
+            <iron-icon icon="lock-outline" title="[[localize('SSL')]]" class="spaced"></iron-icon>
           </template>
           <template is="dom-if" if="[[!item.ssl]]">
-              <iron-icon icon="lock-open" title="[[localize('noSSL')]]" class="spaced"></iron-icon>
+            <iron-icon icon="lock-open" title="[[localize('noSSL')]]" class="spaced"></iron-icon>
           </template>
-          <papan-connect-button connection-timestamp="{{_connectionTimestamp}}" current-server="{{_currentServer}}" servername="[[item.name]]" serverurl="[[item.url]]" serverport="[[item.port]]" serverssl="[[item.ssl]]"></papan-connect-button>
+          <papan-connect-button connection-timestamp="{{_connectionTimestamp}}" current-server="{{_currentServer}}" servername="[[item.name]]" serverurl="[[item.url]]" serverport="[[item.port]]" serverssl="[[item.ssl]]" language="[[language]]"></papan-connect-button>
         </div>
       </template>  
     </div>
-    <iron-pages 
-      selected="[[_connectionstatus]]"
-      attr-for-selected="name"
-      default="UNKNOWN"
-    >
-      <div name="UNKNOWN">UNKNOWN</div>
-      <div name="NOTCONNECTED">NOTCONNECTED</div>
-      <div name="STARTINGLOBBY">[[localize('startinglocalserver')]]</div>
-      <div name="CONNECTING" class="layout vertical">
-        <p>[[localize('connectingto')]] [[_currentServer]]</p>
-        <p id="connectionmsg">[[_connectionTimestamp]]</p>
-      </div>
-      <div name="AUTHENTICATING">[[localize('authenticationinprogress')]]</div>
-      <div name="CONNECTED">
-        <p>[[localize('connectedto')]] [[_currentServer]]</p>
-        <paper-button raised>[[localize('disconnect')]]</paper-button>
-      </div>
-    </iron-pages>
+    <papan-connection-status connection-status="[[_connectionStatus]]" connection-timestamp="[[_connectionTimestamp]]" current-server="[[_currentServer]]" language="[[language]]" no-cancel-on-outside-click with-backdrop scroll-action="lock"></papan-connection-status>
   </template>
 
   <script>
@@ -198,7 +271,7 @@
           type: Number,
           value: 0
         },
-        _connectionstatus: {
+        _connectionStatus: {
           type: String
         },
         _currentServer: {
@@ -206,16 +279,12 @@
         }
       },
 
-      observers: [
-        '_updateConnectionTimer(_connectionTimestamp)'
-      ],
-
       ready: function() {
         lobbyInterface.on('error', message => {
           console.log('error: ' + message)
         })
         lobbyInterface.on('status', status => {
-          this._connectionstatus = status
+          this._connectionStatus = status
           if (status === 'CONNECTED') {
             this.userinfo = lobbyInterface.getUserInfo()
             lobbyInterface.getAvailableGames ()
@@ -227,11 +296,6 @@
       _addserver: function() {
         this.push('_serverlist', { id: 0, name: this._newserveraddress, url: this._newserveraddress, port: 9999, ssl: this._newserverssl });
         this._newserveraddress = ""
-      },
-
-      _updateConnectionTimer: function(timestamp) {
-        if (timestamp > 30)
-          this.$.connectionmsg.style.color = "red"
       },
 
       _joinLocalServer: function(event) {
