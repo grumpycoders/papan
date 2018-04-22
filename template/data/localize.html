@@ -7,22 +7,22 @@
    *
    * @polymerBehavior PapanLocalizeImpl
    */
-   PapanLocalizeImpl = {
+  const PapanLocalizeImpl = {
     properties: {
       language: {
-        value: 'en',
+        value: 'en'
       }
     },
-    
-    ready: function() {
-      this.loadResources(this.resolveUrl('../locales.json'));
-    },
-  };
+  
+    ready: function () {
+      this.loadResources(this.resolveUrl('../locales.json'))
+    }
+  }
 
   /**
    * Behavior that translates text into the selected language in the settings.
    *
    * @polymerBehavior PapanLocalize
    */
-  PapanLocalize = [PapanLocalizeImpl, Polymer.AppLocalizeBehavior]; 
+  global.PapanLocalize = [PapanLocalizeImpl, Polymer.AppLocalizeBehavior]
 </script>

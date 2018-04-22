@@ -15,11 +15,11 @@
     Polymer({
       is: 'user-info',
 
-      filter: function(e) {
+      filter: function (e) {
         this.userinfo = e.detail.response[this.userid]
       },
 
-      _updateUserInfo: function() {
+      _updateUserInfo: function () {
         this.$.ajax.generateRequest()
       },
 
@@ -29,7 +29,7 @@
         */
         userid: {
           type: String,
-          observer: "_updateUserInfo"
+          observer: '_updateUserInfo'
         },
         /*
           user data from the DB

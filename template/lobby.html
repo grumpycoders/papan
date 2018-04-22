@@ -62,7 +62,7 @@
     'use strict'
 
     Polymer({
-      is: "papan-lobby",
+      is: 'papan-lobby',
 
       properties: {
         /*
@@ -112,21 +112,21 @@
         PapanLocalize
       ],
 
-      _lobbyChanged: function() {
+      _lobbyChanged: function () {
         if (this.lobby.isOwner) {
-          this.$.ownerview.style.display = "block"
-          this.$.joinerview.style.display = "none"
-        } else  {
-          this.$.ownerview.style.display = "none"
-          this.$.joinerview.style.display = "block"
+          this.$.ownerview.style.display = 'block'
+          this.$.joinerview.style.display = 'none'
+        } else {
+          this.$.ownerview.style.display = 'none'
+          this.$.joinerview.style.display = 'block'
         }
         this.lobby.on('update', data => {
           this._view = 'lobby'
         })
       },
 
-      _start: function() {
-        if (PapanUtils.isElectron()) {
+      _start: function () {
+        if (global.PapanUtils.isElectron()) {
           const electron = require('electron')
           const ipc = electron.ipcRenderer
           ipc.once('asynchronous-reply', (event, game) => {
@@ -152,7 +152,7 @@
             this.$['main-view'].children[0].applyPublicDelta(diff)
           })
         } else {
-          alert("Browser support not implemented yet")
+          window.alert('Browser support not implemented yet')
         }
       }
     })

@@ -47,7 +47,7 @@
     'use strict'
 
     Polymer({
-      is: "papan-drawer-menu",
+      is: 'papan-drawer-menu',
 
       listeners: {
         'iron-select': '_itemSelected'
@@ -61,7 +61,7 @@
           type: String,
           notify: true
         },
-        
+    
         /*
           server where the game is hosted
         */
@@ -77,11 +77,11 @@
       /*
         Toggle the drawer visibility
       */
-      toggle: function() {
+      toggle: function () {
         this.$.drawermenu.toggle()
       },
 
-      _itemSelected: function() {
+      _itemSelected: function () {
         this.$.drawermenu.close()
       }
     })

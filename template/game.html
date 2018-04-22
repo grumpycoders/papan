@@ -35,7 +35,7 @@
     'use strict'
 
     Polymer({
-      is: "papan-game-page",
+      is: 'papan-game-page',
 
       properties: {
         /*
@@ -82,20 +82,19 @@
         '_updateGame(_routeData.collection, _routeData.gameid)'
       ],
 
-      _updateGame: function(collection, gameid) {
+      _updateGame: function (collection, gameid) {
         if (collection && gameid) {
           var id = collection + '/' + gameid
-          var game = this.gamelist.filter(function(d) { return d.name == id })
-          if (game[0])
-          this._currentGame = game[0].info
+          var game = this.gamelist.filter(function (d) { return d.name === id })
+          if (game[0]) { this._currentGame = game[0].info }
         }
       },
 
-      _numberOfPlayers: function(localize, min,max){
+      _numberOfPlayers: function (localize, min, max) {
         if (max < min) return min + ' ' + localize('players')
-        else if (min == 1 && max == 1) return '1 ' + localize('player')
-        else if (min == max) return min + ' ' + localize('players')
-        else return min + ' - ' + max + ' ' + localize('players');
+        else if (min === 1 && max === 1) return '1 ' + localize('player')
+        else if (min === max) return min + ' ' + localize('players')
+        else return min + ' - ' + max + ' ' + localize('players')
       }
     })
   </script>

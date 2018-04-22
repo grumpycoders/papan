@@ -8,7 +8,7 @@
     "start": "electron .",
     "dev": "electron . --debug",
     "start-headless": "node .",
-    "lint": "standard | snazzy",
+    "lint": "standard **/*.js **/*.html | snazzy",
     "polymer_lint": "node ./node_modules/polymer-cli/bin/polymer.js lint",
     "node_test": "mocha ./test/common",
     "electron_test": "electron-mocha ./test/common",
@@ -20,6 +20,13 @@
   "standard": {
     "env": [
       "mocha"
+    ],
+    "plugin": [
+      "html"
+    ],
+    "globals": [
+      "PapanLocalize",
+      "Polymer"
     ]
   },
   "repository": {
@@ -38,6 +45,7 @@
     "electron": "^1.8.4",
     "electron-mocha": "^6.0.1",
     "electron-packager": "^12.0.1",
+    "eslint-plugin-html": "^4.0.3",
     "mocha": "^5.1.1",
     "polymer-cli": "^1.6.0",
     "snazzy": "^7.1.1",

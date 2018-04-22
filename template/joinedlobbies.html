@@ -25,7 +25,7 @@
     'use strict'
 
     Polymer({
-      is: "papan-joined-lobbies",
+      is: 'papan-joined-lobbies',
 
       properties: {
         /*
@@ -40,11 +40,11 @@
         */
         lobbylist: {
           type: Array,
-            value: function() {
-              return [];
-            }
+          value: function () {
+            return []
+          }
         },
-        
+    
         /*
           Current lobby information
         */
@@ -55,19 +55,19 @@
         }
       },
 
-      ready: function() {
-        lobbyInterface.on('lobbyJoin', lobby => {
+      ready: function () {
+        global.lobbyInterface.on('lobbyJoin', lobby => {
           this.push('lobbylist', lobby)
           this.currentlobby = lobby
-          this.set('route.path', "/lobby/" + lobby.getInfo().id)
+          this.set('route.path', '/lobby/' + lobby.getInfo().id)
         })
       },
 
-      _lobbyid: function(lobby) {
+      _lobbyid: function (lobby) {
         return lobby.getInfo().id
       },
 
-      _firstletter: function(lobby) {
+      _firstletter: function (lobby) {
         return lobby.getInfo().id[0]
       }
     })

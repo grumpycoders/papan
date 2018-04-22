@@ -21,7 +21,7 @@
         authInfo: {
           type: Object,
           notify: true,
-          observer: "_gotAuthInfo"
+          observer: '_gotAuthInfo'
         },
 
         isLoggedIn: {
@@ -37,7 +37,7 @@
         }
       },
 
-      _gotAuthInfo: function(info) {
+      _gotAuthInfo: function (info) {
         if (!info) info = {}
         this.isLoggedIn = info.authenticated
         this.isLoggedOut = !info.authenticated

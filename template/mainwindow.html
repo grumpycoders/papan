@@ -135,7 +135,7 @@
     'use strict'
 
     Polymer({
-      is: "papan-main-window",
+      is: 'papan-main-window',
 
       properties: {
         userinfo: {
@@ -169,38 +169,39 @@
         PapanLocalize
       ],
 
-      ready: function() {
-        if (PapanUtils.isElectron()) {
+      ready: function () {
+        if (global.PapanUtils.isElectron()) {
           this._toggleDebug = () => {
             const electron = require('electron')
             electron.remote.getCurrentWindow().toggleDevTools()
           }
         } else {
-          let githublink = this.$['github-link'].style.display = 'inline'
+          this.$['github-link'].style.display = 'inline'
         }
       },
 
-      _toggleMenu: function() {
+      _toggleMenu: function () {
         this.$.appdrawer.toggle()
       },
 
-      _showuserdata: function() {
+      _showuserdata: function () {
         this.$.dbglogindata.open()
       },
 
-      _updateServer: function(server) {
-        if (!server || server == '')
+      _updateServer: function (server) {
+        if (!server || server === '') {
           this._title = 'Papan'
-        else
+        } else {
           this._title = server
+        }
       },
 
-      _loggedin: function(userinfo) {
+      _loggedin: function (userinfo) {
         return !!userinfo
       }
     })
 
-    if (PapanUtils.isElectron()) {
+    if (global.PapanUtils.isElectron()) {
       require('devtron').install()
     }
   </script>
