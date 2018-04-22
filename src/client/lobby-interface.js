@@ -1,8 +1,8 @@
 'use strict'
 
-const channel = this.channel
+const channel = global.channel
 
-class Lobby extends this.EventEmitter {
+class Lobby extends global.EventEmitter {
   constructor (info, lobbyInterface) {
     super()
 
@@ -60,7 +60,7 @@ class Lobby extends this.EventEmitter {
   }
 }
 
-class LobbyInterface extends this.EventEmitter {
+class LobbyInterface extends global.EventEmitter {
   constructor () {
     super()
 
@@ -69,6 +69,8 @@ class LobbyInterface extends this.EventEmitter {
     this.publicLobbyList = {}
     channel.send('PapanChannel.GetLobbyConnectionStatus')
     channel.on('PapanChannel.AvailableGames', data => this.emit('games', data.games))
+    channel.on('PapanLobby.RequestGameInfo', data => this.emit('requestGameInfo', data.infoHash))
+    channel.on('PapanLobby.SendGameInfo', data => this.emit('gameInfo', data.info))
     channel.on('PapanLobby.Subscribed', data => {
       this.userInfo = data.self
       this.emit('connected')
@@ -121,6 +123,8 @@ class LobbyInterface extends this.EventEmitter {
   createLobby () { channel.send('PapanLobby.JoinLobby') }
   joinLobby (id) { channel.send('PapanLobby.JoinLobby', { id: id }) }
   getAvailableGames () { channel.send('PapanChannel.GetAvailableGames') }
+  requestGameInfo (infoHash) { channel.send('PapanLobby.RequestGameInfo', { infoHash: infoHash }) }
+  sendGameInfo (gameInfo) { channel.send('PapanLobby.SendGameInfo', { info: gameInfo }) }
 }
 
-this.lobbyInterface = new LobbyInterface()
+global.lobbyInterface = new LobbyInterface()

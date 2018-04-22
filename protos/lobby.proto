@@ -105,6 +105,14 @@ message SetLobbyGame {
   bool registered_game_servers_only = 3 [default = true];
 }
 
+message RequestGameInfo {
+  string info_hash = 1;
+}
+
+message SendGameInfo {
+  Papan.GameInfo info = 1;
+}
+
 message LobbyAction {
   oneof action {
     JoinLobby join = 1;
@@ -115,6 +123,8 @@ message LobbyAction {
     SetLobbyName set_name = 6;
     SetLobbyPublic set_public = 7;
     SetLobbyGame set_game = 8;
+    RequestGameInfo request_game_info = 9;
+    SendGameInfo game_info = 10;
   }
 }
 
@@ -131,6 +141,8 @@ message LobbyUpdate {
     UserLeft user_left = 4;
     LobbyChatMessage message = 5;
     UserReadyUpdate ready_update = 6;
+    RequestGameInfo request_game_info = 7;
+    SendGameInfo game_info = 8;
   }
 }
 

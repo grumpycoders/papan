@@ -63,7 +63,7 @@ exports.getGamesList = () => recursive(base)
               })
             }
           )).then(input => {
-            client.seed(input, torrent => {
+            client.seed(input, { name: game }, torrent => {
               games[game].torrent = torrent
               resolve()
             })

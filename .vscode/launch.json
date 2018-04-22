@@ -5,7 +5,6 @@
       "name": "Debug Main Process - electron",
       "type": "node",
       "request": "launch",
-      "preLaunchTask": "install",
       "cwd": "${workspaceRoot}",
       "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron",
       "windows": {
