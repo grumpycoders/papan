@@ -73,16 +73,16 @@ class ElectronClientInterface extends ClientInterface {
 
     return new Promise((resolve, reject) => {
       request(requestData)
-      .then(res => {
-        if (typeof res === 'object' && typeof res.code === 'string') {
-          resolve(res.code)
-        } else {
+        .then(res => {
+          if (typeof res === 'object' && typeof res.code === 'string') {
+            resolve(res.code)
+          } else {
+            resolve(this.getAuthorizationCodeFromWindow())
+          }
+        })
+        .catch(() => {
           resolve(this.getAuthorizationCodeFromWindow())
-        }
-      })
-      .catch(() => {
-        resolve(this.getAuthorizationCodeFromWindow())
-      })
+        })
     })
   }
 
@@ -180,9 +180,9 @@ exports.main = () => {
       })
     }),
     clientInterface.getSerializer()
-    .then(serializer => {
-      clientInterface.setChannel(new Channel(serializer))
-    })
+      .then(serializer => {
+        clientInterface.setChannel(new Channel(serializer))
+      })
   ])
 
   app.on('window-all-closed', () => {

@@ -118,7 +118,7 @@
 
     static _methodList () {
       return Object.getOwnPropertyNames(Path.prototype)
-      .filter(name => !(['constructor', 'toString'].includes('join')) && !name.startsWith('_'))
+        .filter(name => !(['constructor', 'toString'].includes('join')) && !name.startsWith('_'))
     }
 
     static _wrappers () {

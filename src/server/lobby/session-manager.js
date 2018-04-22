@@ -25,27 +25,27 @@ class SessionManager {
   _checkCredentialsGenerator (credentialsVerifier) {
     return handlerOrService => {
       const interceptorGenerator = handler => (call, callback) => credentialsVerifier(call)
-      .then(metadata => {
-        if (metadata) {
-          call.sendMetadata(metadata)
-        }
-        handler(call, callback)
-      })
-      .catch(err => {
-        console.error('SessionManager caught an error:')
-        console.log(err)
-        let error = {
-          code: grpc.status.UNAUTHENTICATED,
-          details: err.message || 'Client must authenticate'
-        }
-        let metadata = new grpc.Metadata()
-        if (callback === undefined) {
-          error.metadata = metadata
-          call.emit('error', error)
-        } else {
-          callback(error, null, metadata)
-        }
-      })
+        .then(metadata => {
+          if (metadata) {
+            call.sendMetadata(metadata)
+          }
+          handler(call, callback)
+        })
+        .catch(err => {
+          console.error('SessionManager caught an error:')
+          console.log(err)
+          let error = {
+            code: grpc.status.UNAUTHENTICATED,
+            details: err.message || 'Client must authenticate'
+          }
+          let metadata = new grpc.Metadata()
+          if (callback === undefined) {
+            error.metadata = metadata
+            call.emit('error', error)
+          } else {
+            callback(error, null, metadata)
+          }
+        })
 
       if (typeof handlerOrService === 'function') {
         const handler = handlerOrService
@@ -77,9 +77,23 @@ class SessionManager {
             let userId = -1
 
             return request(requestData)
-            .then(res => {
-              if (!res.userId) return Promise.reject(Error('Invalid exchange code'))
-              userId = res.userId
+              .then(res => {
+                if (!res.userId) return Promise.reject(Error('Invalid exchange code'))
+                userId = res.userId
+                call.metadata.set('papan-userid', userId)
+                return this._persist.createSession(userId)
+              })
+              .then(token => {
+                let metadata = new grpc.Metadata()
+                metadata.set('papan-session', token)
+                call.papanSession = token
+                return metadata
+              })
+          }
+          return Promise.reject(Error('Client must authenticate'))
+        } else {
+          return PapanServerUtils.generateToken()
+            .then(userId => {
               call.metadata.set('papan-userid', userId)
               return this._persist.createSession(userId)
             })
@@ -89,20 +103,6 @@ class SessionManager {
               call.papanSession = token
               return metadata
             })
-          }
-          return Promise.reject(Error('Client must authenticate'))
-        } else {
-          return PapanServerUtils.generateToken()
-          .then(userId => {
-            call.metadata.set('papan-userid', userId)
-            return this._persist.createSession(userId)
-          })
-          .then(token => {
-            let metadata = new grpc.Metadata()
-            metadata.set('papan-session', token)
-            call.papanSession = token
-            return metadata
-          })
         }
       }
 
@@ -111,11 +111,11 @@ class SessionManager {
       if (session) {
         return new Promise((resolve, reject) => {
           this._persist.getIdFromSession(session)
-          .then(userId => {
-            call.metadata.set('papan-userid', userId)
-            resolve()
-          })
-          .catch(() => { resolve(authAndSessionWork()) })
+            .then(userId => {
+              call.metadata.set('papan-userid', userId)
+              resolve()
+            })
+            .catch(() => { resolve(authAndSessionWork()) })
         })
       } else {
         return authAndSessionWork()

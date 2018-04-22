@@ -119,9 +119,9 @@ exports.registerServer = (app, config) => {
     app.get('/auth/getcode',
       passport.authenticated(),
       (req, res, next) => PapanServerUtils.generateToken()
-      .then(token => users.addTemporaryCode(req.user, token))
-      .then(token => res.json({ code: token.dataValues.id }))
-      .catch(err => next(err))
+        .then(token => users.addTemporaryCode(req.user, token))
+        .then(token => res.json({ code: token.dataValues.id }))
+        .catch(err => next(err))
     )
     app.get('/auth/forwardcode',
       passport.authenticated(),
@@ -129,22 +129,22 @@ exports.registerServer = (app, config) => {
         ? PapanServerUtils.generateToken()
         : Promise.reject(Error('Invalid returnURL query parameter'))
       ).then(token => users.addTemporaryCode(req.user, token))
-      .then(token => res.redirect(req.query.returnURL + '?code=' + token.dataValues.id))
-      .catch(err => next(err))
+        .then(token => res.redirect(req.query.returnURL + '?code=' + token.dataValues.id))
+        .catch(err => next(err))
     )
     app.post('/exchange', (req, res, next) => {
       let code = req.body.code
       let userId = -1
       users.findUserByTemporaryCode(code)
-      .then(user => {
-        if (user) {
-          userId = user.dataValues.id
-          return users.revokeTemporaryCode(code)
-        } else {
-          return Promise.reject(Error('user not found'))
-        }
-      }).then(() => res.json({ userId: userId }))
-      .catch(err => next(err))
+        .then(user => {
+          if (user) {
+            userId = user.dataValues.id
+            return users.revokeTemporaryCode(code)
+          } else {
+            return Promise.reject(Error('user not found'))
+          }
+        }).then(() => res.json({ userId: userId }))
+        .catch(err => next(err))
     })
     app.get('/auth/available', (req, res) => res.json({ providers: authentications }))
     app.get('/info', (req, res) => res.json({
@@ -240,7 +240,7 @@ exports.registerServer = (app, config) => {
             registerProvider(provider)
             return Promise.resolve()
           }
-        ))
+          ))
       })
     } catch (err) {
       promises.push(Promise.reject(err))

@@ -26,15 +26,15 @@ exports.load = (filenames, paths = ['protos']) => {
   }
 
   return Promise.all(protosdirs.map(path => recursive(path)))
-  .then(results => {
-    protosdirs.map((key, index) => {
-      allprotos[key] = results[index].map(fullpath => path.relative(key, fullpath))
+    .then(results => {
+      protosdirs.map((key, index) => {
+        allprotos[key] = results[index].map(fullpath => path.relative(key, fullpath))
+      })
+      return protobufjs.load(filenames, root)
     })
-    return protobufjs.load(filenames, root)
-  })
-  .then(proto => {
-    const ret = grpc.loadObject(proto, { protobufjsVersion: 6 })
-    ret.rootProto = proto
-    return ret
-  })
+    .then(proto => {
+      const ret = grpc.loadObject(proto, { protobufjsVersion: 6 })
+      ret.rootProto = proto
+      return ret
+    })
 }
