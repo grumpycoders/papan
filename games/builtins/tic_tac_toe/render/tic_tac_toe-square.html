@@ -29,29 +29,29 @@
 
   <script>
     Polymer({
-      is: "ttt-square",
+      is: 'ttt-square',
 
       _actor: {},
 
-      showCircle: function() {
+      showCircle: function () {
         this.$.circle.style.display = 'inline'
         this.$.cross.style.display = 'none'
         this.$.empty.style.display = 'none'
       },
 
-      showCross: function() {
+      showCross: function () {
         this.$.circle.style.display = 'none'
         this.$.cross.style.display = 'inline'
         this.$.empty.style.display = 'none'
       },
 
-      showEmpty: function() {
+      showEmpty: function () {
         this.$.circle.style.display = 'none'
         this.$.cross.style.display = 'none'
         this.$.empty.style.display = 'inline'
       },
 
-      actionFired: function(event) {
+      actionFired: function (event) {
         let actor = this._actor
         if (!actor.actions[0]) return
         this.fire('action', {
@@ -60,18 +60,18 @@
         })
       },
 
-      attachActor: function(actor) {
+      attachActor: function (actor) {
         this._actor = actor
-        switch(actor.class[0]) {
-        case 'O':
-          this.showCircle()
-          break
-        case 'X':
-          this.showCross()
-          break
-        case 'empty':
-          this.showEmpty()
-          break
+        switch (actor.class[0]) {
+          case 'O':
+            this.showCircle()
+            break
+          case 'X':
+            this.showCross()
+            break
+          case 'empty':
+            this.showEmpty()
+            break
         }
       }
     })

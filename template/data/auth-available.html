@@ -24,7 +24,7 @@
         }
       },
 
-      filter: function(e) {
+      filter: function (e) {
         this.authAvailable = e.detail.response.providers.sort(this._providerCompare)
       },
 
@@ -35,12 +35,12 @@
         authAvailable: {
           type: Array,
           notify: true,
-          observer: "_authAvailableChanged"
+          observer: '_authAvailableChanged'
         }
       },
 
-      _authAvailableChanged: function(list) {
-        console.log("Got list of available auth providers:")
+      _authAvailableChanged: function (list) {
+        console.log('Got list of available auth providers:')
         console.log(list)
       }
     })

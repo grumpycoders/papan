@@ -74,14 +74,14 @@ class LobbyClient {
       if (err.code === grpc.status.UNAUTHENTICATED) {
         this.clientInterface.setLobbyConnectionStatus('AUTHENTICATING')
         this.clientInterface.getAuthorizationCode()
-        .then(code => {
-          this.papanCode = code
-          retry()
-        })
-        .catch(err => {
-          err.code = grpc.status.UNAUTHENTICATED
-          call.emit('error', err)
-        })
+          .then(code => {
+            this.papanCode = code
+            retry()
+          })
+          .catch(err => {
+            err.code = grpc.status.UNAUTHENTICATED
+            call.emit('error', err)
+          })
       } else {
         if (handler) handler(err)
       }

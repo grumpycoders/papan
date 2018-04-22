@@ -46,24 +46,24 @@
 
   <script>
     Polymer({
-      is: "papan-main-board",
+      is: 'papan-main-board',
 
-      created: function() {
+      created: function () {
         this._publicScene = {}
       },
 
-      ready: function() {
+      ready: function () {
         this.fire('view-ready')
       },
 
-      applyPublicDelta: function(delta) {
+      applyPublicDelta: function (delta) {
         let element = this
         delta.forEach((change) => {
-          DeepDiff.applyChange(element._publicScene, {}, change)
+          global.DeepDiff.applyChange(element._publicScene, {}, change)
         })
 
         this.$.gameStatus.innerHTML = this._publicScene.turn.attributes.player
-        if (!!this._publicScene.winner) {
+        if (this._publicScene.winner) {
           const winner = this._publicScene.winner.attributes.player
           if (winner) {
             this.$.gameStatus.innerHTML = 'Game over: winner = ' + winner
@@ -74,7 +74,7 @@
 
         for (let x = 0; x < 3; x++) {
           for (let y = 0; y < 3; y++) {
-            let sourceName = 'space_' + x + "_" + y
+            let sourceName = 'space_' + x + '_' + y
             let destName = 's' + x + y
             let actor = this._publicScene[sourceName]
             let element = this.$[destName]
@@ -83,7 +83,7 @@
         }
       },
 
-      applyPrivateDelta: function(delta, player) {}
+      applyPrivateDelta: function (delta, player) {}
     })
   </script>
 </dom-module>

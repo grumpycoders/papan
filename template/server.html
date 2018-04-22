@@ -30,8 +30,8 @@
         }
       },
 
-      _joinLobby: function(event) {
-        this.set('route.path', "/lobby/" + this.lobbyId)
+      _joinLobby: function (event) {
+        this.set('route.path', '/lobby/' + this.lobbyId)
       },
 
       behaviors: [
@@ -84,7 +84,7 @@
     'use strict'
 
     Polymer({
-      is: "papan-server-page",
+      is: 'papan-server-page',
 
       properties: {
         /*
@@ -93,7 +93,7 @@
         route: {
           type: Object
         },
-        
+    
         /*
           server where the game is hosted
         */
@@ -128,9 +128,9 @@
         */
         _lobbylist: {
           type: Array,
-            value: function() {
-              return [];
-            }
+          value: function () {
+            return []
+          }
         },
 
         _newlobbypublic: {
@@ -142,27 +142,27 @@
         }
       },
 
-      ready: function() {
-        lobbyInterface.on('publicLobbyAdd', lobbyinfo => {
+      ready: function () {
+        global.lobbyInterface.on('publicLobbyAdd', lobbyinfo => {
           this.push('_lobbylist', lobbyinfo)
         })
-        lobbyInterface.on('publicLobbyUpdate', lobbyinfo => {
+        global.lobbyInterface.on('publicLobbyUpdate', lobbyinfo => {
           for (var i in this._lobbylist) {
-            if (this._lobbylist[i].id == lobbyinfo.id) {
-              this._lobbylist[i] = lobbyinfo;
-                break;
+            if (this._lobbylist[i].id === lobbyinfo.id) {
+              this._lobbylist[i] = lobbyinfo
+              break
             }
           }
         })
-        lobbyInterface.on('publicLobbyRemove', lobbyinfo => {
-          lobby = this._lobbylist.map(function(e) { return e.id; }).indexOf(lobbyinfo.id)
+        global.lobbyInterface.on('publicLobbyRemove', lobbyinfo => {
+          const lobby = this._lobbylist.map(function (e) { return e.id }).indexOf(lobbyinfo.id)
           this.splice('_lobbylist', lobby, 1)
         })
-        lobbyInterface.startWatchingLobbies()
+        global.lobbyInterface.startWatchingLobbies()
       },
 
-      _createlobby: function() {
-        lobbyInterface.createLobby()
+      _createlobby: function () {
+        global.lobbyInterface.createLobby()
         this._newlobbyname = ''
       },
 
@@ -174,8 +174,8 @@
         PapanLocalize
       ],
 
-      _updateServer: function(serverid) {
-          this.server = serverid
+      _updateServer: function (serverid) {
+        this.server = serverid
       }
     })
   </script>

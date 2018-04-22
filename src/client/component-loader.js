@@ -33,14 +33,14 @@ class ComponentLoader {
     })
 
     const promise = Promise.all(promises)
-    .then(() => {
-      Object.keys(gameInfo.json.deps || {}).forEach(depInfoHash => {
-        const dst = this._components[infoHash].transforms
-        const src = this._components[depInfoHash].transforms
-        this._components[infoHash].transforms = global.deepmerge(dst, src)
+      .then(() => {
+        Object.keys(gameInfo.json.deps || {}).forEach(depInfoHash => {
+          const dst = this._components[infoHash].transforms
+          const src = this._components[depInfoHash].transforms
+          this._components[infoHash].transforms = global.deepmerge(dst, src)
+        })
+        return this._loadComponent(infoHash)
       })
-      return this._loadComponent(infoHash)
-    })
 
     this._components[infoHash] = {
       promise: promise,
@@ -56,20 +56,20 @@ class ComponentLoader {
     return new Promise((resolve, reject) => {
       this._resolvers[infoHash] = resolve
     })
-    .then(info => this._getTorrent(info.torrent))
-    .then(result => {
-      torrent = result
-      if (torrent.infoHash !== infoHash) return Promise.reject(Error('Expected ' + infoHash + ' but got ' + torrent.infoHash))
-      return this._getFile(infoHash, 'game.json')
-    })
-    .then(buffer => this.load({
-      json: JSON.parse(buffer.toString()),
-      torrent: {
-        infoHash: torrent.infoHash,
-        magnetURI: torrent.magnetURI,
-        torrentFile: torrent.torrentFile
-      }
-    }))
+      .then(info => this._getTorrent(info.torrent))
+      .then(result => {
+        torrent = result
+        if (torrent.infoHash !== infoHash) return Promise.reject(Error('Expected ' + infoHash + ' but got ' + torrent.infoHash))
+        return this._getFile(infoHash, 'game.json')
+      })
+      .then(buffer => this.load({
+        json: JSON.parse(buffer.toString()),
+        torrent: {
+          infoHash: torrent.infoHash,
+          magnetURI: torrent.magnetURI,
+          torrentFile: torrent.torrentFile
+        }
+      }))
   }
 
   _getTorrent (torrentInfoOrHash) {
@@ -118,21 +118,21 @@ class ComponentLoader {
 
   _getFile (infoHash, filename) {
     return this._getTorrent(infoHash)
-    .then(torrent => new Promise((resolve, reject) => {
-      let found = false
-      const baseName = torrent.name + '/'
-      torrent.files.forEach(file => {
-        const name = file.path.slice(baseName.length).replace('\\', '/')
-        if (name === filename) {
-          file.getBuffer((err, buffer) => {
-            if (err) reject(err)
-            resolve(buffer)
-          })
-          found = true
-        }
-      })
-      if (!found) reject(Error('Torrent ' + infoHash + ' doesn\'t have a file named ' + filename))
-    }))
+      .then(torrent => new Promise((resolve, reject) => {
+        let found = false
+        const baseName = torrent.name + '/'
+        torrent.files.forEach(file => {
+          const name = file.path.slice(baseName.length).replace('\\', '/')
+          if (name === filename) {
+            file.getBuffer((err, buffer) => {
+              if (err) reject(err)
+              resolve(buffer)
+            })
+            found = true
+          }
+        })
+        if (!found) reject(Error('Torrent ' + infoHash + ' doesn\'t have a file named ' + filename))
+      }))
   }
 
   _attachDocument (doc) {
@@ -148,21 +148,21 @@ class ComponentLoader {
 
   _loadComponent (infoHash) {
     return this._getFile(infoHash, 'game.json')
-    .then(file => {
-      const json = JSON.parse(file.toString())
-      const webComponent = json.webcomponent
-      if (typeof webComponent === 'string' && webComponent.length !== 0) {
-        return this._loadHTML(infoHash, webComponent)
-        .then(doc => this._attachDocument(doc))
-        .then(() => 'papan-infohash-' + infoHash + '-papan-game-board')
-      }
-      return Promise.reject(Error('Torrent ' + infoHash + ' has no registered web component.'))
-    })
+      .then(file => {
+        const json = JSON.parse(file.toString())
+        const webComponent = json.webcomponent
+        if (typeof webComponent === 'string' && webComponent.length !== 0) {
+          return this._loadHTML(infoHash, webComponent)
+            .then(doc => this._attachDocument(doc))
+            .then(() => 'papan-infohash-' + infoHash + '-papan-game-board')
+        }
+        return Promise.reject(Error('Torrent ' + infoHash + ' has no registered web component.'))
+      })
   }
 
   _loadHTML (infoHash, filename) {
     return this._getFile(infoHash, filename)
-    .then(file => this._transformElement(infoHash, this._parseString(file.toString()), filename))
+      .then(file => this._transformElement(infoHash, this._parseString(file.toString()), filename))
   }
 
   _encodeToHREF (type, base64) {
@@ -177,17 +177,17 @@ class ComponentLoader {
       if (elements[i]) promises.push(this._transformElement(infoHash, elements[i], filename))
     }
     return Promise.all(promises)
-    .then(newElements => {
-      let child = base.firstChild
-      while (child) {
-        base.removeChild(child)
-        child = base.firstChild
-      }
-      newElements.forEach(element => {
-        if (element) base.appendChild(element)
+      .then(newElements => {
+        let child = base.firstChild
+        while (child) {
+          base.removeChild(child)
+          child = base.firstChild
+        }
+        newElements.forEach(element => {
+          if (element) base.appendChild(element)
+        })
+        return base
       })
-      return base
-    })
   }
 
   _transformElement (infoHash, element, filename) {
@@ -226,11 +226,11 @@ class ComponentLoader {
                 ifHrefHereThen(href, path => {
                   processChildren = false
                   promise = this._getFile(infoHash, path)
-                  .then(file => {
-                    const element = newElement.ownerDocument.createElement('style')
-                    element.text = file.toString()
-                    return element
-                  })
+                    .then(file => {
+                      const element = newElement.ownerDocument.createElement('style')
+                      element.text = file.toString()
+                      return element
+                    })
                 }, path => {
                   promise = Promise.reject(Error('Script source is outside component: ' + path))
                 })
@@ -238,7 +238,7 @@ class ComponentLoader {
               default:
                 ifHrefHereThen(href, path => {
                   promise = this._loadHTML(infoHash, path)
-                  .then(doc => this._attachDocument(doc))
+                    .then(doc => this._attachDocument(doc))
                 })
                 newElement = null
             }
@@ -264,12 +264,12 @@ class ComponentLoader {
           if (src) {
             ifHrefHereThen(src, path => {
               promise = this._getFile(infoHash, path)
-              .then(file => {
-                const newScript = this._transformScript(infoHash, file.toString(), infoHash + '/' + src)
-                element.removeAttribute('src')
-                attachScript(element, newScript)
-                return element
-              })
+                .then(file => {
+                  const newScript = this._transformScript(infoHash, file.toString(), infoHash + '/' + src)
+                  element.removeAttribute('src')
+                  attachScript(element, newScript)
+                  return element
+                })
             }, path => {
               promise = Promise.reject(Error('Script source is outside component: ' + path))
             })
@@ -290,24 +290,24 @@ class ComponentLoader {
           if (src && !src.startsWith('data:')) {
             ifHrefHereThen(src, path => {
               promise = this._getFile(infoHash, path)
-              .then(file => {
-                const mimeTypes = {
-                  'gif': 'image/gif',
-                  'png': 'image/png',
-                  'jpg': 'image/jpeg',
-                  'jpeg': 'image/jpeg',
-                  'bmp': 'image/bmp',
-                  'svg': 'image/svg+xml'
-                }
-                let mimeType = 'text/plain'
-                Object.keys(mimeTypes).forEach(extension => {
-                  if (src.endsWith('.' + extension)) {
-                    mimeType = mimeTypes[extension]
+                .then(file => {
+                  const mimeTypes = {
+                    'gif': 'image/gif',
+                    'png': 'image/png',
+                    'jpg': 'image/jpeg',
+                    'jpeg': 'image/jpeg',
+                    'bmp': 'image/bmp',
+                    'svg': 'image/svg+xml'
                   }
+                  let mimeType = 'text/plain'
+                  Object.keys(mimeTypes).forEach(extension => {
+                    if (src.endsWith('.' + extension)) {
+                      mimeType = mimeTypes[extension]
+                    }
+                  })
+                  element.setAttribute('src', this._encodeToHREF(mimeType, file.toString('base64')))
+                  return element
                 })
-                element.setAttribute('src', this._encodeToHREF(mimeType, file.toString('base64')))
-                return element
-              })
             }, path => {
               promise = Promise.reject(Error('Asset is outside component: ' + path))
             })
@@ -320,7 +320,7 @@ class ComponentLoader {
     }
     if (processChildren) {
       return promise
-      .then(newElement => this._transformArrayAndAttach(infoHash, element.children, newElement, filename))
+        .then(newElement => this._transformArrayAndAttach(infoHash, element.children, newElement, filename))
     } else {
       return promise
     }

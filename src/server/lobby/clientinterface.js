@@ -27,7 +27,7 @@ class ClientInterface extends EventEmitter {
 
     this.channel.on('PapanChannel.GetAvailableGames', () => {
       this.gamesListPromise
-      .then(gamesList => this.channel.send('PapanChannel.AvailableGames', { games: gamesList }))
+        .then(gamesList => this.channel.send('PapanChannel.AvailableGames', { games: gamesList }))
     })
 
     this.channel.on('PapanChannel.GetLobbyConnectionStatus', () => this.sendLobbyConnectionStatus())
@@ -42,101 +42,101 @@ class ClientInterface extends EventEmitter {
         let localApiKey
         this.setLobbyConnectionStatus('STARTINGLOBBY')
         premise = PapanServerUtils.generateToken()
-        .then(token => {
-          localApiKey = token
-          return Promise.all([
-            require('./server.js').registerServer({ localApiKey: localApiKey }),
-            this.gamesListPromise
-          ])
-        })
-        .then(results => {
-          this.localLobbyServer = results[0]
-          let gamesList = results[1]
-          const setMapping = () => {
-            natUPNP.portMapping({
-              public: 9999,
-              private: 9999,
-              ttl: 600
-            }, err => {
-              console.log(err)
-              natUPNP.externalIp((err, result) => {
-                let myIP = result
-                if (err) {
-                  myIP = ip.address()
-                }
-                this.channel.send('PapanChannel.LocalServerIP', { ip: myIP })
+          .then(token => {
+            localApiKey = token
+            return Promise.all([
+              require('./server.js').registerServer({ localApiKey: localApiKey }),
+              this.gamesListPromise
+            ])
+          })
+          .then(results => {
+            this.localLobbyServer = results[0]
+            let gamesList = results[1]
+            const setMapping = () => {
+              natUPNP.portMapping({
+                public: 9999,
+                private: 9999,
+                ttl: 600
+              }, err => {
+                console.log(err)
+                natUPNP.externalIp((err, result) => {
+                  let myIP = result
+                  if (err) {
+                    myIP = ip.address()
+                  }
+                  this.channel.send('PapanChannel.LocalServerIP', { ip: myIP })
+                })
+              })
+            }
+            setMapping()
+            natRefreshInterval = setInterval(setMapping, 300000)
+            return require('../game/client.js').createClient(gamesList, deepmerge(options, { apiKey: localApiKey }))
+          })
+          .then(gameClient => {
+            this.gameClient = gameClient
+            return new Promise((resolve, reject) => {
+              gameClient.on('ClientConnected', () => {
+                resolve()
               })
             })
-          }
-          setMapping()
-          natRefreshInterval = setInterval(setMapping, 300000)
-          return require('../game/client.js').createClient(gamesList, deepmerge(options, { apiKey: localApiKey }))
-        })
-        .then(gameClient => {
-          this.gameClient = gameClient
-          return new Promise((resolve, reject) => {
-            gameClient.on('ClientConnected', () => {
-              resolve()
-            })
           })
-        })
       } else {
         premise = Promise.resolve()
       }
       premise
-      .then(() => Client.createClient(this, options))
-      .then(createdClient => {
-        this.emit('CreatedClient', createdClient)
-        this.client = createdClient
-      })
+        .then(() => Client.createClient(this, options))
+        .then(createdClient => {
+          this.emit('CreatedClient', createdClient)
+          this.client = createdClient
+        })
     })
 
     this.protoPromise
-    .then(proto => {
-      const getTypes = fields => Object.keys(fields).map(field => 'PapanLobby.' + fields[field].type)
-      const actionMsgs = ['Action', 'LobbyAction']
-      const updateMsgs = ['Update', 'LobbyUpdate']
-      const actionsArray = actionMsgs.map(msg => getTypes(proto.rootProto.PapanLobby[msg].fields))
-      const updatesArray = updateMsgs.map(msg => getTypes(proto.rootProto.PapanLobby[msg].fields))
-      const reduce = (array, initial = []) => array.reduce((result, array) => {
-        const duplicate = array.reduce((duplicate, msg) => result.includes(msg) ? msg : duplicate, undefined)
-        if (duplicate) {
-          throw Error('Duplicated message ' + duplicate)
-        }
-        return result.concat(array)
-      }, initial)
-      const actions = reduce(actionsArray, [
-        'PapanLobby.StartWatchingLobbies',
-        'PapanLobby.StopWatchingLobbies'
-      ])
-      const updates = reduce(updatesArray, [
-        'PapanLobby.PublicLobbyUpdate'
-      ])
+      .then(proto => {
+        const getTypes = fields => Object.keys(fields).map(field => 'PapanLobby.' + fields[field].type)
+        const actionMsgs = ['Action', 'LobbyAction']
+        const updateMsgs = ['Update', 'LobbyUpdate']
+        const actionsArray = actionMsgs.map(msg => getTypes(proto.rootProto.PapanLobby[msg].fields))
+        const updatesArray = updateMsgs.map(msg => getTypes(proto.rootProto.PapanLobby[msg].fields))
+        const reduce = (array, initial = []) => array.reduce((result, array) => {
+          const duplicate = array.reduce((duplicate, msg) => result.includes(msg) ? msg : duplicate, undefined)
+          if (duplicate) {
+            throw Error('Duplicated message ' + duplicate)
+          }
+          return result.concat(array)
+        }, initial)
+        const actions = reduce(actionsArray, [
+          'PapanLobby.StartWatchingLobbies',
+          'PapanLobby.StopWatchingLobbies'
+        ])
+        const updates = reduce(updatesArray, [
+          'PapanLobby.PublicLobbyUpdate'
+        ])
 
-      actions.forEach(type => {
-        this.channel.on(type, this.connectedCall((message, metadata) => {
-          this.client[type](message, metadata)
-        }))
+        actions.forEach(type => {
+          this.channel.on(type, this.connectedCall((message, metadata) => {
+            this.client[type](message, metadata)
+          }))
+        })
+
+        updates.forEach(type => {
+          if (this[type]) return
+          this[type] = (message = {}, metadata = {}) => this.channel.send(type, message, metadata)
+        })
+
+        this.emit('ready')
       })
-
-      updates.forEach(type => {
-        if (this[type]) return
-        this[type] = (message = {}, metadata = {}) => this.channel.send(type, message, metadata)
-      })
-
-      this.emit('ready')
-    })
   }
 
   getSerializer () {
     return this.protoPromise
-    .then(proto => {
-      if (!this.serializer) {
-        this.serializer = createSerializer(proto.rootProto)
-      }
+      .then(proto => {
+        if (!this.serializer) {
+          this.serializer = createSerializer(proto.rootProto)
+        }
 
-      return this.serializer
-    })
+        return this.serializer
+      })
   }
 
   setChannel (channel) {

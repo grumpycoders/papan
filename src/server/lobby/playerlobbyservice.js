@@ -20,13 +20,13 @@ class SubscribeHandlers {
   'PapanLobby.GetJoinedLobbies' (call, data) {
     const id = this._sessionManager.getId(call)
     return this._persist.getJoinedLobbies({ id: id })
-    .then(result => {
-      call.write({
-        joinedLobbies: {
-          lobbies: result
-        }
+      .then(result => {
+        call.write({
+          joinedLobbies: {
+            lobbies: result
+          }
+        })
       })
-    })
   }
 }
 
@@ -51,20 +51,20 @@ class LobbyHandlers {
       })
     }
     return premise
-    .then(result => {
-      id = result.id
-      call.id = id
-      const sub = this._persist.lobbySubscribe(id, call.write.bind(call))
-      call.on('end', sub.close.bind(sub))
-      call.write({
-        info: result
+      .then(result => {
+        id = result.id
+        call.id = id
+        const sub = this._persist.lobbySubscribe(id, call.write.bind(call))
+        call.on('end', sub.close.bind(sub))
+        call.write({
+          info: result
+        })
+        this._persist.lobbySendMessage(id, {
+          userJoined: {
+            id: userId
+          }
+        })
       })
-      this._persist.lobbySendMessage(id, {
-        userJoined: {
-          id: userId
-        }
-      })
-    })
   }
 
   'PapanLobby.SetLobbyName' (call, data) {
@@ -74,11 +74,11 @@ class LobbyHandlers {
       id: call.id,
       name: data.name
     })
-    .then(result => {
-      this._persist.lobbySendMessage(call.id, {
-        info: result
+      .then(result => {
+        this._persist.lobbySendMessage(call.id, {
+          info: result
+        })
       })
-    })
   }
 
   'PapanLobby.SetLobbyPublic' (call, data) {
@@ -177,18 +177,18 @@ const Lobby = (persist, call, dispatcher) => {
 const ListLobbies = (persist, call) => {
   const sub = persist.lobbyListSubscribe(call.write.bind(call))
   persist.getPublicLobbies()
-  .then(lobbies => {
-    if (!lobbies) lobbies = []
-    return Promise.all(lobbies.map(id => persist.getLobbyInfo({ id: id })))
-  })
-  .then(lobbies => {
-    lobbies.forEach(info => {
-      call.write({
-        lobby: info,
-        status: 0
+    .then(lobbies => {
+      if (!lobbies) lobbies = []
+      return Promise.all(lobbies.map(id => persist.getLobbyInfo({ id: id })))
+    })
+    .then(lobbies => {
+      lobbies.forEach(info => {
+        call.write({
+          lobby: info,
+          status: 0
+        })
       })
     })
-  })
   call.on('end', () => {
     sub.close()
     call.end()

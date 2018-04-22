@@ -8,10 +8,11 @@
     "start": "electron .",
     "dev": "electron . --debug",
     "start-headless": "node .",
-    "lint": "standard | snazzy",
+    "lint": "standard **/*.js **/*.html | snazzy",
     "polymer_lint": "node ./node_modules/polymer-cli/bin/polymer.js lint",
     "node_test": "mocha ./test/common",
     "electron_test": "electron-mocha ./test/common",
+    "electron_rebuild": "npm rebuild --runtime=electron --target=1.8.4 --dist-url=https://atom.io/download/electron",
     "test": "npm run node_test && npm run electron_test && npm run lint",
     "postinstall": "bower install && bower prune && node ./post-install-patch.js",
     "build": "electron-packager . --all --out=out"
@@ -19,6 +20,13 @@
   "standard": {
     "env": [
       "mocha"
+    ],
+    "plugin": [
+      "html"
+    ],
+    "globals": [
+      "PapanLocalize",
+      "Polymer"
     ]
   },
   "repository": {
@@ -34,22 +42,23 @@
     "chai": "^4.0.2",
     "chai-as-promised": "^7.0.0",
     "devtron": "^1.4.0",
-    "electron": "^1.8.2",
-    "electron-mocha": "^4.0.0",
-    "electron-packager": "^11.1.0",
-    "mocha": "^3.2.0",
+    "electron": "^1.8.4",
+    "electron-mocha": "^6.0.1",
+    "electron-packager": "^12.0.1",
+    "eslint-plugin-html": "^4.0.3",
+    "mocha": "^5.1.1",
     "polymer-cli": "^1.6.0",
     "snazzy": "^7.1.1",
-    "standard": "^10.0.2"
+    "standard": "^11.0.1"
   },
   "dependencies": {
     "babel-standalone": "^6.26.0",
     "base64url": "^2.0.0",
     "body-parser": "^1.17.2",
     "bower": "^1.8.0",
-    "command-line-args": "^4.0.1",
+    "command-line-args": "^5.0.2",
     "connect-pg-simple": "^4.2.0",
-    "deep-diff": "^0.3.4",
+    "deep-diff": "^1.0.0",
     "deepclone": "^1.0.2",
     "deepmerge": "^2.1.0",
     "diff": "^3.5.0",
@@ -62,8 +71,8 @@
     "ip": "^1.1.5",
     "lodash": "^4.17.5",
     "nat-upnp": "^1.1.1",
-    "openid-client": "^1.19.4",
-    "passport": "^0.3.2",
+    "openid-client": "^2.0.0",
+    "passport": "^0.4.0",
     "passport-facebook": "^2.1.1",
     "passport-steam": "^1.0.8",
     "passport-twitter": "^1.0.4",
@@ -74,19 +83,19 @@
     "react-dom": "^16.3.2",
     "recursive-readdir": "^2.2.2",
     "redis": "^2.7.1",
-    "redis-mock": "^0.18.0",
+    "redis-mock": "^0.21.0",
     "redis-sessions": "^1.3.0",
-    "redux": "^3.6.0",
+    "redux": "^4.0.0",
     "request": "^2.83.0",
     "request-promise-native": "^1.0.5",
     "seedrandom": "^2.4.3",
     "sequelize": "^4.35.2",
-    "socket.io": "^1.7.4",
-    "socket.io-client": "^1.7.4",
+    "socket.io": "^2.1.0",
+    "socket.io-client": "^2.1.0",
     "spinkit": "^1.2.5",
     "umzug": "^2.0.1",
     "uuid": "^3.2.1",
-    "webtorrent": "^0.98.24",
+    "webtorrent": "^0.99.0",
     "webtorrent-hybrid": "^1.0.6",
     "winston": "^2.3.1"
   }

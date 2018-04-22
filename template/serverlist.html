@@ -41,20 +41,21 @@
         },
         serverssl: {
           type: Boolean
-        },
+        }
       },
 
-      _joinServer: function(event) {
+      _joinServer: function (event) {
         this.currentServer = this.servername
-        if (this.currentServer === this.localize('localserver'))
-          lobbyInterface.connectToLobbyServer({ connectLocal: true })
-        else
-          lobbyInterface.connectToLobbyServer({ lobbyServer: event.target.serveruurl, lobbyServerPort: event.target.serverport, useLocalCA: !event.target.serverssl })
+        if (this.currentServer === this.localize('localserver')) {
+          global.lobbyInterface.connectToLobbyServer({ connectLocal: true })
+        } else {
+          global.lobbyInterface.connectToLobbyServer({ lobbyServer: event.target.serveruurl, lobbyServerPort: event.target.serverport, useLocalCA: !event.target.serverssl })
+        }
         this._connectionTimestamp = 0
-        var ct = setInterval(this._updateConnectionTimer.bind(this), 1000)
+        setInterval(this._updateConnectionTimer.bind(this), 1000)
       },
 
-      _updateConnectionTimer: function() {
+      _updateConnectionTimer: function () {
         this.connectionTimestamp++
       },
 
@@ -96,12 +97,12 @@
         }
       },
 
-      _removeServer: function(event) {
-        this._serverToDelete = this.serverlist.map(function(e) { return e.name; }).indexOf(event.target.servername)
+      _removeServer: function (event) {
+        this._serverToDelete = this.serverlist.map(function (e) { return e.name }).indexOf(event.target.servername)
         this.$.removedialog.open()
       },
 
-      _removeServerConfirmed: function(event) {
+      _removeServerConfirmed: function (event) {
         this.splice('serverlist', this._serverToDelete, 1)
       },
 
@@ -171,7 +172,7 @@
 
       observers: [
         '_updateConnectionTimer(_connectionTimestamp)',
-        '_updatecConnectionStatus(connectionStatus)'
+        '_updateConnectionStatus(connectionStatus)'
       ],
 
       behaviors: [
@@ -179,16 +180,14 @@
         PapanLocalize
       ],
 
-      _updateConnectionTimer: function(timestamp) {
-        if (timestamp > 30)
-          this.$.connectionmsg.style.color = "red"
+      _updateConnectionTimer: function (timestamp) {
+        if (timestamp > 30) { this.$.connectionmsg.style.color = 'red' }
       },
 
-      _updatecConnectionStatus: function(status) {
+      _updateConnectionStatus: function (status) {
         switch (status) {
           case 'CONNECTING':
           case 'STARTINGLOBBY':
-          case 'CONNECTING':
           case 'AUTHENTICATING':
             this.opened = true
             break
@@ -239,7 +238,7 @@
     'use strict'
 
     Polymer({
-      is: "papan-server-list",
+      is: 'papan-server-list',
 
       properties: {
         /*
@@ -281,37 +280,34 @@
         }
       },
 
-      ready: function() {
-        lobbyInterface.on('error', message => {
+      ready: function () {
+        global.lobbyInterface.on('error', message => {
           console.log('error: ' + message)
         })
-        lobbyInterface.on('status', status => {
+        global.lobbyInterface.on('status', status => {
           this._connectionStatus = status
           if (status === 'CONNECTED') {
-            this.userinfo = lobbyInterface.getUserInfo()
-            lobbyInterface.getAvailableGames ()
-            this.set('route.path', "/server/home")
+            this.userinfo = global.lobbyInterface.getUserInfo()
+            global.lobbyInterface.getAvailableGames()
+            this.set('route.path', '/server/home')
           }
         })
       },
 
-      _addserver: function() {
-        this.push('_serverlist', { id: 0, name: this._newserveraddress, url: this._newserveraddress, port: 9999, ssl: this._newserverssl });
-        this._newserveraddress = ""
+      _addserver: function () {
+        this.push('_serverlist', { id: 0, name: this._newserveraddress, url: this._newserveraddress, port: 9999, ssl: this._newserverssl })
+        this._newserveraddress = ''
       },
 
-      _joinLocalServer: function(event) {
-        lobbyInterface.connectToLobbyServer({ connectLocal: true })
-        this._currentServer = "Local server"
+      _joinLocalServer: function (event) {
+        global.lobbyInterface.connectToLobbyServer({ connectLocal: true })
+        this._currentServer = 'Local server'
         this._connectionTimestamp = 0
-        var ct = setInterval(this._updateConnectionTimer.bind(this), 1000)
+        setInterval(this._updateConnectionTimer.bind(this), 1000)
       },
 
-      _toggleSSL: function() {
-        if (this._newserverssl)
-          this.$.sslicon.icon = "lock-outline"
-        else
-          this.$.sslicon.icon = "lock-open"
+      _toggleSSL: function () {
+        if (this._newserverssl) { this.$.sslicon.icon = 'lock-outline' } else { this.$.sslicon.icon = 'lock-open' }
       },
 
       behaviors: [
