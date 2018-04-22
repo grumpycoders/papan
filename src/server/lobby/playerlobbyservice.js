@@ -112,6 +112,14 @@ class LobbyHandlers {
     this._persist.lobbySendMessage(call.id, { message: data })
   }
 
+  'PapanLobby.RequestGameInfo' (call, data) {
+    persist.lobbySendMessage(call.id, { requestGameInfo: data })
+  }
+
+  'PapanLobby.SendGameInfo' (call, data) {
+    persist.lobbySendMessage(call.id, { gameInfo: data })
+  }
+
   'PapanLobby.LeaveLobby' (call, data) { return Promise.reject(Error('Unimplemented')) }
   'PapanLobby.SetReady' (call, data) { return Promise.reject(Error('Unimplemented')) }
   'PapanLobby.KickUser' (call, data) { return Promise.reject(Error('Unimplemented')) }

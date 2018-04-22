@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <title>Papan</title>
 
+    <script src="node_modules/babel-standalone/babel.min.js"></script>
+
     <style is="papan-style">
       html:not([style-scope]):not(.style-scope),body:not([style-scope]):not(.style-scope) {
         margin: 0;
@@ -30,13 +32,43 @@
       }
     </style>
 
-    <script>
-      Papan = {
+    <script type="text/babel" data-presets="es2017,stage-0">
+      var Papan = {
         asyncLoader: ({ path, elementType, baseObj }) => new Promise((resolve, reject) => {
           const element = document.createElement(elementType)
           element.onload = resolve
           Object.keys(baseObj).forEach(key => { element[key] = baseObj[key] })
           document.head.appendChild(element)
+        }),
+
+        babelLoader: path => new Promise((resolve, reject) => {
+          const element = document.createElement('script')
+          const xhr = new global.XMLHttpRequest()
+
+          xhr.open('GET', path, true);
+          if ('overrideMimeType' in xhr) {
+            xhr.overrideMimeType('text/plain')
+          }
+          xhr.onreadystatechange = () => {
+            if (xhr.readyState === 4) {
+              if (xhr.status === 0 || xhr.status === 200) {
+                const transformed = global.Babel.transform(xhr.responseText, {
+                  presets: [
+                    'es2017',
+                    'stage-0',
+                  ],
+                  sourceMaps: 'inline',
+                  filename: path,
+                })
+                element.text = transformed.code
+                document.head.appendChild(element)
+                resolve()
+              } else {
+                reject(Error('Couldn\'t load ' + path))
+              }
+            }
+          }
+          xhr.send(null)
         }),
 
         jsLoader: path => Papan.asyncLoader({
@@ -74,22 +106,28 @@
         Papan.cssLoader('node_modules/spinkit/css/spinners/3-wave.css')
         .then(() => Promise.all([
           // Loading all the code that doesn't depend on anything else first.
-          Papan.jsLoader('node_modules/deep-diff/releases/deep-diff-0.3.4.min.js'),
-          Papan.jsLoader('node_modules/event-emitter-es6/dist/event-emitter.min.js'),
+          Papan.babelLoader('src/common/utils.js'),
           Papan.jsLoader('bower_components/webcomponentsjs/webcomponents-loader.js'),
-          Papan.jsLoader('src/common/utils.js'),
-          new Promise((resolve, reject) => window.addEventListener('WebComponentsReady', resolve))
+          Papan.jsLoader('node_modules/deep-diff/releases/deep-diff-0.3.4.min.js'),
+          Papan.jsLoader('node_modules/deepmerge/dist/umd.js'),
+          Papan.jsLoader('node_modules/event-emitter-es6/dist/event-emitter.min.js'),
+          new Promise((resolve, reject) => window.addEventListener('WebComponentsReady', resolve()))
         ]))
         .then(() => Promise.all([
           // Depend on utils.js
-          Papan.jsLoader('src/client/channel.js'),
-          Papan.jsLoader('src/client/webtorrent.js'),
-          // Depends on webcomponents
+          Papan.babelLoader('src/client/channel.js'),
+          Papan.babelLoader('src/client/web-torrent.js'),
+          // Depends on webcomponents,
+          Papan.importLoader('bower_components/font-roboto-local/roboto.html'),
           Papan.importLoader('template/mainwindow.html')
         ]))
         .then(() => Promise.all([
           // Depends on channel.js
-          Papan.jsLoader('src/client/lobbyinterface.js'),
+          Papan.babelLoader('src/client/lobby-interface.js')
+        ]))
+        .then(() => Promise.all([
+          // Depends on webtorrent, channel, lobby-interface and webcomponents
+          Papan.babelLoader('src/client/component-loader.js'),
         ]))
         .then(() => Promise.all([
           // Waiting for channels and webtorrents to be ready.

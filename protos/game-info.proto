@@ -41,6 +41,8 @@ message GameJson {
   Players players = 6;
   repeated Team teams = 7;
   bool has_private_view = 8;
+  repeated string global_deps = 9;
+  map<string, string> deps = 10;
 }
 
 message Torrent {

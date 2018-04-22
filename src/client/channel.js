@@ -1,20 +1,20 @@
 'use strict'
 
-this.channel = new this.PapanUtils.Queuer(this)
+global.channel = new global.PapanUtils.Queuer(global)
 
-this.Papan.jsLoader('node_modules/protobufjs/dist/protobuf.min.js')
-.then(() => this.Papan.jsLoader('src/common/serializer.js'))
+global.Papan.jsLoader('node_modules/protobufjs/dist/protobuf.min.js')
+.then(() => global.Papan.jsLoader('src/common/serializer.js'))
 .then(() => {
-  const root = new this.protobuf.Root()
+  const root = new global.protobuf.Root()
   root.resolvePath = (origin, target) => {
     return 'protos/' + target
   }
 
-  return this.protobuf.load(['channel.proto', 'lobby.proto', 'game-info.proto'], root)
+  return global.protobuf.load(['channel.proto', 'lobby.proto', 'game-info.proto'], root)
 })
 .then(proto => {
-  let serializer = this.PapanProto.createSerializer(proto)
-  if (this.PapanUtils.isElectron()) {
+  let serializer = global.PapanProto.createSerializer(proto)
+  if (global.PapanUtils.isElectron()) {
     const electron = require('electron')
     const ipc = electron.ipcRenderer
     class Channel {
@@ -41,7 +41,7 @@ this.Papan.jsLoader('node_modules/protobufjs/dist/protobuf.min.js')
         ipc.send(event, data)
       }
     }
-    this.channel.spillover(new Channel())
+    global.channel.spillover(new Channel())
   } else {
     class Channel {
       constructor (socket) {
@@ -88,10 +88,7 @@ this.Papan.jsLoader('node_modules/protobufjs/dist/protobuf.min.js')
       }
     }
 
-    const iojspath = 'node_modules/socket.io-client/dist/socket.io.js'
-    const iojs = document.createElement('script')
-    iojs.onload = () => this.channel.spillover(new Channel(this.io()))
-    iojs.src = iojspath
-    this.document.head.appendChild(iojs)
+    global.Papan.jsLoader('node_modules/socket.io-client/dist/socket.io.js')
+    .then(() => global.channel.spillover(new Channel(global.io())))
   }
 })
