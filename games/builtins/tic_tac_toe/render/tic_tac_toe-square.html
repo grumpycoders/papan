@@ -1,0 +1,79 @@
+<dom-module id="ttt-square">
+  <template>
+    <style>
+      .square {
+        display: none;
+      }
+    </style>
+    <div class="outer">
+      <div id="circle" class="square">
+        <svg height="124px" width="124px">
+          <circle cx="60px" cy="60px" r="55px" stroke="red" stroke-width="4px" fill-opacity="0" />
+        </svg>
+      </div>
+      <div id="cross" class="square">
+        <svg height="124px" width="124px">
+          <line x1="4" y1="4" x2="120" y2="120" stroke="green" stroke-width="4px" />
+          <line x1="4" y1="120" x2="120" y2="4" stroke="green" stroke-width="4px" />
+        </svg>
+      </div>
+      <div id="empty" class="square" on-tap="actionFired">
+        <svg height="124px" width="124px">
+          <circle cx="60px" cy="60px" r="55px" stroke="#ddd" stroke-width="4px" fill-opacity="0" />
+          <line x1="4" y1="4" x2="120" y2="120" stroke="#ddd" stroke-width="4px" />
+          <line x1="4" y1="120" x2="120" y2="4" stroke="#ddd" stroke-width="4px" />
+        </svg>
+      </div>
+    </div>
+  </template>
+
+  <script>
+    Polymer({
+      is: "ttt-square",
+
+      _actor: {},
+
+      showCircle: function() {
+        this.$.circle.style.display = 'inline'
+        this.$.cross.style.display = 'none'
+        this.$.empty.style.display = 'none'
+      },
+
+      showCross: function() {
+        this.$.circle.style.display = 'none'
+        this.$.cross.style.display = 'inline'
+        this.$.empty.style.display = 'none'
+      },
+
+      showEmpty: function() {
+        this.$.circle.style.display = 'none'
+        this.$.cross.style.display = 'none'
+        this.$.empty.style.display = 'inline'
+      },
+
+      actionFired: function(event) {
+        let actor = this._actor
+        if (!actor.actions[0]) return
+        this.fire('action', {
+          name: actor.actions[0].name,
+          attributes: actor.attributes
+        })
+      },
+
+      attachActor: function(actor) {
+        this._actor = actor
+        switch(actor.class[0]) {
+        case 'O':
+          this.showCircle()
+          break
+        case 'X':
+          this.showCross()
+          break
+        case 'empty':
+          this.showEmpty()
+          break
+        }
+      }
+    })
+  </script>
+</dom-module>

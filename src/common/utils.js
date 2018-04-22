@@ -7,7 +7,7 @@
     that.PapanUtils = {}
     register(that.PapanUtils)
   }
-})(this, that => {
+})(global, that => {
   'use strict'
 
   that.isElectron = () => {
@@ -99,4 +99,103 @@
   }
 
   that.Queuer = Queuer
+
+  class Path {
+    constructor (path) {
+      this._array = []
+      this._absolute = false
+      switch (typeof path) {
+        case 'string':
+          this._array = path.split('/').filter(f => !(['', '.'].includes(f)))
+          this._absolute = path.startsWith('/')
+          break
+        case 'object':
+          this._array = path._array.concat([])
+          this._absolute = path._absolute
+          break
+      }
+    }
+
+    static _methodList () {
+      return Object.getOwnPropertyNames(Path.prototype)
+      .filter(name => !(['constructor', 'toString'].includes('join')) && !name.startsWith('_'))
+    }
+
+    static _wrappers () {
+      return Path._methodList().reduce((output, name) => {
+        output[name] = (path, ...args) => (new Path(path))[name](...args).toString()
+        return output
+      }, {})
+    }
+
+    toString () {
+      return (this._absolute ? '/' : '') + this._array.join('/')
+    }
+
+    basename () {
+      const path = new Path()
+      path._normalize()
+      if (this._array.length !== 0) path._array.push(this._array[this._array.length - 1])
+      return path
+    }
+
+    dirname () {
+      const path = new Path(this)
+      path._normalize()
+      path._array.pop()
+      return path
+    }
+
+    isAbsolute () {
+      return this._absolute
+    }
+
+    isValid () {
+      return !this._absolute || this._array[0] !== '..'
+    }
+
+    isBelow () {
+      return this._array[0] === '..'
+    }
+
+    _normalize () {
+      let copy = this._array.concat([])
+      let fragmentsCount = 0
+
+      this._array = []
+      for (let i = 0; i < copy.length; i++) {
+        if (copy[i] === '..' && fragmentsCount !== 0) {
+          fragmentsCount--
+          this._array.pop()
+        } else {
+          if (copy[i] !== '..') fragmentsCount++
+          this._array.push(copy[i])
+        }
+      }
+    }
+
+    normalize () {
+      const path = new Path(this)
+      path._normalize()
+      return path
+    }
+
+    join (...args) {
+      const path = new Path(this)
+      const fragments = []
+      for (let i = 0; i < args.length; i++) {
+        if (typeof args[i] === 'string') {
+          fragments.push(new Path(args[i]))
+        } else {
+          fragments.push(args[i])
+        }
+      }
+      path._absolute = this._absolute
+      path._array = this._array.concat(...fragments.map(element => element._array))
+      return path
+    }
+  }
+
+  that.path = Path._wrappers()
+  that.Path = Path
 })
