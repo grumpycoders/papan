@@ -12,7 +12,7 @@
     "polymer_lint": "node ./node_modules/polymer-cli/bin/polymer.js lint",
     "node_test": "nyc mocha ./test/common ./test/nodejs",
     "nyc_instrument": "nyc instrument src instrumented --produce-source-map",
-    "electron_test": "electron-mocha ./test/common ./test/electron -r ./test/utils/electron-coverage.js",
+    "electron_test": "npm run electron_rebuild && electron-mocha ./test/common ./test/electron -r ./test/utils/electron-coverage.js",
     "test": "npm run node_test && npm run nyc_instrument && npm run electron_test && npm run lint && npm run polymer_lint",
     "coveralls": "nyc report --reporter=text-lcov | coveralls",
     "postinstall": "bower install && bower prune && node ./post-install-patch.js",
