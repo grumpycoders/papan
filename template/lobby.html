@@ -6,7 +6,7 @@
 
 <link rel="import" href="data/localize.html">
 <link rel="import" href="chat.html">
-<link rel="import" href="gamelist.html">
+<link rel="import" href="gamebadge.html">
 
 <dom-module id="papan-lobby">
   <link rel="import" type="css" href="lobby.css">
@@ -30,11 +30,9 @@
           class="layout flex">
           <div name="gamenotselected">
             <template is="dom-if" if="[[lobby.isOwner]]">
-              <papan-game-list 
-                language="{{language}}"
-                lobby=[[lobby]]
-                gamelist="{{gamelist}}">
-              </papan-game-list>
+              <template is="dom-repeat" items="[[gamelist]]">
+                <papan-game-badge gameinfo=[[item.info]] lobby="[[lobby]]"></papan-game-badge>
+              </template>
             </template>
           </div>
           <div name="teamselection" class="layout flex horizontal">
@@ -112,7 +110,7 @@
 
         gamelist: {
           type: Array,
-          // value: () => [],
+          value: () => [],
           notify: true
         },
 
@@ -152,6 +150,20 @@
       behaviors: [
         PapanLocalize
       ],
+
+      ready: function () {
+        console.log('setup games listener')
+        global.lobbyInterface.on('games', gamelist => {
+          console.log('games:')
+          console.log(gamelist)
+          this.gamelist = Object.keys(gamelist).map(function (key) {
+            return {
+              name: key,
+              info: gamelist[key]
+            }
+          })
+        })
+      },
 
       _hasTeams: function () {
         return this.currentGame && this.currentGame.json.teams
