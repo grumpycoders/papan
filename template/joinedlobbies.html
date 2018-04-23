@@ -17,6 +17,7 @@
           <paper-button raised>[[_firstletter(item)]]</paper-button>
         </a>
       </template>
+      <paper-button id="addlobby" on-tap="_addlobby" title="add jobby">+</paper-button>
       <div class="flex"></div>
     </div>
   </template>
@@ -61,6 +62,10 @@
           this.currentlobby = lobby
           this.set('route.path', '/lobby/' + lobby.getInfo().id)
         })
+      },
+
+      _addlobby: function () {
+        global.lobbyInterface.createLobby()
       },
 
       _lobbyid: function (lobby) {

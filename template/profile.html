@@ -1,4 +1,5 @@
 <link rel="import" href="../bower_components/app-route/app-route.html">
+<link rel="import" href="../bower_components/iron-image/iron-image.html">
 
 <link rel="import" href="gamebadge.html">
 <link rel="import" href="achievementbadge.html">
@@ -17,7 +18,12 @@
 
     <div class="user-info">
       <img src$="[[_user.picture]]"/>
-      <div id="nickname">[[_user.username]]</div>
+      <iron-image 
+        src="[[_user.picture]]"
+        placeholder="pictures/userpicture.svg"
+        preload>
+      </iron-image>
+      <div id="nickname">[[_user.id]]</div>
     </div>
 
     <div id="user-games-list">
