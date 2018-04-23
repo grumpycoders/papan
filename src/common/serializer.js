@@ -7,7 +7,7 @@
     that.PapanProto = {}
     register(that.PapanProto)
   }
-})(this, that => {
+})(global, that => {
   'use strict'
 
   class Serializer {

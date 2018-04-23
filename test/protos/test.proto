@@ -1,0 +1,9 @@
+syntax = "proto3";
+package PapanTest;
+
+import "game-info.proto";
+
+message Test {
+  string some_field = 1;
+  string some_other_field = 2 [default = 'value'];
+}
