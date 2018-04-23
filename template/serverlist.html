@@ -212,6 +212,7 @@
         <paper-input label="[[localize('address')]]" value="{{_newserveraddress}}" class="spaced flex">
           <iron-icon icon="language" slot="prefix"></iron-icon>
         </paper-input>
+        <paper-input label="[[localize('port')]]" value="{{_newserverport}}" class="spaced"></paper-input>
         <paper-button raised on-tap="_addserver">[[localize('add')]]</paper-button>
       </div>
       <div id="server-list">
@@ -266,6 +267,10 @@
         _newserveraddress: {
           type: String
         },
+        _newserverport: {
+          type: Number,
+          value: 9999
+        },
         _serverlist: {
           type: Array,
           value: () => [],
@@ -298,7 +303,7 @@
       },
 
       _addserver: function () {
-        this.push('_serverlist', { id: 0, name: this._newserveraddress, url: this._newserveraddress, port: 9999, ssl: this._newserverssl })
+        this.push('_serverlist', { id: 0, name: this._newserveraddress, url: this._newserveraddress, port: this._newserverport, ssl: this._newserverssl })
         this._newserveraddress = ''
       },
 
