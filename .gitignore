@@ -17,4 +17,5 @@
 /out
 
 # Coverage reports
-/coverage
+/.nyc_output
+/instrumented

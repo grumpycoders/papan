@@ -8,7 +8,7 @@ const expect = chai.expect
 chai.use(dirtyChai)
 
 describe('PapanUtils.isElectron', () => {
-  it('is false', () => {
-    expect(PapanUtils.isElectron()).to.be.false()
+  it('is true', () => {
+    expect(PapanUtils.isElectron()).to.be.true()
   })
 })
