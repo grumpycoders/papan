@@ -15,6 +15,7 @@
     "electron_test": "npm run electron_rebuild && electron-mocha ./test/common ./test/electron -r ./test/utils/electron-coverage.js",
     "test": "npm run node_test && npm run nyc_instrument && npm run electron_test && npm run lint && npm run polymer_lint",
     "coveralls": "nyc report --reporter=text-lcov | coveralls",
+    "coverage_html": "nyc report --reporter=html",
     "postinstall": "bower install && bower prune && node ./post-install-patch.js",
     "electron_rebuild": "npm rebuild --runtime=electron --target=1.8.4 --dist-url=https://atom.io/download/electron",
     "build": "electron-packager . --all --out=out"

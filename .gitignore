@@ -19,3 +19,4 @@
 # Coverage reports
 /.nyc_output
 /instrumented
+/coverage
