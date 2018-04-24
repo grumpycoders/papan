@@ -2,10 +2,11 @@
 <link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
 <link rel="import" href="../bower_components/iron-pages/iron-pages.html">
 <link rel="import" href="../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../bower_components/paper-toggle-button/paper-toggle-button.html">
 
 <link rel="import" href="data/localize.html">
 <link rel="import" href="chat.html">
-<link rel="import" href="gamelist.html">
+<link rel="import" href="gamebadge.html">
 
 <dom-module id="papan-lobby">
   <link rel="import" type="css" href="lobby.css">
@@ -20,58 +21,67 @@
       data="{{_routeData}}">
     </app-route>
 
-    <div id="page" class="layout vertical">
+    <div id="page" class="layout horizontal flex">
       <div id="lobbycontent" class="layout flex horizontal">
-        <div class="layout flex vertical">
-          <iron-pages 
-            selected="{{_view}}" 
-            attr-for-selected="name" 
-            fallback-selection="gamelist"
-            class="layout flex">
-            <papan-game-list 
-              name="gamelist" 
-              user="tom" 
-              language="{{language}}"
-              server="[[serverinfo]]"
-              lobby=[[lobby]]
-              gamelist="{{gamelist}}">
-            </papan-game-list>
-            <div name="lobby" class="layout flex horizontal">
-              <template is="dom-if" if="!_hasTeams()">
-                <div class="layout flex vertical">
-                  <div>Min players: [[currentGame.json.players.min]]</div>
-                  <div>Max players: [[currentGame.json.players.max]]</div>
-                </div>
+        <iron-pages 
+          selected="{{_view}}" 
+          attr-for-selected="name" 
+          fallback-selection="gamenotselected"
+          class="layout flex">
+          <div name="gamenotselected">
+            <template is="dom-if" if="[[lobby.isOwner]]">
+              <template is="dom-repeat" items="[[gamelist]]">
+                <papan-game-badge gameinfo=[[item.info]] lobby="[[lobby]]"></papan-game-badge>
               </template>
-              <template is="dom-if" if="_hasTeams()">
-                <div class="layout flex vertical">
-                  <template is="dom-repeat" items="[[currentGame.json.teams]]">
-                    <div>[[item.name]]</div>
-                    <div>Min cardinality: [[item.card_min]]</div>
-                    <div>Max cardinality: [[item.card_max]]</div>
-                    <template is="dom-repeat" items="[[item.players]]">
-                      <div>Min players: [[item.min]]</div>
-                      <div>Max players: >[[item.max]]</div>
-                    </template>
-                  </template>
-                </div>
-              </template>
-              <div id="ownerview">
-                <paper-button raised on-tap="_start">[[localize('startgame')]]</paper-button>
-              </div>
-              <div id="joinerview">
+            </template>
+          </div>
+          <div name="teamselection" class="layout flex horizontal">
+            <template is="dom-if" if="!_hasTeams()">
+              <div class="layout flex vertical">
+                <div>Min players: [[currentGame.json.players.min]]</div>
+                <div>Max players: [[currentGame.json.players.max]]</div>
                 <paper-button raised on-tap="_join">[[localize('joingame')]]</paper-button>
               </div>
-            </div>
-            <div id="main-view" name="board"></div>
-          </iron-pages>
-        </div>
+            </template>
+            <template is="dom-if" if="_hasTeams()">
+              <div class="layout flex vertical">
+                <template is="dom-repeat" items="[[currentGame.json.teams]]">
+                  <div>[[item.name]]</div>
+                  <div>Min cardinality: [[item.card_min]]</div>
+                  <div>Max cardinality: [[item.card_max]]</div>
+                  <template is="dom-repeat" items="[[item.players]]">
+                    <div>Min players: [[item.min]]</div>
+                    <div>Max players: >[[item.max]]</div>
+                  </template>
+                </template>
+              </div>
+            </template>
+            <template is="dom-if" if="[[lobby.isOwner]]">
+              <div class="layout center horizontal">
+                <paper-button raised on-tap="_start">[[localize('startgame')]]</paper-button>
+              </div>
+            </template>
+          </div>
+          <div id="main-view" name="board"></div>
+        </iron-pages>
+      </div>
       <div id="memberlist">
-          <template is="dom-repeat" items="[[members]]">
-            <div class="memberitem"><a href="#/profile/[[item.id]]">[[item.id]]</a></div>
-          </template>
-        </div>
-        <papan-chat user=[[user.username]] lobby=[[lobby]]></papan-chat>
+        <template is="dom-if" if="[[lobby.isOwner]]">
+          <paper-input label="Lobby name" value="{{_lobbyname}}"></paper-input>
+          <div class="layout horizontal flex">
+            <div>Private</div>
+            <paper-toggle-button id="togglepublic" on-tap="_togglepublic"></paper-toggle-button>
+            <div>Public</div>
+          </div>
+        </template>
+        <template is="dom-if" if="![[lobby.isOwner]]">
+          [[lobby.info.name]]
+        </template>
+        <template is="dom-repeat" items="[[members]]">
+          <div class="memberitem"><a href="#/profile/[[item.id]]">[[item.id]]</a></div>
+        </template>
+      </div>
+      <papan-chat user=[[user.username]] lobby=[[lobby]]></papan-chat>
       </div>
     </div>
   </template>
@@ -117,38 +127,58 @@
           value: () => [{id: 1}, {id: 2}, {id: 32}]
         },
 
+        _lobbyname: {
+          type: String,
+          notify: true
+        },
+
         _routeData: {
           type: Object
         },
 
         _view: {
-          type: String
+          type: String,
+          notify: true
         }
       },
 
       observers: [
-        '_lobbyChanged(lobby)'
+        '_lobbyChanged(lobby)',
+        '_lobbyNameChanged(_lobbyname)'
       ],
 
       behaviors: [
         PapanLocalize
       ],
 
+      ready: function () {
+        console.log('setup games listener')
+        global.lobbyInterface.on('games', gamelist => {
+          console.log('games:')
+          console.log(gamelist)
+          this.gamelist = Object.keys(gamelist).map(function (key) {
+            return {
+              name: key,
+              info: gamelist[key]
+            }
+          })
+        })
+      },
+
       _hasTeams: function () {
         return this.currentGame && this.currentGame.json.teams
       },
 
-      _lobbyChanged: function () {
-        if (this.lobby.isOwner) {
-          this.$.ownerview.style.display = 'block'
-          this.$.joinerview.style.display = 'none'
-        } else {
-          this.$.ownerview.style.display = 'none'
-          this.$.joinerview.style.display = 'block'
-        }
+      _lobbyChanged: function (lobby) {
+        this._lobbyname = lobby.info.name
         this.lobby.on('update', info => {
-          this._view = 'lobby'
-          this.currentGame = info.info.gameInfo
+          // todo: check the 3rd state
+          if (info.info.gameInfo) {
+            this._view = 'teamselection'
+            this.currentGame = info.info.gameInfo
+          } else {
+            this._view = 'gamenotselected'
+          }
         })
       },
 
@@ -181,6 +211,14 @@
         } else {
           window.alert('Browser support not implemented yet')
         }
+      },
+
+      _lobbyNameChanged: function (name) {
+        this.lobby.setName(name)
+      },
+
+      _togglepublic: function (event) {
+        this.lobby.setPublic(event.target.checked)
       }
     })
   </script>

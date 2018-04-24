@@ -4,7 +4,7 @@
   background-color: lightgray;
 }
 
-paper-icon-button{
+paper-icon-button, #addlobby{
   background-color: royalblue;
   color: white;
   border-radius: 50%;

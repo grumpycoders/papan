@@ -49,7 +49,9 @@
         if (this.currentServer === this.localize('localserver')) {
           global.lobbyInterface.connectToLobbyServer({ connectLocal: true })
         } else {
-          global.lobbyInterface.connectToLobbyServer({ lobbyServer: event.target.serveruurl, lobbyServerPort: event.target.serverport, useLocalCA: !event.target.serverssl })
+          // todo: add port input field
+          this.serverurl = this.serverurl.split(':')[0]
+          global.lobbyInterface.connectToLobbyServer({ lobbyServer: this.serverurl, lobbyServerPort: this.serverport, useLocalCA: !this.serverssl })
         }
         this._connectionTimestamp = 0
         setInterval(this._updateConnectionTimer.bind(this), 1000)
@@ -210,6 +212,7 @@
         <paper-input label="[[localize('address')]]" value="{{_newserveraddress}}" class="spaced flex">
           <iron-icon icon="language" slot="prefix"></iron-icon>
         </paper-input>
+        <paper-input label="[[localize('port')]]" value="{{_newserverport}}" type="number" max="65535" class="spaced"></paper-input>
         <paper-button raised on-tap="_addserver">[[localize('add')]]</paper-button>
       </div>
       <div id="server-list">
@@ -264,8 +267,13 @@
         _newserveraddress: {
           type: String
         },
+        _newserverport: {
+          type: Number,
+          value: 9999
+        },
         _serverlist: {
           type: Array,
+          value: () => [],
           notify: true
         },
         _connectionTimestamp: {
@@ -295,7 +303,7 @@
       },
 
       _addserver: function () {
-        this.push('_serverlist', { id: 0, name: this._newserveraddress, url: this._newserveraddress, port: 9999, ssl: this._newserverssl })
+        this.push('_serverlist', { id: 0, name: this._newserveraddress, url: this._newserveraddress, port: this._newserverport, ssl: this._newserverssl })
         this._newserveraddress = ''
       },
 

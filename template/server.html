@@ -57,14 +57,6 @@
       attr-for-selected="viewname"
       fallback-selection="home">
       <div viewname="home">
-        <div class="layout horizontal end">
-          <iron-icon id="publicicon" icon="lock-outline" slot="prefix" class="spaced"></iron-icon>
-          <paper-toggle-button checked="{{_newlobbypublic}}" on-change="_togglepublic" class="spaced"></paper-toggle-button>
-          <paper-input label="[[localize('name')]]" value="{{_newlobbyname}}" class="spaced flex">
-            <iron-icon icon="language" slot="prefix"></iron-icon>
-          </paper-input>
-          <paper-button raised on-tap="_createlobby">[[localize('add')]]</paper-button>
-        </div>
         <template is="dom-repeat" items="[[_lobbylist]]">
           <div class="lobby layout horizontal end">
             <div class="flex">Lobby #[[item.id]]</div>
@@ -131,14 +123,6 @@
           value: function () {
             return []
           }
-        },
-
-        _newlobbypublic: {
-          type: Boolean
-        },
-
-        _newlobbyname: {
-          type: Boolean
         }
       },
 
@@ -159,11 +143,6 @@
           this.splice('_lobbylist', lobby, 1)
         })
         global.lobbyInterface.startWatchingLobbies()
-      },
-
-      _createlobby: function () {
-        global.lobbyInterface.createLobby()
-        this._newlobbyname = ''
       },
 
       observers: [
