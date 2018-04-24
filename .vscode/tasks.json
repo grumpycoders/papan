@@ -1,21 +1,41 @@
 {
-    "version": "0.1.0",
-    "command": "npm",
-    "isShellCommand": true,
-    "showOutput": "always",
-    "suppressTaskName": true,
-    "tasks": [
-        {
-            "taskName": "install",
-            "args": ["install"]
-        },
-        {
-            "taskName": "update",
-            "args": ["update"]
-        },
-        {
-            "taskName": "test",
-            "args": ["run", "test"]
-        }
-    ]
+  "version": "0.1.0",
+  "command": "npm",
+  "isShellCommand": true,
+  "showOutput": "always",
+  "suppressTaskName": true,
+  "tasks": [
+    {
+      "taskName": "install",
+      "args": [
+        "install"
+      ]
+    },
+    {
+      "taskName": "rebuild",
+      "args": [
+        "electron_rebuild"
+      ]
+    },
+    {
+      "taskName": "update",
+      "args": [
+        "update"
+      ]
+    },
+    {
+      "taskName": "test",
+      "args": [
+        "run",
+        "test"
+      ]
+    },
+    {
+      "taskName": "coverage",
+      "args": [
+        "run",
+        "coverage_html"
+      ]
+    }
+  ]
 }

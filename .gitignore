@@ -20,3 +20,5 @@
 /.nyc_output
 /instrumented
 /coverage
+/node-report.html
+/electron-report.html
