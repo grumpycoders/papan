@@ -16,6 +16,7 @@ script:
 cache:
   directories:
     - node_modules
+    - bower_components
 
 notifications:
   email:
