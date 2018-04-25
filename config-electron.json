@@ -1,0 +1,6 @@
+{
+  "reporterEnabled": "mocha-simple-html-reporter,spec",
+  "mochaSimpleHtmlReporterReporterOptions": {
+    "output": "electron-report.html"
+  }
+}
