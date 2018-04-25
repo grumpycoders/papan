@@ -24,19 +24,35 @@
       "name": "Debug Mocha tests",
       "type": "node",
       "request": "launch",
-      "args": ["test/common", "./test/nodejs", "-r", "./test/utils/coverage.js"],
+      "preLaunchTask": "instrument",
+      "args": [
+        "test/common",
+        "test/nodejs",
+        "--exit",
+        "-r", "test/utils/coverage.js",
+        "--reporter", "mocha-simple-html-reporter",
+        "--reporter-options", "output=node-report.html"
+      ],
       "cwd": "${workspaceRoot}",
       "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/mocha",
       "windows": {
         "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/mocha.cmd"
       },
-      "program": "${workspaceRoot}/main.js"
+      "program": "${workspaceRoot}/node_modules/mocha/index.js"
     },
     {
       "name": "Debug Electron Mocha tests",
       "type": "node",
       "request": "launch",
-      "args": ["test/common", "./test/electron", "-r", "./test/utils/coverage.js"],
+      "preLaunchTask": "instrument",
+      "args": [
+        "test/common",
+        "test/electron",
+        "--exit",
+        "-r", "test/utils/coverage.js",
+        "--reporter", "mocha-simple-html-reporter",
+        "--reporter-options", "output=electron-report.html"
+      ],
       "cwd": "${workspaceRoot}",
       "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron",
       "windows": {

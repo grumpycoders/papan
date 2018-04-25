@@ -14,7 +14,15 @@
     {
       "taskName": "rebuild",
       "args": [
+        "run",
         "electron_rebuild"
+      ]
+    },
+    {
+      "taskName": "instrument",
+      "args": [
+        "run",
+        "nyc_instrument"
       ]
     },
     {
