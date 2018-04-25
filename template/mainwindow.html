@@ -93,10 +93,9 @@
         </papan-client-settings>
         <papan-lobby
           id="lobby"
+          joinedlobbies="{{_joinedlobbylist}}"
           route="{{_pagesRoute}}"
           language="{{language}}"
-          lobby={{_currentlobby}}
-          serverinfo=[[_serverinfo]]
           user={{userinfo}}
           gamelist={{_gamelist}}>
         </papan-lobby>
@@ -151,7 +150,8 @@
           notify: true
         },
         _joinedlobbylist: {
-          type: Array
+          type: Array,
+          notify: true
         },
         _serverinfo: {
           type: Object

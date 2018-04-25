@@ -10,6 +10,12 @@
       <style is="custom-style" include="iron-flex iron-flex-alignment"></style>
       <div id="chat" class="layout vertical">
         <div id="chattext" class="layout flex"></div>
+        <template is="dom-repeat" items="{{chatmessages}}" mutable-data>
+          <div class="layout horizontal chatmessage">
+            <div class="chatusername">[[item.user]]</div>
+            <div class="layout flex chatmessagetext">[[item.message]]</div>
+          </div>
+        </template>
         <paper-input
           class="layout end"
           no-label-float
@@ -43,6 +49,11 @@
           type: Object
         },
 
+        chatmessages: {
+          type: Array,
+          value: () => []
+        },
+
         _text: {
           type: String
         }
@@ -56,7 +67,13 @@
         // lobbyInterface
         lobby.on('chat', data => {
           // todo: switch to data.user.name
-          this.$.chattext.innerHTML += '<b>' + data.user.id + '</b>: ' + data.message + '<br />'
+          // this.push('chatmessages[lobby.info.id]', { user: data.user.id, message: data.message })
+          // todo: replace by user name
+          this.push('chatmessages', { user: data.user.id.substr(0, 10), message: data.message })
+          /* this.chatmessages[lobby.info.id]
+            ? this.chatmessages[lobby.info.id].push({ user: data.user.id, message: data.message })
+            : this.chatmessages[lobby.info.id] = [{ user: data.user.id, message: data.message }] */
+          // this.$.chattext.innerHTML += '<b>' + data.user.id + '</b>: ' + data.message + '<br />'
         })
       },
 
@@ -69,12 +86,20 @@
           this.lobby.sendChatMessage(message)
         }
         textzone.scrollTop = textzone.scrollHeight
-  },
+      },
 
       _localmessage: function () {
         var textbox = this._text
         this.sendMessage(this.user, textbox)
         this._text = ''
+      },
+
+      _messages: function (messages, lobby) {
+        if (lobby) {
+          console.log('messages')
+          console.log(lobby)
+          return messages[lobby.info.id]
+        }
       },
 
       _keyPressed: function (e) {

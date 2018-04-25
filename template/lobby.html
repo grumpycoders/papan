@@ -8,21 +8,13 @@
 <link rel="import" href="chat.html">
 <link rel="import" href="gamebadge.html">
 
-<dom-module id="papan-lobby">
-  <link rel="import" type="css" href="lobby.css">
-  <script src="../src/common/utils.js"></script>
-
-  <template>
+<dom-module id="papan-lobby-view">
+    <link rel="import" type="css" href="lobby.css">
+    <template>
     <style include="iron-flex iron-flex-alignment"></style>
     <style is="custom-style" include="iron-flex iron-flex-alignment"></style>
-    <app-route
-      route="{{route}}"
-      pattern="/:lobbyid"
-      data="{{_routeData}}">
-    </app-route>
-
-    <div id="page" class="layout horizontal flex">
-      <div id="lobbycontent" class="layout flex horizontal">
+    <div class="lobbycontent layout horizontal">
+      <div class="layout flex horizontal">
         <iron-pages 
           selected="{{_view}}" 
           attr-for-selected="name" 
@@ -38,14 +30,14 @@
           <div name="teamselection" class="layout flex horizontal">
             <template is="dom-if" if="!_hasTeams()">
               <div class="layout flex vertical">
-                <div>Min players: [[currentGame.json.players.min]]</div>
-                <div>Max players: [[currentGame.json.players.max]]</div>
+                <div>Min players: [[_currentGame.json.players.min]]</div>
+                <div>Max players: [[_currentGame.json.players.max]]</div>
                 <paper-button raised on-tap="_join">[[localize('joingame')]]</paper-button>
               </div>
             </template>
             <template is="dom-if" if="_hasTeams()">
               <div class="layout flex vertical">
-                <template is="dom-repeat" items="[[currentGame.json.teams]]">
+                <template is="dom-repeat" items="[[_currentGame.json.teams]]">
                   <div>[[item.name]]</div>
                   <div>Min cardinality: [[item.card_min]]</div>
                   <div>Max cardinality: [[item.card_max]]</div>
@@ -65,7 +57,7 @@
           <div id="main-view" name="board"></div>
         </iron-pages>
       </div>
-      <div id="memberlist">
+      <div class="lobbyinformation">
         <template is="dom-if" if="[[lobby.isOwner]]">
           <paper-input label="Lobby name" value="{{_lobbyname}}"></paper-input>
           <div class="layout horizontal flex">
@@ -74,15 +66,122 @@
             <div>Public</div>
           </div>
         </template>
-        <template is="dom-if" if="![[lobby.isOwner]]">
+        <template is="dom-if" if="[[!lobby.isOwner]]">
           [[lobby.info.name]]
         </template>
-        <template is="dom-repeat" items="[[members]]">
-          <div class="memberitem"><a href="#/profile/[[item.id]]">[[item.id]]</a></div>
-        </template>
+        <div class="memberlist">
+          <template is="dom-repeat" items="[[_members]]">
+            <div class="memberitem"><a href="#/profile/[[item.id]]">[[item.id]]</a></div>
+          </template>
+        </div>
       </div>
       <papan-chat user=[[user.username]] lobby=[[lobby]]></papan-chat>
       </div>
+    </div>
+  </template>
+  <script>
+    'use strict'
+
+    Polymer({
+      is: 'papan-lobby-view',
+
+      properties: {
+        gamelist: {
+          type: Array,
+          value: () => [],
+          notify: true
+        },
+
+        lobby: {
+          type: Object,
+          notify: true
+        },
+
+        user: {
+          type: Object
+        },
+
+        _currentGame: {
+          type: Object,
+          notify: true
+        },
+
+        _lobbyname: {
+          type: String,
+          notify: true
+        },
+
+        _members: {
+          type: Array,
+          value: () => [{id: 1}, {id: 2}, {id: 32}]
+        },
+
+        _view: {
+          type: String,
+          notify: true
+        }
+      },
+
+      behaviors: [
+        PapanLocalize
+      ],
+
+      observers: [
+        '_lobbyNameChanged(_lobbyname)'
+      ],
+
+      ready: function () {
+        this._lobbyname = this.lobby.info.name
+        this.lobby.on('update', info => {
+          // todo: check the 3rd state
+          if (info.info.gameInfo) {
+            this._view = 'teamselection'
+            this.currentGame = info.info.gameInfo
+          } else {
+            this._view = 'gamenotselected'
+          }
+        })
+      },
+
+      _hasTeams: function () {
+        return this.currentGame && this.currentGame.json.teams
+      },
+
+      _lobbyNameChanged: function (name) {
+        this.lobby.setName(name)
+      },
+
+      _togglepublic: function (event) {
+        this.lobby.setPublic(event.target.checked)
+      }
+    })
+</script>
+</dom-module>
+
+<dom-module id="papan-lobby">
+  <link rel="import" type="css" href="lobby.css">
+  <script src="../src/common/utils.js"></script>
+
+  <template>
+    <app-route
+      route="{{route}}"
+      pattern="/:lobbyid"
+      data="{{_routeData}}">
+    </app-route>
+    <div id="lobbieslist">
+      <iron-pages
+        selected="{{_routeData.lobbyid}}"
+        attr-for-selected="id">
+        <template is="dom-repeat" items="[[joinedlobbies]]">
+          <div id="[[item.info.id]]" class="lobby">
+            <papan-lobby-view
+              gamelist=[[gamelist]]
+              lobby=[[item]]
+              user=[[user]]>
+            </papan-lobby-view>
+          </div>
+        </template>
+      </iron-pages>
     </div>
   </template>
   
@@ -93,10 +192,10 @@
       is: 'papan-lobby',
 
       properties: {
-        currentGame: {
-          type: Object,
-          notify: true
+        joinedlobbies: {
+          type: Array
         },
+
         /*
           User connected to the lobby
         */
@@ -114,48 +213,17 @@
           notify: true
         },
 
-        lobby: {
-          type: Object
-        },
-
-        serverinfo: {
-          type: Object
-        },
-
-        members: {
-          type: Array,
-          value: () => [{id: 1}, {id: 2}, {id: 32}]
-        },
-
-        _lobbyname: {
-          type: String,
-          notify: true
-        },
-
         _routeData: {
           type: Object
-        },
-
-        _view: {
-          type: String,
-          notify: true
         }
       },
-
-      observers: [
-        '_lobbyChanged(lobby)',
-        '_lobbyNameChanged(_lobbyname)'
-      ],
 
       behaviors: [
         PapanLocalize
       ],
 
       ready: function () {
-        console.log('setup games listener')
         global.lobbyInterface.on('games', gamelist => {
-          console.log('games:')
-          console.log(gamelist)
           this.gamelist = Object.keys(gamelist).map(function (key) {
             return {
               name: key,
@@ -163,25 +231,7 @@
             }
           })
         })
-      },
-
-      _hasTeams: function () {
-        return this.currentGame && this.currentGame.json.teams
-      },
-
-      _lobbyChanged: function (lobby) {
-        this._lobbyname = lobby.info.name
-        this.lobby.on('update', info => {
-          // todo: check the 3rd state
-          if (info.info.gameInfo) {
-            this._view = 'teamselection'
-            this.currentGame = info.info.gameInfo
-          } else {
-            this._view = 'gamenotselected'
-          }
-        })
-      },
-
+      }/*,
       _start: function () {
         if (global.PapanUtils.isElectron()) {
           const electron = require('electron')
@@ -211,15 +261,7 @@
         } else {
           window.alert('Browser support not implemented yet')
         }
-      },
-
-      _lobbyNameChanged: function (name) {
-        this.lobby.setName(name)
-      },
-
-      _togglepublic: function (event) {
-        this.lobby.setPublic(event.target.checked)
-      }
+      } */
     })
   </script>
 </dom-module>
