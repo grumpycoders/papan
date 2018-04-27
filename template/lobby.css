@@ -37,16 +37,26 @@ papan-chat {
   height: 100%;
 }
 
-#page {
+.lobby {
   height: calc(100vh - 64px);
+}
+
+.lobbycontent {
+  height: 100%;
 }
 
 #ownerview #joinerview{
   display: none
 }
 
-#memberlist {
+.lobbyinformation {
   width: 200px;
   height: 100%;
   border-left: 1px solid lightgrey;
+}
+
+.memberlist {
+  border-top: 1px solid lightgrey;
+  padding-top: 5px;
+  margin-top: 5px;
 }
