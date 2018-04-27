@@ -298,6 +298,7 @@
             this.userinfo = global.lobbyInterface.getUserInfo()
             global.lobbyInterface.getAvailableGames()
             this.set('route.path', '/server/home')
+            global.lobbyInterface.startWatchingLobbies()
           }
         })
       },
