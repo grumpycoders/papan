@@ -10,10 +10,11 @@
   const PapanLocalizeImpl = {
     properties: {
       language: {
-        value: 'en'
+        type: String,
+        default: 'en'
       }
     },
-  
+
     ready: function () {
       this.loadResources(this.resolveUrl('../locales.json'))
     }
