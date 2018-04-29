@@ -43,7 +43,8 @@
     "SSL": "SSL",
     "noSSL": "No SSL",
     "startinglocalserver": "Starting local server",
-    "authenticationinprogress": "Authentication in progress"
+    "authenticationinprogress": "Authentication in progress",
+    "ownerselectingjame": "The owner is selecting a game"
   },
   "fr": {
     "english": "Anglais",
@@ -89,6 +90,7 @@
     "SSL": "SSL",
     "noSSL": "Pas de SSL",
     "startinglocalserver": "Démarrage du serveur local",
-    "authenticationinprogress": "Authentification en cours"
+    "authenticationinprogress": "Authentification en cours",
+    "ownerselectingjame": "L'hôte choisit un jeu"
   }
 }

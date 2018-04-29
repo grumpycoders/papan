@@ -32,9 +32,13 @@ message Team {
   PlayersOrTeams players_info = 4;
 }
 
+message Teams {
+  repeated Team teams = 1;
+}
+
 message PlayersOrTeams {
-  oneof {
-    repeated Team team = 1;
+  oneof info {
+    Teams teams = 1;
     Players players = 2;
   }
 }
