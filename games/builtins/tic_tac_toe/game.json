@@ -3,8 +3,10 @@
   "main": "tic_tac_toe.js",
   "webcomponent": "render/tic_tac_toe.html",
   "players_info": {
-    "min": 2,
-    "max": 2
+    "players": {
+      "min": 2,
+      "max": 2
+    }
   },
   "banner": "banner.svg",
   "icon": "icon.svg",
