@@ -91,6 +91,6 @@
     "noSSL": "Pas de SSL",
     "startinglocalserver": "Démarrage du serveur local",
     "authenticationinprogress": "Authentification en cours",
-    "ownerselectingjame": "L'hôte choisit un jeu"
+    "ownerselectinggame": "L'hôte choisit un jeu"
   }
 }
