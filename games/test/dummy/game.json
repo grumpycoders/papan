@@ -7,7 +7,7 @@
           "name": "Human",
           "cardMin": 1,
           "cardMax": 3,
-          "players_info": {
+          "playersInfo": {
             "players": {
               "min": 1,
               "max": 4
@@ -18,7 +18,7 @@
           "name": "Alien",
           "cardMin": 0,
           "cardMax": 2,
-          "players_info": {
+          "playersInfo": {
             "players": {
               "min": 1,
               "max": 2
