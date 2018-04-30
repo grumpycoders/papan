@@ -214,6 +214,15 @@
 
       _togglepublic: function (event) {
         this.lobby.setPublic(event.target.checked)
+      },
+
+      _start: function () {
+        this.lobby.startGame()
+      },
+
+      _join: function () {
+        // add team the user wants to join
+        this.lobby.joinGame()
       }
     })
   </script>
