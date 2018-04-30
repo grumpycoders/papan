@@ -178,6 +178,8 @@
       ready: function () {
         this._lobbyname = this.lobby.info.name
         this.lobby.on('update', info => {
+          if (this.lobby.info.id !== info.info.id) return
+
           // todo: check the 3rd state
           if (info.info.gameInfo) {
             // if game started
