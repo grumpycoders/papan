@@ -1,12 +1,12 @@
 {
   "name": "Dummy Game",
-  "players_info": {
+  "playersInfo": {
     "teams": {
       "teams": [
         {
           "name": "Human",
-          "card_min": 1,
-          "card_max": 3,
+          "cardMin": 1,
+          "cardMax": 3,
           "players_info": {
             "players": {
               "min": 1,
@@ -16,8 +16,8 @@
         },
         {
           "name": "Alien",
-          "card_min": 0,
-          "card_max": 2,
+          "cardMin": 0,
+          "cardMax": 2,
           "players_info": {
             "players": {
               "min": 1,
