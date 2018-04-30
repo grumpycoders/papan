@@ -185,7 +185,7 @@
             // create team slots
             this.currentGame = info.info.gameInfo
             // FIX: currently there is no players_info in the GameInfo json
-            this._slots = this._generateTeams(this.currentGame.json.players_info)
+            this._slots = this._generateTeams(this.currentGame.json.playersInfo)
             this._view = 'teamselection'
           } else {
             this._view = 'gamenotselected'
@@ -194,13 +194,13 @@
       },
 
       _generateTeams: function (playerinfo) {
-        if (playerinfo.info.teams) {
-          return playerinfo.info.teams.teams.map((item, index) => Array(item.card_min).fill({
+        if (playerinfo.teams) {
+          return playerinfo.teams.teams.map((item, index) => Array(item.cardMin).fill({
             name: item.name,
-            subteams: this._generateTeams(item.players_info)
+            subteams: this._generateTeams(item.playersInfo)
           }))
         } else {
-          return Array(playerinfo.info.players.min).fill(null)
+          return Array(playerinfo.players.min).fill(null)
         }
       },
 
