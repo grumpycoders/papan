@@ -27,33 +27,34 @@ exports.readJSON = filename =>
     .then(data => data ? JSON.parse(data) : undefined)
 
 exports.promisifyClass = object => {
-  let ret = new Proxy(object, {
+  const locals = {}
+  return new Proxy(object, {
+    set: (target, prop, value) => {
+      locals[prop] = value
+      return true
+    },
     get: (target, prop, receiver) => {
-      if (typeof object[prop] === 'function') {
-        return (...args) => new Promise((resolve, reject) => {
-          object[prop](...args, (err, ...results) => {
-            if (err) {
-              reject(err)
-            } else {
-              switch (results.length) {
-                case 0:
-                  resolve()
-                  break
-                case 1:
-                  resolve(results[0])
-                  break
-                default:
-                  resolve(results)
-                  break
-              }
+      if (locals[prop]) return locals[prop]
+      if (typeof object[prop] !== 'function') return object[prop]
+      return (...args) => new Promise((resolve, reject) => {
+        object[prop](...args, (err, ...results) => {
+          if (err) {
+            reject(err)
+          } else {
+            switch (results.length) {
+              case 0:
+                resolve()
+                break
+              case 1:
+                resolve(results[0])
+                break
+              default:
+                resolve(results)
+                break
             }
-          })
+          }
         })
-      } else {
-        return object[prop]
-      }
+      })
     }
   })
-
-  return ret
 }

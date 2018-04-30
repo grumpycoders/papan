@@ -14,7 +14,7 @@ class SubscribeHandlers {
     const id = this._sessionManager.getId(call)
     const message = deepclone(data)
     message.id = id
-    this._persist.sendMessage(data.id, { message: message })
+    this._persist.sendUserMessage(data.id, { message: message })
   }
 
   'PapanLobby.GetJoinedLobbies' (call, data) {

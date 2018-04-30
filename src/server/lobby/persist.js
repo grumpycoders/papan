@@ -12,10 +12,22 @@ const PapanServerUtils = require('../common/utils.js')
 
 class PersistClient {
   constructor ({ rs, client, redis }) {
+    const execIntercept = object => new Proxy(object, {
+      get: (target, prop, receiver) => {
+        if (prop !== 'exec') return (...args) => execIntercept(object[prop](...args))
+        return () => new Promise((resolve, reject) => {
+          object.exec((err, result) => {
+            if (err) reject(err)
+            resolve(result)
+          })
+        })
+      }
+    })
     this._redis = redis
     this._rs = rs
     this._client = client
     this._promised = PapanServerUtils.promisifyClass(client)
+    this._promised.multi = () => execIntercept(client.multi())
   }
 
   close () {
@@ -92,8 +104,37 @@ class PersistClient {
     return ret
   }
 
-  sendMessage (userId, message) {
+  sendUserMessage (userId, message) {
     this._client.publish('usersub:' + userId, PapanUtils.JSON.stringify(message))
+  }
+
+  registerGameServer (id, games) {
+    let request = this._promised.multi().sadd('gameservers', id)
+    games.forEach(infoHash => {
+      request = request.sadd('game:' + infoHash, id)
+    })
+    return request.exec()
+  }
+
+  gameServerSubscribe (id, callback) {
+    const subscriber = this._redis.createClient()
+    const key = 'gamesub:' + id
+    subscriber.subscribe(key)
+    subscriber.on('message', (channel, message) => {
+      if (channel === key) {
+        callback(PapanUtils.JSON.parse(message))
+      }
+    })
+
+    const ret = {
+      subscriber: subscriber,
+      close: () => subscriber.unsubscribe(key)
+    }
+    return ret
+  }
+
+  sendGameMessage (id, message) {
+    this._client.publish('gamesub:' + id, PapanUtils.JSON.stringify(message))
   }
 
   getJoinedLobbies (data) {
@@ -272,6 +313,9 @@ exports.createPersist = () => {
   }
 
   const redis = mock ? require('redis-mock') : require('redis')
+  if (mock) {
+    redis.setMaxListeners(0)
+  }
   const client = redis.createClient()
   const rs = new RedisSessions({ client: client })
 

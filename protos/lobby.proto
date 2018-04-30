@@ -168,6 +168,7 @@ service PlayerLobbyService {
 
 message RegisterGameServer {
   string api_key = 1;
+  map<string, Papan.GameInfo> games = 2;
 }
 
 message RegisterGame {
