@@ -113,6 +113,36 @@ message SendGameInfo {
   Papan.GameInfo info = 1;
 }
 
+message Team {
+  string name = 1;
+  PlayersOrTeams players_info = 2;
+}
+
+message Teams {
+  repeated Team teams = 1;
+}
+
+message Player {
+  User user = 1;
+}
+
+message Players {
+  repeated Player players = 1;
+}
+
+message PlayersOrTeams {
+  oneof info {
+    Teams teams = 1;
+    Players players = 2;
+  }
+}
+
+message SetGameSettings {
+  PlayersOrTeams players_info = 1;
+}
+
+message StartGame {}
+
 message LobbyAction {
   oneof action {
     JoinLobby join = 1;
@@ -125,6 +155,8 @@ message LobbyAction {
     SetLobbyGame set_game = 8;
     RequestGameInfo request_game_info = 9;
     SendGameInfo game_info = 10;
+    SetGameSettings set_game_settings = 11;
+    StartGame start_game = 12;
   }
 }
 

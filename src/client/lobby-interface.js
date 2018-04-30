@@ -60,6 +60,10 @@ class Lobby extends global.EventEmitter {
       }
     })
   }
+
+  startGame () {
+    this._send('PapanLobby.StartGame')
+  }
 }
 
 class LobbyInterface extends global.EventEmitter {
