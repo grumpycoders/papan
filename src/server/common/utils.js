@@ -4,13 +4,13 @@ const crypto = require('crypto')
 const fs = require('fs')
 const base64url = require('base64url')
 
-exports.generateToken = (length = 48) =>
+exports.generateToken = ({ length = 48, prefix = 'TCKT' }) =>
   new Promise((resolve, reject) => {
     crypto.randomBytes(length, (err, buffer) => {
       if (err) {
         reject(err)
       } else {
-        resolve(base64url(buffer))
+        resolve(prefix + '.' + base64url(buffer))
       }
     })
   })

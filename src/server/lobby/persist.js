@@ -172,7 +172,7 @@ class PersistClient {
   createLobby (data) {
     let id
     const { userId } = data
-    return PapanServerUtils.generateToken()
+    return PapanServerUtils.generateToken({ prefix: 'LBBY' })
       .then(token => {
         id = token
         return this._promised.hsetnx('lobbyinfo:' + id, 'owner', userId)
