@@ -31,7 +31,7 @@
       },
 
       _joinLobby: function (event) {
-        this.set('route.path', '/lobby/' + this.lobbyId)
+        global.lobbyInterface.joinLobby(this.lobbyId)
       },
 
       behaviors: [
@@ -142,7 +142,6 @@
           const lobby = this._lobbylist.map(function (e) { return e.id }).indexOf(lobbyinfo.id)
           this.splice('_lobbylist', lobby, 1)
         })
-        global.lobbyInterface.startWatchingLobbies()
       },
 
       observers: [

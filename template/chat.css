@@ -11,6 +11,12 @@
   word-wrap: break-word;
 }
 
+.chatusername{
+  width: 100px;
+  font-weight: 500;
+  padding-right: 2px;
+}
+
 paper-input{
   padding: 2px;
 }

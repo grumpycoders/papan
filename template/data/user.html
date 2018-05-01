@@ -17,14 +17,12 @@
         */
         user: {
           type: Object,
-          value: () => {
-            return {
-              username: '',
-              islogged: false,
-              isadmin: false,
-              language: String
-            }
-          },
+          value: () => ({
+            username: '',
+            islogged: false,
+            isadmin: false,
+            language: 'en'
+          }),
           notify: true
         }
       }
