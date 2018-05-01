@@ -29,7 +29,18 @@ message Team {
   string name = 1;
   uint32 card_min = 2;
   uint32 card_max = 3;
-  Players players = 4;
+  PlayersOrTeams players_info = 4;
+}
+
+message Teams {
+  repeated Team teams = 1;
+}
+
+message PlayersOrTeams {
+  oneof info {
+    Teams teams = 1;
+    Players players = 2;
+  }
 }
 
 message GameJson {
@@ -38,11 +49,10 @@ message GameJson {
   string webcomponent = 3;
   string banner = 4;
   string icon = 5;
-  Players players = 6;
-  repeated Team teams = 7;
-  bool has_private_view = 8;
-  repeated string global_deps = 9;
-  map<string, string> deps = 10;
+  PlayersOrTeams players_info = 6;
+  bool has_private_view = 7;
+  repeated string global_deps = 8;
+  map<string, string> deps = 9;
 }
 
 message Torrent {

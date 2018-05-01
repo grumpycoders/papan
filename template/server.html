@@ -31,7 +31,7 @@
       },
 
       _joinLobby: function (event) {
-        this.set('route.path', '/lobby/' + this.lobbyId)
+        global.lobbyInterface.joinLobby(this.lobbyId)
       },
 
       behaviors: [
