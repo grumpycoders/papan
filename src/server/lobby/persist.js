@@ -4,6 +4,7 @@ const optionDefinitions = [
 ]
 const commandline = require('command-line-args')
 const deepmerge = require('deepmerge')
+const randomWords = require('random-words')
 const RedisSessions = require('redis-sessions')
 const argv = commandline(optionDefinitions, { partial: true, argv: process.argv })
 
@@ -182,7 +183,11 @@ class PersistClient {
         return this._promised.sadd('lobbymembers:' + id, userId)
       })
       .then(() => this._promised.sadd('user:' + userId + ':lobbies', id))
-      .then(() => this.getLobbyInfo({ id: id }))
+      .then(() => this.setLobbyName({
+        id: id,
+        userId: userId,
+        name: randomWords({ exactly: 4, join: ' ' })
+      }))
   }
 
   joinLobby (data) {
