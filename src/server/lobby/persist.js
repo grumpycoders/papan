@@ -156,7 +156,30 @@ class PersistClient {
         return this._promised.hgetall('lobbyinfo:' + id)
       })
       .then(results => {
-        if (!results.owner) return Promise.reject(Error('Lobby doesn\'t exist'))
+        if (!results || !results.owner) return Promise.reject(Error('Lobby doesn\'t exist'))
+        const playersInfo = {}
+        Object.keys(results).filter(subKey => subKey.match(/^playerinfo:.*team:/)).sort().forEach(team => {
+          const matches = team.match(/^playerinfo:(.*):?team:(.*)$/)
+          const components = matches[1].split(':')
+          const id = matches[2]
+          let parent = playersInfo
+          components.filter(id => id.length !== 0).forEach(id => {
+            parent = parent.teams[id]
+          })
+          if (!parent.teams) parent.teams = {}
+          parent.teams[id] = JSON.parse(results[team])
+        })
+        Object.keys(results).filter(subkey => subkey.match(/^playerinfo:.*slot:/)).forEach(slot => {
+          const matches = slot.match(/^playerinfo:(.*):?slot:(.*)$/)
+          const components = matches[1].split(':')
+          const id = matches[2]
+          let parent = playersInfo
+          components.filter(id => id.length !== 0).forEach(id => {
+            parent = parent.teams[id]
+          })
+          if (!parent.slots) parent.slots = {}
+          parent.slots[id] = JSON.parse(results[slot])
+        })
         return {
           id: id,
           owner: {
@@ -165,6 +188,7 @@ class PersistClient {
           members: members,
           name: results.name,
           public: results.public,
+          playersInfo: playersInfo,
           gameInfo: results.gameInfo ? PapanUtils.JSON.parse(results.gameInfo) : results.gameInfo
         }
       })
@@ -243,12 +267,74 @@ class PersistClient {
   }
 
   setLobbyGame ({ userId, id, gameInfo }) {
-    return this._setLobbyField({
-      userId: userId,
-      id: id,
-      gameInfo: PapanUtils.JSON.stringify(gameInfo),
-      field: 'gameInfo'
-    })
+    const key = 'lobbyinfo:' + id
+
+    const _deleteAllPlayerInfo = () => {
+      this._client.watch(key)
+      const multi = this._client.multi()
+      return this._promised.hgetall(key)
+        .then(result => {
+          Object.keys(result).filter(subKey => subKey.startsWith('playerinfo:')).forEach(subKey => {
+            multi.hdel(key, subKey)
+          })
+          return multi.exec()
+        })
+        .then(result => !!result)
+    }
+
+    const deleteAllPlayerInfo = async () => {
+      while (!await _deleteAllPlayerInfo());
+    }
+
+    const _createMinimumSlots = async (multi, playersInfo, owner = '') => {
+      if (playersInfo.info === 'players') {
+        for (let i = 0; i < playersInfo.players.min; i++) {
+          const slotId = await PapanServerUtils.generateToken({ prefix: 'SLOT' })
+          const subKey = 'playerinfo:' + owner + 'slot:' + slotId
+          multi.hset(key, subKey, JSON.stringify({ order: i }))
+        }
+      } else {
+        for (let i = 0; i < playersInfo.teams.cardMin; i++) {
+          const teamId = await PapanServerUtils.generateToken({ prefix: 'TEAM' })
+          const subKey = 'playerinfo:' + owner + 'team:' + teamId
+          multi.hset(key, subKey, JSON.stringify({ order: i, name: playersInfo.teams.name }))
+          _createMinimumSlots(multi, playersInfo.teams.playersInfo, teamId + ':')
+        }
+      }
+    }
+
+    const createMinimumSlots = (...args) => _createMinimumSlots(...args)
+    let multi
+
+    return this._promised.hget(key, 'owner')
+      .then(result => {
+        if (result === null) return Promise.reject(Error('Lobby doesn\'t exist'))
+        if (userId !== result) {
+          return this.getLobbyInfo({ id: id })
+        }
+        return this._setLobbyField({
+          userId: userId,
+          id: id,
+          gameInfo: PapanUtils.JSON.stringify(gameInfo),
+          field: 'gameInfo'
+        })
+      })
+      .then(info => {
+        try {
+          return deleteAllPlayerInfo()
+        } catch (err) {
+          return Promise.reject(err)
+        }
+      }).then(() => {
+        multi = this._client.multi()
+        try {
+          return createMinimumSlots(multi, gameInfo.json.playersInfo)
+        } catch (err) {
+          return Promise.reject(err)
+        }
+      })
+      .then(() => multi.exec())
+      .then(() => this.getLobbyInfo({ id: id }))
   }
 
   lobbySubscribe (id, callback) {
@@ -318,10 +404,11 @@ exports.createPersist = () => {
   }
 
   const redis = mock ? require('redis-mock') : require('redis')
+  const client = redis.createClient()
   if (mock) {
     redis.setMaxListeners(0)
+    client.watch = () => {}
   }
-  const client = redis.createClient()
   const rs = new RedisSessions({ client: client })
 
   return Promise.resolve(new PersistClient({ rs: rs, client: client, redis: redis }))
