@@ -120,10 +120,6 @@ class LobbyHandlers {
     this._persist.lobbySendMessage(call.id, { gameInfo: data })
   }
 
-  'PapanLobby.SetGameSettings' (call, data) {
-    console.log(data)
-  }
-
   'PapanLobby.StartGame' (call, data) {
     console.log(data)
   }

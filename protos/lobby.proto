@@ -43,6 +43,22 @@ message JoinStatus {
   JoinStatusEnum status = 1;
 }
 
+message Slot {
+  uint32 order = 1;
+}
+
+message Team {
+  uint32 order = 1;
+  string name = 2;
+  map<string, Slot> slots = 3;
+  map<string, Team> teams = 4;
+}
+
+message PlayersInfo {
+  map<string, Slot> slots = 1;
+  map<string, Team> teams = 2;
+}
+
 message LobbyInfo {
   string id = 1;
   string name = 2;
@@ -50,6 +66,7 @@ message LobbyInfo {
   bool public = 4;
   repeated User members = 5;
   Papan.GameInfo game_info = 6;
+  PlayersInfo players_info = 7;
 }
 
 message UserJoined {
@@ -113,34 +130,6 @@ message SendGameInfo {
   Papan.GameInfo info = 1;
 }
 
-message Team {
-  string name = 1;
-  PlayersOrTeams players_info = 2;
-}
-
-message Teams {
-  repeated Team teams = 1;
-}
-
-message Player {
-  User user = 1;
-}
-
-message Players {
-  repeated Player players = 1;
-}
-
-message PlayersOrTeams {
-  oneof info {
-    Teams teams = 1;
-    Players players = 2;
-  }
-}
-
-message SetGameSettings {
-  PlayersOrTeams players_info = 1;
-}
-
 message StartGame {}
 
 message LobbyAction {
@@ -155,8 +144,7 @@ message LobbyAction {
     SetLobbyGame set_game = 8;
     RequestGameInfo request_game_info = 9;
     SendGameInfo game_info = 10;
-    SetGameSettings set_game_settings = 11;
-    StartGame start_game = 12;
+    StartGame start_game = 11;
   }
 }
 
