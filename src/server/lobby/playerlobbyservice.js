@@ -124,6 +124,10 @@ class LobbyHandlers {
     console.log(data)
   }
 
+  'PapanLobby.AssignSlot' (call, data) {
+    console.log(data)
+  }
+
   'PapanLobby.LeaveLobby' (call, data) { return Promise.reject(Error('Unimplemented')) }
   'PapanLobby.SetReady' (call, data) { return Promise.reject(Error('Unimplemented')) }
   'PapanLobby.KickUser' (call, data) { return Promise.reject(Error('Unimplemented')) }

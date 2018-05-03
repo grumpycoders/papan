@@ -142,6 +142,22 @@ message SendGameInfo {
 
 message StartGame {}
 
+message TeamSlotId {
+  string id = 1;
+  oneof info {
+    TeamSlotId team = 2;
+    string slot_id = 3;
+  }
+}
+
+message AssignSlot {
+  User user = 1;
+  oneof info {
+    TeamSlotId team = 2;
+    string slot_id = 3;
+  }
+}
+
 message LobbyAction {
   oneof action {
     JoinLobby join = 1;
@@ -155,6 +171,7 @@ message LobbyAction {
     RequestGameInfo request_game_info = 9;
     SendGameInfo game_info = 10;
     StartGame start_game = 11;
+    AssignSlot assign_slot = 12;
   }
 }
 
