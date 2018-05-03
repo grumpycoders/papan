@@ -44,19 +44,29 @@ message JoinStatus {
 }
 
 message Slot {
-  uint32 order = 1;
+  string id = 1;
+  User user = 2;
+}
+
+message Slots {
+  repeated Slot slot = 1;
 }
 
 message Team {
-  uint32 order = 1;
-  string name = 2;
-  map<string, Slot> slots = 3;
-  map<string, Team> teams = 4;
+  string name = 1;
+  string id = 2;
+  SlotsOrTeams players_info = 3;
 }
 
-message PlayersInfo {
-  map<string, Slot> slots = 1;
-  map<string, Team> teams = 2;
+message Teams {
+  repeated Team teams = 1;
+}
+
+message SlotsOrTeams {
+  oneof info {
+    Teams teams = 1;
+    Slots slots = 2;
+  }
 }
 
 message LobbyInfo {
@@ -66,7 +76,7 @@ message LobbyInfo {
   bool public = 4;
   repeated User members = 5;
   Papan.GameInfo game_info = 6;
-  PlayersInfo players_info = 7;
+  SlotsOrTeams players_info = 7;
 }
 
 message UserJoined {

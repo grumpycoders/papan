@@ -157,12 +157,12 @@ class PersistClient {
       })
       .then(results => {
         if (!results || !results.owner) return Promise.reject(Error('Lobby doesn\'t exist'))
-        const playersInfo = {}
+        const playersInfoTree = {}
         Object.keys(results).filter(subKey => subKey.match(/^playerinfo:.*team:/)).sort().forEach(team => {
           const matches = team.match(/^playerinfo:(.*):?team:(.*)$/)
           const components = matches[1].split(':')
           const id = matches[2]
-          let parent = playersInfo
+          let parent = playersInfoTree
           components.filter(id => id.length !== 0).forEach(id => {
             parent = parent.teams[id]
           })
@@ -173,13 +173,38 @@ class PersistClient {
           const matches = slot.match(/^playerinfo:(.*):?slot:(.*)$/)
           const components = matches[1].split(':')
           const id = matches[2]
-          let parent = playersInfo
+          let parent = playersInfoTree
           components.filter(id => id.length !== 0).forEach(id => {
             parent = parent.teams[id]
           })
           if (!parent.slots) parent.slots = {}
           parent.slots[id] = JSON.parse(results[slot])
         })
+        const convertTree = tree => {
+          const ret = {}
+          if (tree.slots) {
+            ret.slots = {}
+            ret.slots.slot = []
+            Object.keys(tree.slots).forEach(id => {
+              tree.slots[id].id = id
+              ret.slots.slot.push(tree.slots[id])
+            })
+            ret.slots.slot.sort((a, b) => a.order - b.order)
+          } else if (tree.teams) {
+            ret.teams = {}
+            ret.teams.team = []
+            Object.keys(tree.teams).forEach(id => {
+              const subTree = convertTree(tree.teams[id])
+              delete tree.teams[id].teams
+              delete tree.teams[id].slots
+              tree.teams[id].playersInfo = subTree
+              ret.teams.team.push(tree.teams[id])
+            })
+            ret.teams.team.sort((a, b) => a.order - b.order)
+          }
+
+          return ret
+        }
         return {
           id: id,
           owner: {
@@ -188,7 +213,7 @@ class PersistClient {
           members: members,
           name: results.name,
           public: results.public,
-          playersInfo: playersInfo,
+          playersInfo: convertTree(playersInfoTree),
           gameInfo: results.gameInfo ? PapanUtils.JSON.parse(results.gameInfo) : results.gameInfo
         }
       })
