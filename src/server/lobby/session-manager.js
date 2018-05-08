@@ -92,7 +92,7 @@ class SessionManager {
           }
           return Promise.reject(Error('Client must authenticate'))
         } else {
-          return PapanServerUtils.generateToken()
+          return PapanServerUtils.generateToken({ prefix: 'USER' })
             .then(userId => {
               call.metadata.set('papan-userid', userId)
               return this._persist.createSession(userId)

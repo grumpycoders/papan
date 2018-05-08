@@ -14,7 +14,7 @@ class SubscribeHandlers {
     const id = this._sessionManager.getId(call)
     const message = deepclone(data)
     message.id = id
-    this._persist.sendMessage(data.id, { message: message })
+    this._persist.sendUserMessage(data.id, { message: message })
   }
 
   'PapanLobby.GetJoinedLobbies' (call, data) {
@@ -118,6 +118,20 @@ class LobbyHandlers {
 
   'PapanLobby.SendGameInfo' (call, data) {
     this._persist.lobbySendMessage(call.id, { gameInfo: data })
+  }
+
+  'PapanLobby.StartGame' (call, data) {
+    console.log(data)
+  }
+
+  'PapanLobby.AssignSlot' (call, data) {
+    this._persist.assignSlot({
+      lobbyId: call.id,
+      userId: data.user ? data.user.id : undefined,
+      senderId: this._sessionManager.getId(call),
+      team: data.team,
+      slotId: data.slotId
+    })
   }
 
   'PapanLobby.LeaveLobby' (call, data) { return Promise.reject(Error('Unimplemented')) }
