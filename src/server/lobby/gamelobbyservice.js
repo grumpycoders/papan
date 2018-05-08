@@ -15,15 +15,21 @@ class SubscribeHandlers {
     } else {
       premise = this._persist.isApiKeyValid(data.register.apiKey)
     }
+    const gamesList = []
+    Object.keys(data.games).forEach(key => gamesList.push(data.games[key].torrent.infoHash))
     return premise
       .then(trusted => this._sessionManager.setSessionData(call, { trusted: trusted }))
       .then(data => {
+        const id = this._sessionManager.getId(call)
         call.trusted = data.trusted
         call.write({
           registered: {
             trusted: call.trusted
           }
         })
+        if (data.trusted) {
+          return this._persist.registerGameServer(id, gamesList)
+        }
       })
   }
 }
@@ -39,7 +45,7 @@ class LobbyHandlers {
   }
 }
 
-const Subscribe = (options, sessionManager, call, dispatcher) => {
+const Subscribe = (persist, options, sessionManager, call, dispatcher) => {
   const id = sessionManager.getId(call)
   call.localApiKey = options.localApiKey
   call.write({
@@ -49,10 +55,12 @@ const Subscribe = (options, sessionManager, call, dispatcher) => {
       }
     }
   })
+  const sub = persist.gameServerSubscribe(id, call.write)
   call.on('error', error => {
     console.log(error)
   })
   call.on('end', () => {
+    sub.close()
     call.end()
   })
   call.on('data', data => dispatcher(call, data))
@@ -72,7 +80,7 @@ exports.generateService = ({ proto, persist, sessionManager, options }) => {
   const subscribeDispatcher = dispatcher(proto.GameAction.fields, new SubscribeHandlers({ persist: persist, sessionManager: sessionManager }))
   const lobbyDispatcher = dispatcher(proto.GameLobbyAction.fields, new LobbyHandlers({ persist: persist, sessionManager: sessionManager }))
   return {
-    Subscribe: call => Subscribe(options, sessionManager, call, subscribeDispatcher),
+    Subscribe: call => Subscribe(persist, options, sessionManager, call, subscribeDispatcher),
     Lobby: call => Lobby(call, lobbyDispatcher)
   }
 }

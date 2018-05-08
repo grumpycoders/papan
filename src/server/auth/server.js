@@ -118,7 +118,7 @@ exports.registerServer = (app, config) => {
     ))
     app.get('/auth/getcode',
       passport.authenticated(),
-      (req, res, next) => PapanServerUtils.generateToken()
+      (req, res, next) => PapanServerUtils.generateToken({ prefix: 'CODE' })
         .then(token => users.addTemporaryCode(req.user, token))
         .then(token => res.json({ code: token.dataValues.id }))
         .catch(err => next(err))
@@ -126,7 +126,7 @@ exports.registerServer = (app, config) => {
     app.get('/auth/forwardcode',
       passport.authenticated(),
       (req, res, next) => (req.query.returnURL && req.query.returnURL.indexOf('?') < 0
-        ? PapanServerUtils.generateToken()
+        ? PapanServerUtils.generateToken({ prefix: 'CODE' })
         : Promise.reject(Error('Invalid returnURL query parameter'))
       ).then(token => users.addTemporaryCode(req.user, token))
         .then(token => res.redirect(req.query.returnURL + '?code=' + token.dataValues.id))

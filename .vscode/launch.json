@@ -24,14 +24,10 @@
       "name": "Debug Mocha tests",
       "type": "node",
       "request": "launch",
-      "preLaunchTask": "instrument",
       "args": [
         "test/common",
         "test/nodejs",
-        "--exit",
-        "-r", "test/utils/coverage.js",
-        "--reporter", "mocha-simple-html-reporter",
-        "--reporter-options", "output=node-report.html"
+        "--exit"
       ],
       "cwd": "${workspaceRoot}",
       "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/mocha",
@@ -44,15 +40,10 @@
       "name": "Debug Electron Mocha tests",
       "type": "node",
       "request": "launch",
-      "preLaunchTask": "instrument",
       "args": [
         "test/common",
         "test/electron",
-        "--exit",
-        "-r", "test/utils/coverage.js",
-        "--reporter", "mocha-simple-html-reporter",
-        "--reporter-options", "output=electron-report.html"
-      ],
+        "--exit"      ],
       "cwd": "${workspaceRoot}",
       "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron",
       "windows": {

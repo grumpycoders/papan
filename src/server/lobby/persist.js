@@ -4,6 +4,7 @@ const optionDefinitions = [
 ]
 const commandline = require('command-line-args')
 const deepmerge = require('deepmerge')
+const randomWords = require('random-words')
 const RedisSessions = require('redis-sessions')
 const argv = commandline(optionDefinitions, { partial: true, argv: process.argv })
 
@@ -12,10 +13,22 @@ const PapanServerUtils = require('../common/utils.js')
 
 class PersistClient {
   constructor ({ rs, client, redis }) {
+    const execIntercept = object => new Proxy(object, {
+      get: (target, prop, receiver) => {
+        if (prop !== 'exec') return (...args) => execIntercept(object[prop](...args))
+        return () => new Promise((resolve, reject) => {
+          object.exec((err, result) => {
+            if (err) reject(err)
+            resolve(result)
+          })
+        })
+      }
+    })
     this._redis = redis
     this._rs = rs
     this._client = client
     this._promised = PapanServerUtils.promisifyClass(client)
+    this._promised.multi = () => execIntercept(client.multi())
   }
 
   close () {
@@ -92,117 +105,269 @@ class PersistClient {
     return ret
   }
 
-  sendMessage (userId, message) {
+  sendUserMessage (userId, message) {
     this._client.publish('usersub:' + userId, PapanUtils.JSON.stringify(message))
   }
 
-  getJoinedLobbies (data) {
-    const { id } = data
-    return this._promised.smembers('user:' + id + ':lobbies')
-      .then(results => {
-        if (!results) results = []
-        return Promise.all(results.map(id => this.getLobbyInfo({ id: id })))
-      })
+  registerGameServer (id, games) {
+    let request = this._promised.multi().sadd('gameservers', id)
+    games.forEach(infoHash => {
+      request = request.sadd('game:' + infoHash, id)
+    })
+    return request.exec()
   }
 
-  getLobbyInfo (data) {
-    const { id } = data
-    let members
-    return this._promised.smembers('lobbymembers:' + id)
-      .then(results => {
-        members = results.map(id => ({ id: id }))
-        return this._promised.hgetall('lobbyinfo:' + id)
-      })
-      .then(results => {
-        if (!results.owner) return Promise.reject(Error('Lobby doesn\'t exist'))
-        return {
-          id: id,
-          owner: {
-            id: results.owner
-          },
-          members: members,
-          name: results.name,
-          public: results.public,
-          gameInfo: results.gameInfo ? PapanUtils.JSON.parse(results.gameInfo) : results.gameInfo
-        }
-      })
+  gameServerSubscribe (id, callback) {
+    const subscriber = this._redis.createClient()
+    const key = 'gamesub:' + id
+    subscriber.subscribe(key)
+    subscriber.on('message', (channel, message) => {
+      if (channel === key) {
+        callback(PapanUtils.JSON.parse(message))
+      }
+    })
+
+    return {
+      subscriber: subscriber,
+      close: () => subscriber.unsubscribe(key)
+    }
   }
 
-  createLobby (data) {
-    let id
+  sendGameMessage (id, message) {
+    this._client.publish('gamesub:' + id, PapanUtils.JSON.stringify(message))
+  }
+
+  async getJoinedLobbies (data) {
+    const { id } = data
+    let results = await this._promised.smembers('user:' + id + ':lobbies')
+    if (!results) results = []
+    return Promise.all(results.map(id => this.getLobbyInfo({ id: id })))
+  }
+
+  async getLobbyInfo (data) {
+    const { id } = data
+    const members = (await this._promised.smembers('lobbymembers:' + id)).map(id => ({ id: id }))
+    const info = await this._promised.hgetall('lobbyinfo:' + id)
+    const gameId = await this._promised.get('lobbyinfo:' + id + ':gameid')
+    if (!info || !info.owner) throw Error('Lobby doesn\'t exist')
+    const playersInfoTree = {}
+    const teaminfo = await this._promised.hgetall('lobbyinfo:' + id + ':gameteaminfo:' + gameId)
+    const convertValue = (key, value) => {
+      switch (key) {
+        case 'order':
+          return parseInt(value)
+        case 'user':
+          return { id: value }
+        default:
+          return value
+      }
+    }
+    Object.keys(teaminfo || {}).filter(subKey => subKey.match(/^playerinfo:.*team:/)).sort().forEach(team => {
+      const matches = team.match(/^playerinfo:(.*):?team:(.*):(.*)$/)
+      const components = matches[1].split(':')
+      const id = matches[2]
+      const key = matches[3]
+      let parent = playersInfoTree
+      components.filter(id => id.length !== 0).forEach(id => {
+        parent = parent.teams[id]
+      })
+      if (!parent.teams) parent.teams = {}
+      if (!parent.teams[id]) parent.teams[id] = {}
+      parent.teams[id][key] = convertValue(key, teaminfo[team])
+    })
+    Object.keys(teaminfo || {}).filter(subkey => subkey.match(/^playerinfo:.*slot:/)).forEach(slot => {
+      const matches = slot.match(/^playerinfo:(.*):?slot:(.*):(.*)$/)
+      const components = matches[1].split(':')
+      const id = matches[2]
+      const key = matches[3]
+      let parent = playersInfoTree
+      components.filter(id => id.length !== 0).forEach(id => {
+        parent = parent.teams[id]
+      })
+      if (!parent.slots) parent.slots = {}
+      if (!parent.slots[id]) parent.slots[id] = {}
+      parent.slots[id][key] = convertValue(key, teaminfo[slot])
+    })
+    const convertTree = tree => {
+      const ret = {}
+      if (tree.slots) {
+        ret.slots = {}
+        ret.slots.slot = []
+        Object.keys(tree.slots).forEach(id => {
+          tree.slots[id].id = id
+          ret.slots.slot.push(tree.slots[id])
+        })
+        ret.slots.slot.sort((a, b) => a.order - b.order)
+      } else if (tree.teams) {
+        ret.teams = {}
+        ret.teams.team = []
+        Object.keys(tree.teams).forEach(id => {
+          const subTree = convertTree(tree.teams[id])
+          delete tree.teams[id].teams
+          delete tree.teams[id].slots
+          tree.teams[id].playersInfo = subTree
+          ret.teams.team.push(tree.teams[id])
+        })
+        ret.teams.team.sort((a, b) => a.order - b.order)
+      }
+
+      return ret
+    }
+    return {
+      id: id,
+      owner: {
+        id: info.owner
+      },
+      members: members,
+      name: info.name,
+      public: info.public === 'true',
+      playersInfo: convertTree(playersInfoTree),
+      gameInfo: info.gameInfo ? PapanUtils.JSON.parse(info.gameInfo) : info.gameInfo
+    }
+  }
+
+  async createLobby (data) {
     const { userId } = data
-    return PapanServerUtils.generateToken()
-      .then(token => {
-        id = token
-        return this._promised.hsetnx('lobbyinfo:' + id, 'owner', userId)
-      })
-      .then(result => {
-        if (result === 0) return this.createLobby(data)
-        return this._promised.sadd('lobbymembers:' + id, userId)
-      })
-      .then(() => this._promised.sadd('user:' + userId + ':lobbies', id))
-      .then(() => this.getLobbyInfo({ id: id }))
+    const id = await PapanServerUtils.generateToken({ prefix: 'LBBY' })
+    if ((await this._promised.hsetnx('lobbyinfo:' + id, 'owner', userId)) === 0) {
+      return this.createLobby(data)
+    }
+    await Promise.all([
+      this._promised.set('lobbyinfo:' + id + ':gameid', 0),
+      this._promised.sadd('lobbymembers:' + id, userId),
+      this._promised.sadd('user:' + userId + ':lobbies', id)
+    ])
+    return this.setLobbyName({
+      id: id,
+      userId: userId,
+      name: randomWords({ exactly: 4, join: ' ' })
+    })
   }
 
-  joinLobby (data) {
+  async joinLobby (data) {
     const { userId, id } = data
-    return this._promised.hget('lobbyinfo:' + id, 'owner')
-      .then(result => {
-        if (result === null) Promise.reject(Error('Lobby doesn\'t exist'))
-        return this._promised.sadd('lobbymembers:' + id, userId)
-      })
-      .then(() => this._promised.sadd('user:' + userId + ':lobbies', id))
-      .then(() => this.getLobbyInfo({ id: id }))
+    const owner = await this._promised.hget('lobbyinfo:' + id, 'owner')
+    if (owner === null) throw Error('Lobby doesn\'t exist')
+    await this._promised.sadd('lobbymembers:' + id, userId)
+    await this._promised.sadd('user:' + userId + ':lobbies', id)
+    return this.getLobbyInfo({ id: id })
   }
 
-  _setLobbyField (data) {
+  async _setLobbyField (data) {
     const { id, userId, field } = data
     const key = 'lobbyinfo:' + id
-    return this._promised.hget(key, 'owner')
-      .then(result => {
-        if (result === null) return Promise.reject(Error('Lobby doesn\'t exist'))
-        let info = this.getLobbyInfo({ id: id })
-        if (userId !== result) {
-          return info
-        } else {
-          return this._promised.hset(key, field, data[field])
-            .then(() => info)
-        }
-      })
+    const owner = await this._promised.hget(key, 'owner')
+    if (owner === null) throw Error('Lobby doesn\'t exist')
+    if (userId === owner) {
+      await this._promised.hset(key, field, data[field])
+    }
+    return this.getLobbyInfo({ id: id })
   }
 
   setLobbyName (data) {
     return this._setLobbyField(deepmerge(data, { field: 'name' }))
   }
 
-  setLobbyPublic (data) {
-    return this._setLobbyField(deepmerge(data, { field: 'public' }))
-      .then(info => {
-        let ret
-        if (data.public) {
-          ret = this._promised.sadd('publiclobbies', data.id)
-          this._client.publish('publiclobbies', PapanUtils.JSON.stringify({
-            id: data.id,
-            status: 'ADDED'
-          }))
-        } else {
-          ret = this._promised.srem('publiclobbies', data.id)
-          this._client.publish('publiclobbies', PapanUtils.JSON.stringify({
-            id: data.id,
-            status: 'REMOVED'
-          }))
-        }
-        return ret.then(() => info)
-      })
+  async setLobbyPublic (data) {
+    const info = await this._setLobbyField(deepmerge(data, { field: 'public' }))
+    if (data.public) {
+      await this._promised.sadd('publiclobbies', data.id)
+      this._client.publish('publiclobbies', PapanUtils.JSON.stringify({
+        id: data.id,
+        status: 'ADDED'
+      }))
+    } else {
+      await this._promised.srem('publiclobbies', data.id)
+      this._client.publish('publiclobbies', PapanUtils.JSON.stringify({
+        id: data.id,
+        status: 'REMOVED'
+      }))
+    }
+    return info
   }
 
-  setLobbyGame ({ userId, id, gameInfo }) {
-    return this._setLobbyField({
+  async setLobbyGame ({ userId, id, gameInfo }) {
+    const createMinimumSlots = async (gameTeamKey, multi, playersInfo, owner = '') => {
+      if (playersInfo.info === 'players') {
+        for (let i = 0; i < playersInfo.players.min; i++) {
+          const slotId = await PapanServerUtils.generateToken({ prefix: 'SLOT' })
+          const subKey = 'playerinfo:' + owner + 'slot:' + slotId + ':order'
+          multi.hset(gameTeamKey, subKey, i)
+        }
+      } else {
+        for (let i = 0; i < playersInfo.teams.cardMin; i++) {
+          const teamId = await PapanServerUtils.generateToken({ prefix: 'TEAM' })
+          const subKey = 'playerinfo:' + owner + 'team:' + teamId
+          multi.hset(gameTeamKey, subKey + ':order', i)
+          multi.hset(gameTeamKey, subKey + ':name', playersInfo.teams.name)
+          await createMinimumSlots(multi, playersInfo.teams.playersInfo, teamId + ':')
+        }
+      }
+    }
+    const info = await this._setLobbyField({
       userId: userId,
       id: id,
       gameInfo: PapanUtils.JSON.stringify(gameInfo),
       field: 'gameInfo'
     })
+    if (info.owner.id !== userId) return info
+    const newGameId = await this._promised.incrby('lobbyinfo:' + id + ':gameid', 1)
+    const oldGameId = newGameId - 1
+    const multi = this._client.multi()
+    multi.del('lobbyinfo:' + id + ':gameteaminfo:' + oldGameId)
+    await createMinimumSlots('lobbyinfo:' + id + ':gameteaminfo:' + newGameId, multi, gameInfo.json.playersInfo)
+    await multi.exec()
+    return this.getLobbyInfo({ id: id })
+  }
+
+  async assignSlot (data) {
+    const { lobbyId, userId, senderId } = data
+    const info = await this.getLobbyInfo({ id: lobbyId })
+    const owner = info.owner.id
+    if (userId) {
+      let found = false
+      info.members.forEach(user => {
+        if (user.id === userId) {
+          found = true
+        }
+      })
+      if (!found) return info
+    }
+    this._client.watch('lobbyinfo:' + lobbyId + ':gameid')
+    const gameId = await this._promised.get('lobbyinfo:' + lobbyId + ':gameid')
+    const buildSlotId = data => {
+      if (data.slotId) return 'slot:' + data.slotId
+      return (data.id ? (data.id + ':') : '') + buildSlotId(data.team)
+    }
+    const slotId = 'playerinfo:' + buildSlotId(data)
+    const multi = this._client.multi()
+    let discarded = false
+    const gameKey = 'lobbyinfo:' + lobbyId + ':gameteaminfo:' + gameId
+    if (owner === senderId) {
+      if (userId) {
+        multi.hset(gameKey, slotId + ':user', userId)
+      } else {
+        multi.hdel(gameKey, slotId + ':user')
+      }
+    } else {
+      const currentPlayer = await this._promised.hget(gameKey, slotId + ':user')
+      if ((currentPlayer && currentPlayer !== senderId) || (userId && userId !== senderId)) {
+        multi.discard()
+        discarded = true
+      } else {
+        if (userId) {
+          multi.hsetnx(gameKey, slotId + ':user', userId)
+        } else {
+          multi.hdel(gameKey, slotId + ':user')
+        }
+      }
+    }
+
+    if (!discarded) {
+      await multi.exec()
+    }
+
+    return this.getLobbyInfo({ id: lobbyId })
   }
 
   lobbySubscribe (id, callback) {
@@ -273,6 +438,10 @@ exports.createPersist = () => {
 
   const redis = mock ? require('redis-mock') : require('redis')
   const client = redis.createClient()
+  if (mock) {
+    redis.setMaxListeners(0)
+    client.watch = () => {}
+  }
   const rs = new RedisSessions({ client: client })
 
   return Promise.resolve(new PersistClient({ rs: rs, client: client, redis: redis }))

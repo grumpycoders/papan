@@ -1,5 +1,7 @@
 'use strict'
 
+process.on('warning', warning => console.warn(warning.stack))
+
 const PapanUtils = require('./src/common/utils.js')
 const PapanServerUtils = require('./src/server/common/utils.js')
 const commandline = require('command-line-args')

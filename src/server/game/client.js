@@ -9,10 +9,11 @@ const PapanServerUtils = require('../common/utils.js')
 const protoLoader = require('../common/proto.js')
 
 class LobbyClient extends EventEmitter {
-  constructor ({ grpcClient }) {
+  constructor ({ gamesList, grpcClient }) {
     super()
 
     this.grpcClient = grpcClient
+    this._gamesList = gamesList
   }
 
   close () {
@@ -56,7 +57,8 @@ class LobbyClient extends EventEmitter {
           if (apiKey) {
             call.write({
               register: {
-                apiKey: apiKey
+                apiKey: apiKey,
+                games: this._gamesList
               }
             })
           }
@@ -74,7 +76,7 @@ const clientDefaults = Object.freeze({
   useLocalCA: true
 })
 
-exports.createClient = (games, options) => {
+exports.createClient = (gamesList, options) => {
   options = _.defaults(options, clientDefaults)
   if (options.connectLocal) {
     options.lobbyServer = 'localhost'
@@ -105,7 +107,7 @@ exports.createClient = (games, options) => {
     if (options.useLocalCA) channelOptions = merge(channelOptions, localChannelOptions)
 
     const grpcClient = new lobbyProto.GameLobbyService(serverAddress, creds, channelOptions)
-    client = new LobbyClient({ lobbyProto: results[1], grpcClient: grpcClient })
+    client = new LobbyClient({ gamesList: gamesList, lobbyProto: results[1], grpcClient: grpcClient })
     client.subscribe(options)
 
     return client

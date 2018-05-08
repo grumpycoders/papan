@@ -60,6 +60,14 @@ class Lobby extends global.EventEmitter {
       }
     })
   }
+
+  startGame () {
+    this._send('PapanLobby.StartGame')
+  }
+
+  assignSlot (userId, slotData) {
+    this._send('PapanLobby.AssignSlot', global.deepmerge({ userId: userId }, slotData))
+  }
 }
 
 class LobbyInterface extends global.EventEmitter {

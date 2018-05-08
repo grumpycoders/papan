@@ -41,7 +41,7 @@ class ClientInterface extends EventEmitter {
       if (options.connectLocal && !this.localLobbyServer) {
         let localApiKey
         this.setLobbyConnectionStatus('STARTINGLOBBY')
-        premise = PapanServerUtils.generateToken()
+        premise = PapanServerUtils.generateToken({ prefix: 'AKEY' })
           .then(token => {
             localApiKey = token
             return Promise.all([
