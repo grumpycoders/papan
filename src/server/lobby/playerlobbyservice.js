@@ -125,7 +125,13 @@ class LobbyHandlers {
   }
 
   'PapanLobby.AssignSlot' (call, data) {
-    console.log(data)
+    this._persist.assignSlot({
+      lobbyId: call.id,
+      userId: data.user ? data.user.id : undefined,
+      senderId: this._sessionManager.getId(call),
+      team: data.team,
+      slotId: data.slotId
+    })
   }
 
   'PapanLobby.LeaveLobby' (call, data) { return Promise.reject(Error('Unimplemented')) }
