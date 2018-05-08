@@ -191,9 +191,9 @@
           // if game started
           // else
           // create team slots
-          this.currentGame = info.info.gameInfo
+          this._currentGame = info.info.gameInfo
           // FIX: currently there is no players_info in the GameInfo json
-          this._slots = this._generateTeams(this.currentGame.json.playersInfo)
+          this._slots = this._generateTeams(this._currentGame.json.playersInfo)
           this._view = 'teamselection'
         } else {
           this._view = 'gamenotselected'
@@ -212,7 +212,7 @@
       },
 
       _hasTeams: function () {
-        return this.currentGame && this.currentGame.json.players_info.teams
+        return this._currentGame && this._currentGame.json.players_info.teams
       },
 
       _lobbyNameChanged: function (name) {
