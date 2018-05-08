@@ -156,6 +156,8 @@ class PersistClient {
       switch (key) {
         case 'order':
           return parseInt(value)
+        case 'user':
+          return { id: value }
         default:
           return value
       }
@@ -218,7 +220,7 @@ class PersistClient {
       },
       members: members,
       name: info.name,
-      public: info.public,
+      public: info.public === 'true',
       playersInfo: convertTree(playersInfoTree),
       gameInfo: info.gameInfo ? PapanUtils.JSON.parse(info.gameInfo) : info.gameInfo
     }
@@ -254,7 +256,7 @@ class PersistClient {
   async _setLobbyField (data) {
     const { id, userId, field } = data
     const key = 'lobbyinfo:' + id
-    const owner = this._promised.hget(key, 'owner')
+    const owner = await this._promised.hget(key, 'owner')
     if (owner === null) throw Error('Lobby doesn\'t exist')
     if (userId === owner) {
       await this._promised.hset(key, field, data[field])
@@ -298,7 +300,7 @@ class PersistClient {
           const subKey = 'playerinfo:' + owner + 'team:' + teamId
           multi.hset(gameTeamKey, subKey + ':order', i)
           multi.hset(gameTeamKey, subKey + ':name', playersInfo.teams.name)
-          createMinimumSlots(multi, playersInfo.teams.playersInfo, teamId + ':')
+          await createMinimumSlots(multi, playersInfo.teams.playersInfo, teamId + ':')
         }
       }
     }
@@ -308,15 +310,11 @@ class PersistClient {
       gameInfo: PapanUtils.JSON.stringify(gameInfo),
       field: 'gameInfo'
     })
-    if (info.owner !== userId) return info
+    if (info.owner.id !== userId) return info
     const newGameId = await this._promised.incrby('lobbyinfo:' + id + ':gameid', 1)
-    const oldGameId = info.gameid
-    const intermediateGameId = newGameId - 1
+    const oldGameId = newGameId - 1
     const multi = this._client.multi()
-    multi.del('lobbyinfo:' + id + ':gameteaminfo:' + info.gameid)
-    if (oldGameId !== intermediateGameId) {
-      multi.del('lobbyinfo:' + id + ':gameteaminfo:' + intermediateGameId)
-    }
+    multi.del('lobbyinfo:' + id + ':gameteaminfo:' + oldGameId)
     await createMinimumSlots('lobbyinfo:' + id + ':gameteaminfo:' + newGameId, multi, gameInfo.json.playersInfo)
     await multi.exec()
     return this.getLobbyInfo({ id: id })
@@ -324,9 +322,19 @@ class PersistClient {
 
   async assignSlot (data) {
     const { lobbyId, userId, senderId } = data
-    const owner = await this._promised.hget('lobbyinfo:' + lobbyId, 'owner')
+    const info = await this.getLobbyInfo({ id: lobbyId })
+    const owner = info.owner.id
+    if (userId) {
+      let found = false
+      info.members.forEach(user => {
+        if (user.id === userId) {
+          found = true
+        }
+      })
+      if (!found) return info
+    }
     this._client.watch('lobbyinfo:' + lobbyId + ':gameid')
-    const gameId = this._promised.get('lobbyinfo:' + lobbyId + ':gameid')
+    const gameId = await this._promised.get('lobbyinfo:' + lobbyId + ':gameid')
     const buildSlotId = data => {
       if (data.slotId) return 'slot:' + data.slotId
       return (data.id ? (data.id + ':') : '') + buildSlotId(data.team)
@@ -334,23 +342,23 @@ class PersistClient {
     const slotId = 'playerinfo:' + buildSlotId(data)
     const multi = this._client.multi()
     let discarded = false
-    const gameKey = 'lobbyinfo' + lobbyId + ':gameteaminfo:' + gameId
+    const gameKey = 'lobbyinfo:' + lobbyId + ':gameteaminfo:' + gameId
     if (owner === senderId) {
       if (userId) {
-        multi.hset(gameKey, slotId + ':player', userId)
+        multi.hset(gameKey, slotId + ':user', userId)
       } else {
-        multi.hdel(gameKey, slotId + ':player')
+        multi.hdel(gameKey, slotId + ':user')
       }
     } else {
-      const currentPlayer = await this._promised.hget(gameKey, slotId + ':player')
+      const currentPlayer = await this._promised.hget(gameKey, slotId + ':user')
       if ((currentPlayer && currentPlayer !== senderId) || (userId && userId !== senderId)) {
         multi.discard()
         discarded = true
       } else {
         if (userId) {
-          multi.hsetnx(gameKey, slotId + ':player', userId)
+          multi.hsetnx(gameKey, slotId + ':user', userId)
         } else {
-          multi.hdel(gameKey, slotId + ':player')
+          multi.hdel(gameKey, slotId + ':user')
         }
       }
     }
