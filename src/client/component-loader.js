@@ -334,10 +334,12 @@ class ComponentLoader {
     })
     let transformed = global.Babel.transform(text, {
       presets: [
-        'es2017',
-        'stage-0',
+        ['env', {
+          targets: global.babelEnvTarget
+        }],
         'react'
       ],
+      ast: true,
       sourceMaps: 'inline',
       filename: filename
     })

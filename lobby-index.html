@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <title>Papan</title>
 
-    <script src="node_modules/babel-standalone/babel.min.js"></script>
+    <script src="node_modules/@babel/standalone/babel.min.js"></script>
+    <script src="node_modules/@babel/preset-env-standalone/babel-preset-env.min.js"></script>
 
     <style is="papan-style">
       html:not([style-scope]):not(.style-scope),body:not([style-scope]):not(.style-scope) {
@@ -32,7 +33,7 @@
       }
     </style>
 
-    <script type="text/babel" data-presets="es2017,stage-0">
+    <script type="text/babel" data-presets="env">
       var Papan = {
         asyncLoader: ({ path, elementType, baseObj }) => new Promise((resolve, reject) => {
           const element = document.createElement(elementType)
@@ -52,10 +53,16 @@
           xhr.onreadystatechange = () => {
             if (xhr.readyState === 4) {
               if (xhr.status === 0 || xhr.status === 200) {
+                if (!global.babelEnvTarget) {
+                  const browserVersion = global.browserDetect()
+                  global.babelEnvTarget = { }
+                  global.babelEnvTarget[browserVersion.name] = browserVersion.version.split('.')[0]
+                }
                 const transformed = global.Babel.transform(xhr.responseText, {
                   presets: [
-                    'es2017',
-                    'stage-0'
+                    ['env', {
+                      'targets': global.babelEnvTarget
+                    }]
                   ],
                   sourceMaps: 'inline',
                   filename: path
@@ -104,6 +111,10 @@
 
         // Getting the CSS spinner first to display it as fast as possible.
         Papan.cssLoader('node_modules/spinkit/css/spinners/3-wave.css')
+          .then(() => Promise.all([
+          // babelLoader will depend on all this
+            Papan.jsLoader('node_modules/browser-detect/dist/browser-detect.umd.js')
+          ]))
           .then(() => Promise.all([
           // Loading all the code that doesn't depend on anything else first.
             Papan.babelLoader('src/common/utils.js'),
