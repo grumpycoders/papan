@@ -11,6 +11,7 @@
 <dom-module id="papan-team-slots">
   <link rel="import" type="css" href="lobby.css">
   <template>
+    <style is="custom-style" include="iron-flex iron-flex-alignment"></style>
     <div class="slots-container">
       <p>Info: [[slots.info]]</p>
       <p>Teams? [[slots.teams]]</p>
@@ -27,12 +28,15 @@
       </template>
       <template is="dom-if" if="[[slots.slots]]">
         <template is="dom-repeat" items="[[slots.slots.slot]]">
-          <template is="dom-if" if="[[item.user]]">
-            [[item.user.id]]
-          </template>
-          <template is="dom-if" if="[[!item.user]]">
-            <paper-button raised>Join</paper-button>
-          </template>
+          <div class="layout flex horizontal">
+            <div>Slot [[index]]</div>
+            <template is="dom-if" if="[[item.user]]">
+              <div>[[item.user.id]]</div>
+            </template>
+            <template is="dom-if" if="[[!item.user]]">
+              <paper-icon-button icon="send" title="[[localize('joingame')]]" on-tap="_joinGame"></paper-icon-button>
+            </template>
+          </div>
         </template>
       </template>
     </div>
@@ -44,6 +48,10 @@
       is: 'papan-team-slots',
 
       properties: {
+        lobby: {
+          type: Object
+        },
+
         slots: {
           type: Object,
           notify: true
@@ -51,21 +59,16 @@
 
         teaminfo: {
           type: Object
-        },
-
-        _isTeams: {
-          type: Boolean,
-          computed: '_isTeamz()'
         }
       },
-      _isObjectEmpty: function (object) {
-        return !object || Object.keys(object).length === 0
-      },
-      _isTeamz: function () {
-        console.log('Check teams')
-        if (!this.slots) return false
-        console.log(this.slots.info)
-        return this.slots.info === 'teams'
+
+      behaviors: [
+        PapanLocalize
+      ],
+
+      _joinGame: function (event) {
+        let userId = global.lobbyInterface.getUserInfo().id
+        this.lobby.assignSlot(userId, event.model.get('item'))
       }
     })
   </script>
@@ -75,7 +78,6 @@
 <dom-module id="papan-lobby-view">
   <link rel="import" type="css" href="lobby.css">
   <template>
-    <style include="iron-flex iron-flex-alignment"></style>
     <style is="custom-style" include="iron-flex iron-flex-alignment"></style>
     <div class="lobbycontent layout horizontal">
       <div class="layout flex horizontal">
@@ -97,7 +99,9 @@
           <div name="teamselection" class="layout flex vertical">
             <papan-team-slots 
               slots="[[_playersInfo]]"
-              teaminfo="[[_currentGame.json.playersInfo]]">
+              teaminfo="[[_currentGame.json.playersInfo]]"
+              lobby="[[lobby]]"
+              language="[[language]]">
             </papan-team-slots>
             <template is="dom-if" if="[[lobby.isOwner]]">
               <div class="layout center horizontal">
