@@ -17,16 +17,14 @@ class SubscribeHandlers {
     this._persist.sendUserMessage(data.id, { message: message })
   }
 
-  'PapanLobby.GetJoinedLobbies' (call, data) {
+  async 'PapanLobby.GetJoinedLobbies' (call, data) {
     const id = this._sessionManager.getId(call)
-    return this._persist.getJoinedLobbies({ id: id })
-      .then(result => {
-        call.write({
-          joinedLobbies: {
-            lobbies: result
-          }
-        })
-      })
+    const lobbies = await this._persist.getJoinedLobbies({ id: id })
+    call.write({
+      joinedLobbies: {
+        lobbies: lobbies
+      }
+    })
   }
 }
 
@@ -36,74 +34,67 @@ class LobbyHandlers {
     this._persist = persist
   }
 
-  'PapanLobby.JoinLobby' (call, data) {
+  async 'PapanLobby.JoinLobby' (call, data) {
     const userId = this._sessionManager.getId(call)
     let id = data.id
-    let premise
+    let lobbyInfo
     if (id) {
-      premise = this._persist.joinLobby({
+      lobbyInfo = await this._persist.joinLobby({
         userId: userId,
         id: id
       })
     } else {
-      premise = this._persist.createLobby({
+      lobbyInfo = await this._persist.createLobby({
         userId: userId
       })
     }
-    return premise
-      .then(result => {
-        id = result.id
-        call.id = id
-        const sub = this._persist.lobbySubscribe(id, call.write.bind(call))
-        call.on('end', sub.close.bind(sub))
-        call.write({
-          info: result
-        })
-        this._persist.lobbySendMessage(id, {
-          userJoined: {
-            id: userId
-          }
-        })
-      })
+    id = lobbyInfo.id
+    call.id = id
+    const sub = this._persist.lobbySubscribe(id, call.write.bind(call))
+    call.on('end', sub.close.bind(sub))
+    call.write({
+      info: lobbyInfo
+    })
+    this._persist.lobbySendMessage(id, {
+      userJoined: {
+        id: userId
+      }
+    })
   }
 
-  'PapanLobby.SetLobbyName' (call, data) {
+  async 'PapanLobby.SetLobbyName' (call, data) {
     const userId = this._sessionManager.getId(call)
-    return this._persist.setLobbyName({
+    const lobbyInfo = await this._persist.setLobbyName({
       userId: userId,
       id: call.id,
       name: data.name
     })
-      .then(result => {
-        this._persist.lobbySendMessage(call.id, {
-          info: result
-        })
-      })
-  }
-
-  'PapanLobby.SetLobbyPublic' (call, data) {
-    const userId = this._sessionManager.getId(call)
-    return this._persist.setLobbyPublic({
-      userId: userId,
-      id: call.id,
-      public: data.public
-    }).then(result => {
-      this._persist.lobbySendMessage(call.id, {
-        info: result
-      })
+    this._persist.lobbySendMessage(call.id, {
+      info: lobbyInfo
     })
   }
 
-  'PapanLobby.SetLobbyGame' (call, data) {
+  async 'PapanLobby.SetLobbyPublic' (call, data) {
     const userId = this._sessionManager.getId(call)
-    return this._persist.setLobbyGame({
+    const lobbyInfo = await this._persist.setLobbyPublic({
+      userId: userId,
+      id: call.id,
+      public: data.public
+    })
+    this._persist.lobbySendMessage(call.id, {
+      info: lobbyInfo
+    })
+  }
+
+  async 'PapanLobby.SetLobbyGame' (call, data) {
+    const userId = this._sessionManager.getId(call)
+    const lobbyInfo = await this._persist.setLobbyGame({
       userId: userId,
       id: call.id,
       gameInfo: data.info
-    }).then(result => {
-      this._persist.lobbySendMessage(call.id, {
-        info: result
-      })
+    })
+    this._persist.lobbySendMessage(call.id, {
+      info: lobbyInfo
     })
   }
 

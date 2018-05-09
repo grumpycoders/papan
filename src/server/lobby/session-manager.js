@@ -64,7 +64,7 @@ class SessionManager {
 
   _checkCredentialsWrapper (options) {
     return this._checkCredentialsGenerator(call => {
-      const authAndSessionWork = () => {
+      const authAndSessionWork = async () => {
         if (options.requiresAuth) {
           let code = call.metadata.get('papan-code')[0]
           if (code) {
@@ -76,33 +76,25 @@ class SessionManager {
             }
             let userId = -1
 
-            return request(requestData)
-              .then(res => {
-                if (!res.userId) return Promise.reject(Error('Invalid exchange code'))
-                userId = res.userId
-                call.metadata.set('papan-userid', userId)
-                return this._persist.createSession(userId)
-              })
-              .then(token => {
-                let metadata = new grpc.Metadata()
-                metadata.set('papan-session', token)
-                call.papanSession = token
-                return metadata
-              })
+            const res = await request(requestData)
+            if (!res.userId) throw Error('Invalid exchange code')
+            userId = res.userId
+            call.metadata.set('papan-userid', userId)
+            const token = await this._persist.createSession(userId)
+            let metadata = new grpc.Metadata()
+            metadata.set('papan-session', token)
+            call.papanSession = token
+            return metadata
           }
-          return Promise.reject(Error('Client must authenticate'))
+          throw Error('Client must authenticate')
         } else {
-          return PapanServerUtils.generateToken({ prefix: 'USER' })
-            .then(userId => {
-              call.metadata.set('papan-userid', userId)
-              return this._persist.createSession(userId)
-            })
-            .then(token => {
-              let metadata = new grpc.Metadata()
-              metadata.set('papan-session', token)
-              call.papanSession = token
-              return metadata
-            })
+          const userId = await PapanServerUtils.generateToken({ prefix: 'USER' })
+          call.metadata.set('papan-userid', userId)
+          const token = await this._persist.createSession(userId)
+          let metadata = new grpc.Metadata()
+          metadata.set('papan-session', token)
+          call.papanSession = token
+          return metadata
         }
       }
 
