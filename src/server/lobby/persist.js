@@ -288,9 +288,6 @@ class PersistClient {
 
   async setLobbyGame ({ userId, id, gameInfo }) {
     const createMinimumSlots = async (gameTeamKey, multi, playersInfo, owner = '') => {
-      console.log('playersInfo')
-      console.log(playersInfo)
-      console.log('---')
       if (playersInfo.info === 'players') {
         for (let i = 0; i < playersInfo.players.min; i++) {
           const slotId = await PapanServerUtils.generateToken({ prefix: 'SLOT' })
@@ -299,11 +296,7 @@ class PersistClient {
         }
       } else {
         for (let i = 0; i < playersInfo.teams.teams.length; i++) {
-          console.log('i=')
-          console.log(i)
           for (let j = 0; j < playersInfo.teams.teams[i].cardMin; j++) {
-            console.log('j=')
-            console.log(j)
             const teamId = await PapanServerUtils.generateToken({ prefix: 'TEAM' })
             const subKey = 'playerinfo:' + owner + 'team:' + teamId
             multi.hset(gameTeamKey, subKey + ':order', i * playersInfo.teams.teams.length + j) //TODO: fix, probably separate i and j
