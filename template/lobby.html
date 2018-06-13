@@ -68,7 +68,8 @@
 
       _joinGame: function (event) {
         let userId = global.lobbyInterface.getUserInfo().id
-        this.lobby.assignSlot(userId, event.model.get('item'))
+        /* TODO: Needs it to be an actual tree. */
+        this.lobby.assignSlot(userId, { slotId: event.model.get('item').id })
       }
     })
   </script>

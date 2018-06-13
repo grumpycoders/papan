@@ -125,7 +125,7 @@ class LobbyHandlers {
   }
 
   'PapanLobby.AssignSlot' (call, data) {
-    this._persist.assignSlot({
+    return this._persist.assignSlot({
       lobbyId: call.id,
       userId: data.user ? data.user.id : undefined,
       senderId: this._sessionManager.getId(call),
