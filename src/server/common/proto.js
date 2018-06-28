@@ -5,7 +5,7 @@ const path = require('path')
 const protobufjs = require('protobufjs')
 const recursive = require('recursive-readdir')
 
-exports.load = (filenames, paths = ['protos']) => {
+exports.load = async (filenames, paths = ['protos']) => {
   let allprotos = {}
   if (typeof filenames === 'string') {
     filenames = [filenames]
@@ -25,16 +25,12 @@ exports.load = (filenames, paths = ['protos']) => {
     return foundValue
   }
 
-  return Promise.all(protosdirs.map(path => recursive(path)))
-    .then(results => {
-      protosdirs.map((key, index) => {
-        allprotos[key] = results[index].map(fullpath => path.relative(key, fullpath))
-      })
-      return protobufjs.load(filenames, root)
-    })
-    .then(proto => {
-      const ret = grpc.loadObject(proto, { protobufjsVersion: 6 })
-      ret.rootProto = proto
-      return ret
-    })
+  const results = await Promise.all(protosdirs.map(path => recursive(path)))
+  protosdirs.map((key, index) => {
+    allprotos[key] = results[index].map(fullpath => path.relative(key, fullpath))
+  })
+  const proto = await protobufjs.load(filenames, root)
+  const ret = grpc.loadObject(proto, { protobufjsVersion: 6 })
+  ret.rootProto = proto
+  return ret
 }

@@ -128,15 +128,13 @@ class ClientInterface extends EventEmitter {
       })
   }
 
-  getSerializer () {
-    return this.protoPromise
-      .then(proto => {
-        if (!this.serializer) {
-          this.serializer = createSerializer(proto.rootProto)
-        }
+  async getSerializer () {
+    const proto = await this.protoPromise
+    if (!this.serializer) {
+      this.serializer = createSerializer(proto.rootProto)
+    }
 
-        return this.serializer
-      })
+    return this.serializer
   }
 
   setChannel (channel) {

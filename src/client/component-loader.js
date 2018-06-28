@@ -146,23 +146,21 @@ class ComponentLoader {
     })
   }
 
-  _loadComponent (infoHash) {
-    return this._getFile(infoHash, 'game.json')
-      .then(file => {
-        const json = JSON.parse(file.toString())
-        const webComponent = json.webcomponent
-        if (typeof webComponent === 'string' && webComponent.length !== 0) {
-          return this._loadHTML(infoHash, webComponent)
-            .then(doc => this._attachDocument(doc))
-            .then(() => 'papan-infohash-' + infoHash + '-papan-game-board')
-        }
-        return Promise.reject(Error('Torrent ' + infoHash + ' has no registered web component.'))
-      })
+  async _loadComponent (infoHash) {
+    const file = await this._getFile(infoHash, 'game.json')
+    const json = JSON.parse(file.toString())
+    const webComponent = json.webcomponent
+    if (typeof webComponent === 'string' && webComponent.length !== 0) {
+      const doc = await this._loadHTML(infoHash, webComponent)
+      await this._attachDocument(doc)
+      return 'papan-infohash-' + infoHash + '-papan-game-board'
+    }
+    throw Error('Torrent ' + infoHash + ' has no registered web component.')
   }
 
-  _loadHTML (infoHash, filename) {
-    return this._getFile(infoHash, filename)
-      .then(file => this._transformElement(infoHash, this._parseString(file.toString()), filename))
+  async _loadHTML (infoHash, filename) {
+    const file = await this._getFile(infoHash, filename)
+    return this._transformElement(infoHash, this._parseString(file.toString()), filename)
   }
 
   _encodeToHREF (type, base64) {
@@ -170,24 +168,22 @@ class ComponentLoader {
     return 'data:' + type + ';charset=utf-8;base64,' + encoded
   }
 
-  _transformArrayAndAttach (infoHash, elements, base, filename) {
-    if (!base) return Promise.resolve(base)
+  async _transformArrayAndAttach (infoHash, elements, base, filename) {
+    if (!base) return base
     const promises = []
     for (let i = 0; i < elements.length; i++) {
       if (elements[i]) promises.push(this._transformElement(infoHash, elements[i], filename))
     }
-    return Promise.all(promises)
-      .then(newElements => {
-        let child = base.firstChild
-        while (child) {
-          base.removeChild(child)
-          child = base.firstChild
-        }
-        newElements.forEach(element => {
-          if (element) base.appendChild(element)
-        })
-        return base
-      })
+    const newElements = await Promise.all(promises)
+    let child = base.firstChild
+    while (child) {
+      base.removeChild(child)
+      child = base.firstChild
+    }
+    newElements.forEach(element => {
+      if (element) base.appendChild(element)
+    })
+    return base
   }
 
   _transformElement (infoHash, element, filename) {
@@ -338,10 +334,12 @@ class ComponentLoader {
     })
     let transformed = global.Babel.transform(text, {
       presets: [
-        'es2017',
-        'stage-0',
+        ['env', {
+          targets: global.babelEnvTarget
+        }],
         'react'
       ],
+      ast: true,
       sourceMaps: 'inline',
       filename: filename
     })

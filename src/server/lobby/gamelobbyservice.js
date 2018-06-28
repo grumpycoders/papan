@@ -8,29 +8,21 @@ class SubscribeHandlers {
     this._persist = persist
   }
 
-  'PapanLobby.RegisterGameServer' (call, data) {
-    let premise
-    if (call.localApiKey === data.apiKey) {
-      premise = Promise.resolve(true)
-    } else {
-      premise = this._persist.isApiKeyValid(data.register.apiKey)
-    }
+  async 'PapanLobby.RegisterGameServer' (call, data) {
+    const trusted = call.localApiKey === data.apiKey || await this._persist.isApiKeyValid(data.register.apiKey)
     const gamesList = []
     Object.keys(data.games).forEach(key => gamesList.push(data.games[key].torrent.infoHash))
-    return premise
-      .then(trusted => this._sessionManager.setSessionData(call, { trusted: trusted }))
-      .then(data => {
-        const id = this._sessionManager.getId(call)
-        call.trusted = data.trusted
-        call.write({
-          registered: {
-            trusted: call.trusted
-          }
-        })
-        if (data.trusted) {
-          return this._persist.registerGameServer(id, gamesList)
-        }
-      })
+    const sessionData = await this._sessionManager.setSessionData(call, { trusted: trusted })
+    const id = this._sessionManager.getId(call)
+    call.trusted = sessionData.trusted
+    call.write({
+      registered: {
+        trusted: call.trusted
+      }
+    })
+    if (trusted) {
+      await this._persist.registerGameServer(id, gamesList)
+    }
   }
 }
 
