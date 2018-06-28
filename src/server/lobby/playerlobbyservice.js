@@ -124,13 +124,16 @@ class LobbyHandlers {
     console.log(data)
   }
 
-  'PapanLobby.AssignSlot' (call, data) {
-    return this._persist.assignSlot({
+  async 'PapanLobby.AssignSlot' (call, data) {
+    const lobbyInfo = await this._persist.assignSlot({
       lobbyId: call.id,
       userId: data.user ? data.user.id : undefined,
       senderId: this._sessionManager.getId(call),
       team: data.team,
       slotId: data.slotId
+    })
+    this._persist.lobbySendMessage(call.id, {
+      info: lobbyInfo
     })
   }
 
