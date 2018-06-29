@@ -295,12 +295,14 @@ class PersistClient {
           multi.hset(gameTeamKey, subKey, i)
         }
       } else {
-        for (let i = 0; i < playersInfo.teams.cardMin; i++) {
-          const teamId = await PapanServerUtils.generateToken({ prefix: 'TEAM' })
-          const subKey = 'playerinfo:' + owner + 'team:' + teamId
-          multi.hset(gameTeamKey, subKey + ':order', i)
-          multi.hset(gameTeamKey, subKey + ':name', playersInfo.teams.name)
-          await createMinimumSlots(multi, playersInfo.teams.playersInfo, teamId + ':')
+        for (let i = 0; i < playersInfo.teams.teams.length; i++) {
+          for (let j = 0; j < playersInfo.teams.teams[i].cardMin; j++) {
+            const teamId = await PapanServerUtils.generateToken({ prefix: 'TEAM' })
+            const subKey = 'playerinfo:' + owner + 'team:' + teamId
+            multi.hset(gameTeamKey, subKey + ':order', j)
+            multi.hset(gameTeamKey, subKey + ':name', playersInfo.teams.teams[i].name)
+            await createMinimumSlots(teamId + ':', multi, playersInfo.teams.teams[i].playersInfo, owner)
+          }
         }
       }
     }

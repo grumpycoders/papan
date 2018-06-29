@@ -66,7 +66,7 @@ class Lobby extends global.EventEmitter {
   }
 
   assignSlot (userId, slotData) {
-    this._send('PapanLobby.AssignSlot', global.deepmerge({ userId: userId }, slotData))
+    this._send('PapanLobby.AssignSlot', global.deepmerge({ user: { id: userId } }, slotData))
   }
 }
 

@@ -11,18 +11,32 @@
 <dom-module id="papan-team-slots">
   <link rel="import" type="css" href="lobby.css">
   <template>
+    <style is="custom-style" include="iron-flex iron-flex-alignment"></style>
     <div class="slots-container">
-      <template is="dom-repeat" items="[[slots]]">
-        <template is="dom-if" is="item.name">
+      <p>Info: [[slots.info]]</p>
+      <p>Teams? [[slots.teams]]</p>
+      <template is="dom-if" if="[[slots.teams]]">
+        <template is="dom-repeat" items="[[slots.teams.teams]]">
           <div class="team">
             <div>[[item.name]]</div>
-            <papan-team-slots slots="[[item.subteams]]"></papan-team-slots>
+            <papan-team-slots 
+              slots="[[item.playersInfo]]"
+              teaminfo="[[teaminfo.teams.playerInfo]]">
+            </papan-team-slots>
           </div>
         </template>
-        <template is="dom-if" is="!item.name">
-          <template is="dom-repeat" items="[[item]]">
-            <div>Slot [[item]]</div>
-          </template>
+      </template>
+      <template is="dom-if" if="[[slots.slots]]">
+        <template is="dom-repeat" items="[[slots.slots.slot]]">
+          <div class="layout flex horizontal">
+            <div>Slot [[index]]</div>
+            <template is="dom-if" if="[[item.user]]">
+              <div>[[item.user.id]]</div>
+            </template>
+            <template is="dom-if" if="[[!item.user]]">
+              <paper-icon-button icon="send" title="[[localize('joingame')]]" on-tap="_joinGame"></paper-icon-button>
+            </template>
+          </div>
         </template>
       </template>
     </div>
@@ -34,10 +48,28 @@
       is: 'papan-team-slots',
 
       properties: {
+        lobby: {
+          type: Object
+        },
+
         slots: {
-          type: Array,
+          type: Object,
           notify: true
+        },
+
+        teaminfo: {
+          type: Object
         }
+      },
+
+      behaviors: [
+        PapanLocalize
+      ],
+
+      _joinGame: function (event) {
+        let userId = global.lobbyInterface.getUserInfo().id
+        /* TODO: Needs it to be an actual tree. */
+        this.lobby.assignSlot(userId, { slotId: event.model.get('item').id })
       }
     })
   </script>
@@ -47,7 +79,6 @@
 <dom-module id="papan-lobby-view">
   <link rel="import" type="css" href="lobby.css">
   <template>
-    <style include="iron-flex iron-flex-alignment"></style>
     <style is="custom-style" include="iron-flex iron-flex-alignment"></style>
     <div class="lobbycontent layout horizontal">
       <div class="layout flex horizontal">
@@ -66,28 +97,13 @@
               [[localize('ownerselectinggame')]]
             </template>
           </div>
-          <div name="teamselection" class="layout flex horizontal">
-            <template is="dom-if" if="!_hasTeams()">
-              <div class="layout flex vertical">
-                <div>Min players: [[_currentGame.json.players.min]]</div>
-                <div>Max players: [[_currentGame.json.players.max]]</div>
-                <paper-button raised on-tap="_join">[[localize('joingame')]]</paper-button>
-              </div>
-            </template>
-            <papan-team-slots slots="{{_slots}}"></papan-team-slots>
-            <template is="dom-if" if="_hasTeams()">
-              <div class="layout flex vertical">
-                <template is="dom-repeat" items="[[_currentGame.json.teams]]">
-                  <div>[[item.name]]</div>
-                  <div>Min cardinality: [[item.card_min]]</div>
-                  <div>Max cardinality: [[item.card_max]]</div>
-                  <template is="dom-repeat" items="[[item.players]]">
-                    <div>Min players: [[item.min]]</div>
-                    <div>Max players: >[[item.max]]</div>
-                  </template>
-                </template>
-              </div>
-            </template>
+          <div name="teamselection" class="layout flex vertical">
+            <papan-team-slots 
+              slots="[[_playersInfo]]"
+              teaminfo="[[_currentGame.json.playersInfo]]"
+              lobby="[[lobby]]"
+              language="[[language]]">
+            </papan-team-slots>
             <template is="dom-if" if="[[lobby.isOwner]]">
               <div class="layout center horizontal">
                 <paper-button raised on-tap="_start">[[localize('startgame')]]</paper-button>
@@ -155,6 +171,11 @@
           value: () => [{id: 1}, {id: 2}, {id: 32}]
         },
 
+        _playersInfo: {
+          type: Object,
+          notify: true
+        },
+
         _slots: {
           type: Array,
           value: () => [],
@@ -176,38 +197,28 @@
       ],
 
       ready: function () {
-        this._lobbyname = this.lobby.info.name
+        this._updateLobbyInfo(this.lobby)
         this.lobby.on('update', info => {
           if (this.lobby.info.id !== info.info.id) return
-
-          // todo: check the 3rd state
-          if (info.info.gameInfo) {
-            // if game started
-            // else
-            // create team slots
-            this.currentGame = info.info.gameInfo
-            // FIX: currently there is no players_info in the GameInfo json
-            this._slots = this._generateTeams(this.currentGame.json.playersInfo)
-            this._view = 'teamselection'
-          } else {
-            this._view = 'gamenotselected'
-          }
+          this._updateLobbyInfo(info)
         })
       },
 
-      _generateTeams: function (playerinfo) {
-        if (playerinfo.teams) {
-          return playerinfo.teams.teams.map((item, index) => Array(item.cardMin).fill({
-            name: item.name,
-            subteams: this._generateTeams(item.playersInfo)
-          }))
-        } else {
-          return Array(playerinfo.players.min).fill(null)
-        }
-      },
+      _updateLobbyInfo: function (info) {
+        this._lobbyname = info.info.name
 
-      _hasTeams: function () {
-        return this.currentGame && this.currentGame.json.players_info.teams
+        // todo: check the 3rd state
+        if (info.info.gameInfo) {
+          // if game started
+          // else
+          // create team slots
+          this._currentGame = info.info.gameInfo
+          this._playersInfo = info.info.playersInfo
+          // FIX: currently there is no players_info in the GameInfo json
+          this._view = 'teamselection'
+        } else {
+          this._view = 'gamenotselected'
+        }
       },
 
       _lobbyNameChanged: function (name) {
@@ -220,6 +231,8 @@
 
       _start: function () {
         this.lobby.startGame()
+        // TODO: move this to the callback on the server's answer to startGame()
+        this._view = 'board'
       },
 
       _join: function () {
