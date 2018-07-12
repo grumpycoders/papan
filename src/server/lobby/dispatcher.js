@@ -11,12 +11,24 @@ module.exports = (fields, handlerClass) => {
   })
 
   return (call, data) => {
-    const pendingPromise = handlers[data.action].call(handlerClass, call, data[data.action])
+    const handler = handlers[data.action]
+    if (typeof handler !== 'function') {
+      console.error('Malformed message sent')
+      const error = {
+        code: grpc.status.INVALID_ARGUMENT,
+        details: 'Malformed message sent',
+        metadata: new grpc.Metadata()
+      }
+      call.emit('error', error)
+      call.end()
+      return
+    }
+    const pendingPromise = handler.call(handlerClass, call, data[data.action])
     if (pendingPromise) {
       pendingPromise.catch(err => {
         console.error('Dispatcher error caught:')
         console.error(err)
-        let error = {
+        const error = {
           code: grpc.status.UNKNOWN,
           details: err.message,
           metadata: new grpc.Metadata()
