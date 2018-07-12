@@ -1,5 +1,6 @@
 'use strict'
 
+const grpc = require('grpc')
 const dispatcher = require('./dispatcher.js')
 
 class SubscribeHandlers {
@@ -59,13 +60,35 @@ const Subscribe = (persist, options, sessionManager, call, dispatcher) => {
 }
 
 const Lobby = (call, dispatcher) => {
-  call.on('error', error => {
-    console.log(error)
+  let gotJoin = false
+  call.on('end', () => call.end())
+  call.on('data', data => {
+    let joinError = false
+    let errorMsg
+    if (data.action === 'join') {
+      if (gotJoin) {
+        joinError = true
+        errorMsg = 'You can\'t join twice'
+      }
+      gotJoin = true
+    } else {
+      if (!gotJoin) {
+        joinError = true
+        errorMsg = 'You need to join first'
+      }
+    }
+    if (joinError) {
+      let error = {
+        code: grpc.status.FAILED_PRECONDITION,
+        details: errorMsg,
+        metadata: new grpc.Metadata()
+      }
+      call.emit('error', error)
+      call.end()
+    } else {
+      dispatcher(call, data)
+    }
   })
-  call.on('end', () => {
-    call.end()
-  })
-  call.on('data', data => dispatcher(call, data))
 }
 
 exports.generateService = ({ proto, persist, sessionManager, options }) => {
