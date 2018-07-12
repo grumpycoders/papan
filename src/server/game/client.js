@@ -14,6 +14,7 @@ class LobbyClient extends EventEmitter {
 
     this.grpcClient = grpcClient
     this._gamesList = gamesList
+    this._lobbies = {}
   }
 
   close () {
@@ -64,6 +65,28 @@ class LobbyClient extends EventEmitter {
           }
           this.emit('ClientConnected')
           break
+      }
+    })
+  }
+
+  joinLobby (id) {
+    const call = this.grpcClient.Lobby()
+    this._lobbies[id] = call
+    call.on('status', status => {
+      console.log(status)
+    })
+    call.on('end', () => {
+      console.log('end')
+    })
+    call.on('error', error => {
+      console.log(error)
+    })
+    call.on('data', data => {
+      console.log(data)
+    })
+    call.write({
+      join: {
+        id: id
       }
     })
   }
