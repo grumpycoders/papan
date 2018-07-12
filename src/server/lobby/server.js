@@ -53,7 +53,7 @@ exports.registerServer = options => {
     grpcServer.addService(
       lobbyProto.PapanLobby.GameLobbyService.service,
       sessionManager.checkCredentials(
-        { requiresAuth: false },
+        { requiresAuth: false, prefix: 'GSVR' },
         gameLobbyService.generateService({
           proto: lobbyProto.rootProto.PapanLobby,
           persist: persist,
