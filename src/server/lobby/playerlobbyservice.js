@@ -112,7 +112,7 @@ class LobbyHandlers {
   }
 
   'PapanLobby.StartGame' (call, data) {
-    console.log(data)
+    this._persist.lobbySendMessage(call.id, { gameStarted: {} })
   }
 
   async 'PapanLobby.AssignSlot' (call, data) {

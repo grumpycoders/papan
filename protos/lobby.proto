@@ -158,6 +158,8 @@ message AssignSlot {
   }
 }
 
+message GameStarted {}
+
 message LobbyAction {
   oneof action {
     JoinLobby join = 1;
@@ -190,6 +192,7 @@ message LobbyUpdate {
     UserReadyUpdate ready_update = 6;
     RequestGameInfo request_game_info = 7;
     SendGameInfo game_info = 8;
+    GameStarted game_started = 9;
   }
 }
 

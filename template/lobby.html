@@ -202,6 +202,9 @@
           if (this.lobby.info.id !== info.info.id) return
           this._updateLobbyInfo(info)
         })
+        this.lobby.on('gamestarted', info => {
+          this._view = 'board'
+        })
       },
 
       _updateLobbyInfo: function (info) {
@@ -231,8 +234,6 @@
 
       _start: function () {
         this.lobby.startGame()
-        // TODO: move this to the callback on the server's answer to startGame()
-        this._view = 'board'
       },
 
       _join: function () {

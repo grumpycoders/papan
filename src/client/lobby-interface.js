@@ -123,6 +123,9 @@ class LobbyInterface extends global.EventEmitter {
     channel.on('PapanLobby.LobbyChatMessage', (data, metadata) => {
       this.lobbyList[metadata.id].emit('chat', data.message)
     })
+    channel.on('PapanLobby.GameStarted', (data, metadata) => {
+      this.lobbyList[metadata.id].emit('gamestarted', data.gameStarted)
+    })
   }
 
   getStatus () { return this.status }
