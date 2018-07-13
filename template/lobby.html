@@ -204,6 +204,15 @@
         })
         this.lobby.on('gamestarted', info => {
           this._view = 'board'
+          if (this._componentPromise) {
+            this._componentPromise.then(component => {
+              const gameBoard = document.createElement(component)
+              gameBoard.setAttribute('id', 'papan-game-board')
+              const anchor = Polymer.dom(this.root).querySelector('#main-view')
+              while (anchor.firstChild) anchor.removeChild(anchor.firstChild)
+              anchor.appendChild(gameBoard)
+            })
+          }
         })
       },
 
@@ -216,6 +225,9 @@
           // else
           // create team slots
           this._currentGame = info.info.gameInfo
+          if (info.info.gameInfo) {
+            this._componentPromise = global.componentLoader.load(info.info.gameInfo)
+          }
           this._playersInfo = info.info.playersInfo
           // FIX: currently there is no players_info in the GameInfo json
           this._view = 'teamselection'
