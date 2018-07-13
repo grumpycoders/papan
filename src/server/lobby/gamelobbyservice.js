@@ -34,7 +34,9 @@ class LobbyHandlers {
   }
 
   'PapanLobby.JoinLobby' (call, data) {
-    return Promise.reject(Error('unimplemented'))
+    this._persist.gameServerSubscribe(data.id, message => {
+      call.write(message)
+    })
   }
 }
 
