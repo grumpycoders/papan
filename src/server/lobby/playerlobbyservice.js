@@ -112,7 +112,10 @@ class LobbyHandlers {
   }
 
   'PapanLobby.StartGame' (call, data) {
-    this._persist.lobbySendMessage(call.id, { gameStarted: {} })
+    this._persist.getLobbyInfo({ id: call.id }).then(info => {
+      this._persist.lobbySendMessage(call.id, { gameStarted: { info: info } })
+      this._persist.sendGameMessage(call.id, { gameStarted: { info: info } })
+    })
   }
 
   async 'PapanLobby.AssignSlot' (call, data) {
@@ -126,6 +129,10 @@ class LobbyHandlers {
     this._persist.lobbySendMessage(call.id, {
       info: lobbyInfo
     })
+  }
+
+  async 'PapanLobby.RequestFullUpdate' (call, data) {
+    return Promise.reject(Error('Unimplemented'))
   }
 
   'PapanLobby.LeaveLobby' (call, data) { return Promise.reject(Error('Unimplemented')) }

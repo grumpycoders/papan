@@ -14,7 +14,7 @@ exports.createInstance = args => {
   if (restoredState) {
     initialState = restoredState
   } else {
-    const initialGameState = gameLogic.setUp(settings.players)
+    const initialGameState = gameLogic.setUp(players)
     const initialStep = gameLogic.getStep(initialGameState)
     const initialRngState = seedrandom(seed, { state: true })
     initialState = {
@@ -24,7 +24,7 @@ exports.createInstance = args => {
     }
   }
 
-  let store = redux.createStore((state, action) => {
+  const store = redux.createStore((state, action) => {
     let gameState
     const random = seedrandom('', { state: state.rngState })
     const prng = new PRNG(() => random())

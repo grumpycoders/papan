@@ -20,7 +20,7 @@
           <line x1="4" y1="120" x2="120" y2="4" stroke="green" stroke-width="4px" />
         </svg>
       </div>
-      <div id="empty" class="initialShown" on-tap="actionFired">
+      <div id="empty" class="initialShown" on-tap="_actionFired">
         <svg height="124px" width="124px">
           <circle cx="60px" cy="60px" r="55px" stroke="#ddd" stroke-width="4px" fill-opacity="0" />
           <line x1="4" y1="4" x2="120" y2="120" stroke="#ddd" stroke-width="4px" />
@@ -36,26 +36,26 @@
 
       _actor: {},
 
-      showCircle: function () {
+      _showCircle: function () {
         this.$.circle.style.display = 'inline'
         this.$.cross.style.display = 'none'
         this.$.empty.style.display = 'none'
       },
 
-      showCross: function () {
+      _showCross: function () {
         this.$.circle.style.display = 'none'
         this.$.cross.style.display = 'inline'
         this.$.empty.style.display = 'none'
       },
 
-      showEmpty: function () {
+      _showEmpty: function () {
         this.$.circle.style.display = 'none'
         this.$.cross.style.display = 'none'
         this.$.empty.style.display = 'inline'
       },
 
-      actionFired: function (event) {
-        let actor = this._actor
+      _actionFired: function (event) {
+        const actor = this._actor
         if (!actor.actions[0]) return
         this.fire('action', {
           name: actor.actions[0].name,
@@ -67,13 +67,13 @@
         this._actor = actor
         switch (actor.class[0]) {
           case 'O':
-            this.showCircle()
+            this._showCircle()
             break
           case 'X':
-            this.showCross()
+            this._showCross()
             break
           case 'empty':
-            this.showEmpty()
+            this._showEmpty()
             break
         }
       }

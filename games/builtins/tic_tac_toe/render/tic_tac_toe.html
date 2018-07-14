@@ -48,23 +48,20 @@
     Polymer({
       is: 'papan-game-board',
 
-      created: function () {
-        this._publicScene = {}
+      properties: {
+        lobby: {
+          type: Object
+        }
       },
 
       ready: function () {
         this.fire('view-ready')
       },
 
-      applyPublicDelta: function (delta) {
-        let element = this
-        delta.forEach((change) => {
-          global.DeepDiff.applyChange(element._publicScene, {}, change)
-        })
-
-        this.$.gameStatus.innerHTML = this._publicScene.turn.attributes.player
-        if (this._publicScene.winner) {
-          const winner = this._publicScene.winner.attributes.player
+      alterPublicScene: function (publicScene) {
+        this.$.gameStatus.innerHTML = publicScene.turn.attributes.player
+        if (publicScene.winner) {
+          const winner = publicScene.winner.attributes.player
           if (winner) {
             this.$.gameStatus.innerHTML = 'Game over: winner = ' + winner
           } else {
@@ -76,14 +73,14 @@
           for (let y = 0; y < 3; y++) {
             let sourceName = 'space_' + x + '_' + y
             let destName = 's' + x + y
-            let actor = this._publicScene[sourceName]
+            let actor = publicScene[sourceName]
             let element = this.$[destName]
             element.attachActor(actor)
           }
         }
       },
 
-      applyPrivateDelta: function (delta, player) {}
+      alterPrivateScene: function (delta, player) {}
     })
   </script>
 </dom-module>

@@ -1,4 +1,5 @@
-package Papan;
+syntax = "proto3";
+package DeepDiff;
 
 /* This is a maximally type-safe description of the diffs output by the npm
    package deep-diff */

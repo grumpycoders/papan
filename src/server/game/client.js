@@ -7,14 +7,16 @@ const merge = require('deepmerge')
 const _ = require('lodash')
 const PapanServerUtils = require('../common/utils.js')
 const protoLoader = require('../common/proto.js')
+const GameInstance = require('./game-instance.js')
 
 class LobbyClient extends EventEmitter {
-  constructor ({ gamesList, grpcClient }) {
+  constructor ({ gamesList, grpcClient, proto }) {
     super()
 
     this.grpcClient = grpcClient
     this._gamesList = gamesList
     this._lobbies = {}
+    this._proto = proto
   }
 
   close () {
@@ -82,7 +84,26 @@ class LobbyClient extends EventEmitter {
       console.log(error)
     })
     call.on('data', data => {
-      console.log(data)
+      const fieldType = this._proto.PapanLobby.GameLobbyUpdate.fields[data.update].type
+      const message = data[data.update]
+      switch (fieldType) {
+        case 'GameStarted':
+          const settings = {
+            gameInfo: message.info.gameInfo,
+            players: message.info.playersInfo,
+            seed: '42',
+            channel: {
+              sendPublicScene: scene => {
+
+              },
+              sendPrivateScene: scene => {
+
+              }
+            }
+          }
+          call.gameInstance = GameInstance.createInstance(settings)
+          break
+      }
     })
     call.write({
       join: {
@@ -115,6 +136,7 @@ exports.createClient = (gamesList, options) => {
   ]
 
   return Promise.all(work).then(results => {
+    const lobbyProtoRoot = results[1].rootProto
     const lobbyProto = results[1].PapanLobby
     let client
     const sslCreds = options.useLocalCA ? grpc.credentials.createSsl(results[0]) : grpc.credentials.createSsl()
@@ -130,7 +152,7 @@ exports.createClient = (gamesList, options) => {
     if (options.useLocalCA) channelOptions = merge(channelOptions, localChannelOptions)
 
     const grpcClient = new lobbyProto.GameLobbyService(serverAddress, creds, channelOptions)
-    client = new LobbyClient({ gamesList: gamesList, lobbyProto: results[1], grpcClient: grpcClient })
+    client = new LobbyClient({ gamesList: gamesList, lobbyProto: results[1], grpcClient: grpcClient, proto: lobbyProtoRoot })
     client.subscribe(options)
 
     return client
