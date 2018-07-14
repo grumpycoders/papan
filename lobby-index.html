@@ -133,6 +133,10 @@
           ]))
           .then(() => Promise.all([
           // Depends on channel.js
+            Papan.babelLoader('src/client/lobby.js')
+          ]))
+          .then(() => Promise.all([
+          // Depends on channel.js and lobby.js
             Papan.babelLoader('src/client/lobby-interface.js')
           ]))
           .then(() => Promise.all([
