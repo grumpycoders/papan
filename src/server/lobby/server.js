@@ -24,15 +24,13 @@ exports.registerServer = options => {
     PapanServerUtils.readFile(path.join(__dirname, '..', '..', '..', 'certs', 'localhost-ca.crt')),
     PapanServerUtils.readFile(path.join(__dirname, '..', '..', '..', 'certs', 'localhost-server.crt')),
     PapanServerUtils.readFile(path.join(__dirname, '..', '..', '..', 'certs', 'localhost-server.key')),
-    Persist.createPersist(),
     protoLoader.load('lobby.proto')
   ]
 
   return Promise.all(work).then(results => {
-    const persist = results[3]
-    const sessionManager = new SessionManager(persist)
+    const sessionManager = new SessionManager(Persist.createPersist({ needsSession: true }))
     const grpcServer = new grpc.Server()
-    const lobbyProto = results[4]
+    const lobbyProto = results[3]
     const sslCreds = grpc.ServerCredentials.createSsl(
       results[0],
       [{ private_key: results[2], cert_chain: results[1] }],
@@ -44,7 +42,6 @@ exports.registerServer = options => {
         options,
         playerLobbyService.generateService({
           proto: lobbyProto.rootProto.PapanLobby,
-          persist: persist,
           sessionManager: sessionManager,
           options: options
         })
@@ -56,7 +53,6 @@ exports.registerServer = options => {
         { requiresAuth: false, prefix: 'GSVR' },
         gameLobbyService.generateService({
           proto: lobbyProto.rootProto.PapanLobby,
-          persist: persist,
           sessionManager: sessionManager,
           options: options
         })

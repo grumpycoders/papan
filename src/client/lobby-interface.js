@@ -58,8 +58,8 @@ class LobbyInterface extends global.EventEmitter {
     channel.on('PapanLobby.GameStarted', (data, metadata) => {
       this.lobbyList[metadata.id].emit('gamestarted', data.gameStarted)
     })
-    channel.on('PapanLobby.ScenesDeltas', (data, metadata) => {
-      this.lobbyList[metadata.id].receiveDeltas(data)
+    channel.on('PapanLobby.PublicScene', (data, metadata) => {
+      this.lobbyList[metadata.id].publicScene(data)
     })
   }
 

@@ -212,6 +212,8 @@
               const anchor = this.$['main-view']
               while (anchor.firstChild) anchor.removeChild(anchor.firstChild)
               anchor.appendChild(gameBoard)
+              this.lobby.setBoardElement(gameBoard)
+              gameBoard.addEventListener('action', data => this.lobby.action(data.detail))
             })
           }
         })
