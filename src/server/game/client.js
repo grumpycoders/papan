@@ -60,7 +60,6 @@ class LobbyClient extends EventEmitter {
     Object.keys(this._lobbies).forEach(key => {
       this._lobbies[key].call.cancel()
     })
-
   }
 
   getAuthMetadata () {

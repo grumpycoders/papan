@@ -37,8 +37,7 @@
       "request": "launch",
       "args": [
         "test/common",
-        "test/nodejs",
-        "--exit"
+        "test/nodejs"
       ],
       "cwd": "${workspaceRoot}",
       "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/mocha",
@@ -53,8 +52,8 @@
       "request": "launch",
       "args": [
         "test/common",
-        "test/electron",
-        "--exit"      ],
+        "test/electron"
+      ],
       "cwd": "${workspaceRoot}",
       "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron",
       "windows": {

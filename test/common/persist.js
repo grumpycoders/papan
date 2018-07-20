@@ -8,15 +8,7 @@ const expect = chai.expect
 chai.use(dirtyChai)
 
 describe('Persist', () => {
-  const persistPromise = Persist.createPersist()
-
-  let persist
-  before(done => {
-    persistPromise.then(result => {
-      persist = result
-      done()
-    })
-  })
+  const persist = Persist.createPersist()
 
   it('lobby ops', async () => {
     let lobbyId
