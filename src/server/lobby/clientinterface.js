@@ -94,6 +94,9 @@ class ClientInterface extends EventEmitter {
     this.protoPromise
       .then(proto => {
         const getTypes = fields => Object.keys(fields).map(field => 'PapanLobby.' + fields[field].type)
+        const interceptors = {
+          'PapanLobby.Subscribed': this.subscribedInterceptor.bind(this)
+        }
         const actionMsgs = ['Action', 'LobbyAction']
         const updateMsgs = ['Update', 'LobbyUpdate']
         const actionsArray = actionMsgs.map(msg => getTypes(proto.rootProto.PapanLobby[msg].fields))
@@ -115,13 +118,23 @@ class ClientInterface extends EventEmitter {
 
         actions.forEach(type => {
           this.channel.on(type, this.connectedCall((message, metadata) => {
+            const interceptor = interceptors[type]
+            if (interceptor) {
+              interceptor(message, metadata)
+            }
             this.client[type](message, metadata)
           }))
         })
 
         updates.forEach(type => {
           if (this[type]) return
-          this[type] = (message = {}, metadata = {}) => this.channel.send(type, message, metadata)
+          this[type] = (message = {}, metadata = {}) => {
+            const interceptor = interceptors[type]
+            if (interceptor) {
+              interceptor(message, metadata)
+            }
+            this.channel.send(type, message, metadata)
+          }
         })
 
         this.emit('ready')
@@ -185,6 +198,17 @@ class ClientInterface extends EventEmitter {
 
   sendLobbyConnectionStatus () {
     this.channel.send('PapanChannel.LobbyConnectionStatus', { status: this.lobbyConnectionStatus })
+  }
+
+  subscribedInterceptor (message, metadata) {
+    this.self = message.self
+  }
+
+  joinedLobby (info) {
+    const id = info.id
+    if (info.owner.id === this.self.id) {
+      this.gameClient.joinLobby(id)
+    }
   }
 }
 

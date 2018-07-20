@@ -2,6 +2,7 @@ syntax = "proto3";
 package PapanLobby;
 
 import "game-info.proto";
+import "diff.proto";
 
 message User {
   string id = 1;
@@ -158,6 +159,19 @@ message AssignSlot {
   }
 }
 
+message GameStarted {
+  LobbyInfo info = 1;
+  string game_id = 2;
+  string seed = 3;
+}
+
+message RequestFullUpdate {}
+
+message SceneAction {
+  string message = 1;
+  User sender = 2;
+}
+
 message LobbyAction {
   oneof action {
     JoinLobby join = 1;
@@ -172,12 +186,20 @@ message LobbyAction {
     SendGameInfo game_info = 10;
     StartGame start_game = 11;
     AssignSlot assign_slot = 12;
+    RequestFullUpdate request_full_update = 13;
+    SceneAction scene_action = 14;
   }
 }
 
 message UserReadyUpdate {
   User user = 1;
   bool ready = 2;
+}
+
+message ScenesDeltas {
+  uint32 oldStep = 1;
+  uint32 newStep = 2;
+  DeepDiff.diff publicDelta = 3;
 }
 
 message LobbyUpdate {
@@ -190,6 +212,8 @@ message LobbyUpdate {
     UserReadyUpdate ready_update = 6;
     RequestGameInfo request_game_info = 7;
     SendGameInfo game_info = 8;
+    GameStarted game_started = 9;
+    PublicScene public_scene = 10;
   }
 }
 
@@ -253,15 +277,23 @@ message GameUpdate {
   }
 }
 
+message PublicScene {
+  int32 previousStep = 1;
+  int32 newStep = 2;
+  DeepDiff.Diff deltas = 3;
+}
+
 message GameLobbyAction {
   oneof action {
     JoinLobby join = 1;
+    PublicScene public_scene = 2;
   }
 }
 
 message GameLobbyUpdate {
   oneof update {
-
+    GameStarted game_started = 1;
+    SceneAction scene_action = 2;
   }
 }
 

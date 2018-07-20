@@ -1,7 +1,9 @@
-package Papan;
+syntax = "proto3";
+package DeepDiff;
 
 /* This is a maximally type-safe description of the diffs output by the npm
-   package deep-diff */
+   package deep-diff. The code in deep-diff-wrapper.js converts from and to
+   the output of deep-diff and these structures. */
 
 message PathItem {
   oneof item {
@@ -16,40 +18,36 @@ message Path {
 
 // kind === 'N'
 message NewDiffElement {
-  Path path = 1;
   // JSON string
-  string rhs = 3;
+  string rhs = 1;
 }
 
 // kind === 'D'
 message DeleteDiffElement {
-  Path path = 1;
-  // JSON string. Only really necessary for verification
-  string lhs = 2;
+  // JSON string
+  string lhs = 1;
 }
 
 // kind === 'E'
 message EditDiffElement {
-  Path path = 1;
-  // JSON string. Only really necessary for verification
-  string lhs = 2;
-  // JSON string
-  string rhs = 3;
+  // JSON strings
+  string lhs = 1;
+  string rhs = 2;
 }
 
 // kind === 'A'
 message ArrayDiffElement {
-  Path path = 1;
-  int32 index = 4;
-  DiffElement item = 5;
+  int32 index = 1;
+  DiffElement item = 2;
 }
 
 message DiffElement {
+  Path path = 1;
   oneof element {
-    NewDiffElement new = 1;
-    DeleteDiffElement delete = 2;
-    EditDiffElement edit = 3;
-    ArrayDiffElement array = 4;
+    NewDiffElement new = 2;
+    DeleteDiffElement delete = 3;
+    EditDiffElement edit = 4;
+    ArrayDiffElement array = 5;
   }
 }
 

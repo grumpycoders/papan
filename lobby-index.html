@@ -128,11 +128,16 @@
           // Depend on utils.js
             Papan.babelLoader('src/client/channel.js'),
             Papan.babelLoader('src/client/web-torrent.js'),
+            Papan.babelLoader('src/common/deep-diff-wrapper.js'),
             // Depends on webcomponents
             Papan.importLoader('bower_components/font-roboto-local/roboto.html')
           ]))
           .then(() => Promise.all([
           // Depends on channel.js
+            Papan.babelLoader('src/client/lobby.js')
+          ]))
+          .then(() => Promise.all([
+          // Depends on channel.js and lobby.js
             Papan.babelLoader('src/client/lobby-interface.js')
           ]))
           .then(() => Promise.all([

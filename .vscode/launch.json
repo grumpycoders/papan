@@ -7,11 +7,22 @@
       "request": "launch",
       "cwd": "${workspaceRoot}",
       "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron",
+      "runtimeArgs": [
+        "--remote-debugging-port=9223"
+      ],
       "windows": {
         "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron.cmd"
       },
       "outputCapture": "std",
       "program": "${workspaceRoot}/main.js"
+    },
+    {
+      "name": "Debug Renderer Process",
+      "type": "chrome",
+      "request": "attach",
+      "port": 9223,
+      "webRoot": "${workspaceFolder}",
+      "timeout": 30000
     },
     {
       "name": "Debug Main Process - nodejs",
@@ -26,8 +37,7 @@
       "request": "launch",
       "args": [
         "test/common",
-        "test/nodejs",
-        "--exit"
+        "test/nodejs"
       ],
       "cwd": "${workspaceRoot}",
       "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/mocha",
@@ -42,8 +52,8 @@
       "request": "launch",
       "args": [
         "test/common",
-        "test/electron",
-        "--exit"      ],
+        "test/electron"
+      ],
       "cwd": "${workspaceRoot}",
       "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron",
       "windows": {
@@ -51,6 +61,15 @@
       },
       "outputCapture": "std",
       "program": "${workspaceRoot}/node_modules/electron-mocha/index.js"
+    }
+  ],
+  "compounds": [
+    {
+      "name": "Debug Electron - all",
+      "configurations": [
+        "Debug Main Process - electron",
+        "Debug Renderer Process"
+      ]
     }
   ]
 }

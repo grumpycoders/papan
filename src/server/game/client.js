@@ -5,19 +5,61 @@ const path = require('path')
 const grpc = require('grpc')
 const merge = require('deepmerge')
 const _ = require('lodash')
+const DeepDiffWrapper = require('../../common/deep-diff-wrapper.js')
+const PapanUtils = require('../../common/utils.js')
 const PapanServerUtils = require('../common/utils.js')
 const protoLoader = require('../common/proto.js')
+const GameInstance = require('./game-instance.js')
+const dispatcher = require('../common/dispatcher.js')
+const PlayersInfo = require('../../common/player-info.js')
+
+class LobbyHandlers {
+  'PapanLobby.GameStarted' (call, message) {
+    call.playersToSlots = PlayersInfo.playersInfoPlayersIdToSlots(message.info.playersInfo)
+    const args = {
+      gameInfo: message.info.gameInfo,
+      playersInfo: message.info.playersInfo,
+      settings: {},
+      seed: message.seed,
+      channel: {
+        sendPublicScene: publicScene => call.write({
+          publicScene: {
+            previousStep: publicScene.previousStep,
+            newStep: publicScene.newStep,
+            deltas: DeepDiffWrapper.wrap(publicScene.deltas)
+          }
+        }),
+        sendTemporaryScene: (step, scene) => {}
+      }
+    }
+    call.gameInstance = GameInstance.createInstance(args)
+  }
+
+  'PapanLobby.SceneAction' (call, message) {
+    const senders = call.playersToSlots[message.sender.id]
+    if (!senders) return
+    call.gameInstance.action({
+      data: PapanUtils.JSON.parse(message.message),
+      senders: senders
+    })
+  }
+}
 
 class LobbyClient extends EventEmitter {
-  constructor ({ gamesList, grpcClient }) {
+  constructor ({ gamesList, grpcClient, proto }) {
     super()
 
+    this._lobbyDispatcher = dispatcher(proto.PapanLobby.GameLobbyUpdate, new LobbyHandlers())
     this.grpcClient = grpcClient
     this._gamesList = gamesList
+    this._lobbies = {}
   }
 
   close () {
     if (this.subscription) this.subscription.cancel()
+    Object.keys(this._lobbies).forEach(key => {
+      this._lobbies[key].call.cancel()
+    })
   }
 
   getAuthMetadata () {
@@ -67,6 +109,28 @@ class LobbyClient extends EventEmitter {
       }
     })
   }
+
+  joinLobby (id) {
+    const call = this.grpcClient.Lobby()
+    this._lobbies[id] = { call }
+    call.on('status', status => {
+      console.log(status)
+    })
+    call.on('end', () => {
+      console.log('end')
+    })
+    call.on('error', error => {
+      console.log(error)
+    })
+    call.on('data', data => {
+      this._lobbyDispatcher(call, data)
+    })
+    call.write({
+      join: {
+        id: id
+      }
+    })
+  }
 }
 
 const clientDefaults = Object.freeze({
@@ -92,6 +156,7 @@ exports.createClient = (gamesList, options) => {
   ]
 
   return Promise.all(work).then(results => {
+    const lobbyProtoRoot = results[1].rootProto
     const lobbyProto = results[1].PapanLobby
     let client
     const sslCreds = options.useLocalCA ? grpc.credentials.createSsl(results[0]) : grpc.credentials.createSsl()
@@ -107,7 +172,7 @@ exports.createClient = (gamesList, options) => {
     if (options.useLocalCA) channelOptions = merge(channelOptions, localChannelOptions)
 
     const grpcClient = new lobbyProto.GameLobbyService(serverAddress, creds, channelOptions)
-    client = new LobbyClient({ gamesList: gamesList, lobbyProto: results[1], grpcClient: grpcClient })
+    client = new LobbyClient({ gamesList: gamesList, lobbyProto: results[1], grpcClient: grpcClient, proto: lobbyProtoRoot })
     client.subscribe(options)
 
     return client

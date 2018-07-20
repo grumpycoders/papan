@@ -5,7 +5,7 @@ exports.setUp = ({ players }) => {
   for (let x = 0; x < 3; x++) {
     board[x] = []
     for (let y = 0; y < 3; y++) {
-      board[x][y] = {owner: null}
+      board[x][y] = { owner: null }
     }
   }
   return {
@@ -57,14 +57,11 @@ function otherPlayer (state, player) {
   }
 }
 
-exports.transition = ({ state, action }) => {
-  if (action.name !== 'take' && !!state.winner) {
-    return state
-  }
-  let {x, y} = action.attributes.position
-  if (state.board[x][y].owner !== null) {
-    return state
-  }
+exports.transition = ({ state, action, senders }) => {
+  if (!senders.includes(state.turn)) return state
+  if (action.name !== 'take' && !!state.winner) return state
+  let { x, y } = action.attributes.position
+  if (state.board[x][y].owner !== null) return state
   state.turns++
   state.board[x][y].owner = state.turn
   state.winner = checkWinner(state.board)

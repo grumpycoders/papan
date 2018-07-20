@@ -63,6 +63,7 @@ class SessionManager {
   }
 
   _checkCredentialsWrapper (options) {
+    const prefix = options.prefix || 'USER'
     return this._checkCredentialsGenerator(call => {
       const authAndSessionWork = async () => {
         if (options.requiresAuth) {
@@ -88,7 +89,7 @@ class SessionManager {
           }
           throw Error('Client must authenticate')
         } else {
-          const userId = await PapanServerUtils.generateToken({ prefix: 'USER' })
+          const userId = await PapanServerUtils.generateToken({ prefix: prefix })
           call.metadata.set('papan-userid', userId)
           const token = await this._persist.createSession(userId)
           let metadata = new grpc.Metadata()

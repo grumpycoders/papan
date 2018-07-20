@@ -168,25 +168,29 @@ class ComponentLoader {
     return 'data:' + type + ';charset=utf-8;base64,' + encoded
   }
 
-  async _transformArrayAndAttach (infoHash, elements, base, filename) {
+  async _transformChildrenAndAttach (infoHash, old, base, filename) {
     if (!base) return base
-    const promises = []
-    for (let i = 0; i < elements.length; i++) {
-      if (elements[i]) promises.push(this._transformElement(infoHash, elements[i], filename))
+    let newElements = []
+    for (let i = 0; i < old.children.length; i++) {
+      if (old.children[i]) newElements.push(await this._transformElement(infoHash, old.children[i], filename))
     }
-    const newElements = await Promise.all(promises)
-    let child = base.firstChild
-    while (child) {
-      base.removeChild(child)
-      child = base.firstChild
-    }
+    while (base.firstElementChild) base.removeChild(base.firstElementChild)
     newElements.forEach(element => {
       if (element) base.appendChild(element)
+    })
+    if (!old.content || !old.content.children || !base.content || !base.content.children) return base
+    newElements = []
+    for (let i = 0; i < old.content.children.length; i++) {
+      if (old.content.children[i]) newElements.push(await this._transformElement(infoHash, old.content.children[i], filename))
+    }
+    while (base.content.firstElementChild) base.content.removeChild(base.content.firstElementChild)
+    newElements.forEach(element => {
+      if (element) base.content.appendChild(element)
     })
     return base
   }
 
-  _transformElement (infoHash, element, filename) {
+  async _transformElement (infoHash, element, filename) {
     const base = (new global.PapanUtils.Path(filename)).dirname()
     const tagName = element.nodeName.toLowerCase()
     const transform = this._components[infoHash].transforms[tagName]
@@ -315,8 +319,8 @@ class ComponentLoader {
       promise = Promise.resolve(newElement)
     }
     if (processChildren) {
-      return promise
-        .then(newElement => this._transformArrayAndAttach(infoHash, element.children, newElement, filename))
+      const newElement = await promise
+      return this._transformChildrenAndAttach(infoHash, element, newElement, filename)
     } else {
       return promise
     }

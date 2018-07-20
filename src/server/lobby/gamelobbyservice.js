@@ -1,15 +1,16 @@
 'use strict'
 
-const dispatcher = require('./dispatcher.js')
+const grpc = require('grpc')
+const dispatcher = require('../common/dispatcher.js')
+const Persist = require('./persist.js')
 
 class SubscribeHandlers {
-  constructor ({ persist, sessionManager }) {
+  constructor ({ sessionManager }) {
     this._sessionManager = sessionManager
-    this._persist = persist
   }
 
   async 'PapanLobby.RegisterGameServer' (call, data) {
-    const trusted = call.localApiKey === data.apiKey || await this._persist.isApiKeyValid(data.register.apiKey)
+    const trusted = call.localApiKey === data.apiKey || await call.persist.isApiKeyValid(data.register.apiKey)
     const gamesList = []
     Object.keys(data.games).forEach(key => gamesList.push(data.games[key].torrent.infoHash))
     const sessionData = await this._sessionManager.setSessionData(call, { trusted: trusted })
@@ -21,23 +22,30 @@ class SubscribeHandlers {
       }
     })
     if (trusted) {
-      await this._persist.registerGameServer(id, gamesList)
+      await call.persist.registerGameServer(id, gamesList)
     }
   }
 }
 
 class LobbyHandlers {
-  constructor ({ persist, sessionManager }) {
+  constructor ({ sessionManager }) {
     this._sessionManager = sessionManager
-    this._persist = persist
   }
 
   'PapanLobby.JoinLobby' (call, data) {
-    return Promise.reject(Error('unimplemented'))
+    call.id = data.id
+    call.persist.gameServerSubscribe(data.id, message => {
+      call.write(message)
+    })
+  }
+
+  'PapanLobby.PublicScene' (call, data) {
+    call.persist.lobbySendMessage(call.id, { publicScene: data })
   }
 }
 
-const Subscribe = (persist, options, sessionManager, call, dispatcher) => {
+const Subscribe = (options, sessionManager, call, dispatcher) => {
+  call.persist = Persist.createPersist()
   const id = sessionManager.getId(call)
   call.localApiKey = options.localApiKey
   call.write({
@@ -47,32 +55,59 @@ const Subscribe = (persist, options, sessionManager, call, dispatcher) => {
       }
     }
   })
-  const sub = persist.gameServerSubscribe(id, call.write)
+  const sub = call.persist.gameServerSubscribe(id, call.write)
   call.on('error', error => {
     console.log(error)
   })
   call.on('end', () => {
     sub.close()
+    call.persist.close()
     call.end()
   })
   call.on('data', data => dispatcher(call, data))
 }
 
 const Lobby = (call, dispatcher) => {
-  call.on('error', error => {
-    console.log(error)
-  })
+  call.persist = Persist.createPersist()
+  let gotJoin = false
   call.on('end', () => {
+    call.persist.close()
     call.end()
   })
-  call.on('data', data => dispatcher(call, data))
+  call.on('data', data => {
+    let joinError = false
+    let errorMsg
+    if (data.action === 'join') {
+      if (gotJoin) {
+        joinError = true
+        errorMsg = 'You can\'t join twice'
+      }
+      gotJoin = true
+    } else {
+      if (!gotJoin) {
+        joinError = true
+        errorMsg = 'You need to join first'
+      }
+    }
+    if (joinError) {
+      let error = {
+        code: grpc.status.FAILED_PRECONDITION,
+        details: errorMsg,
+        metadata: new grpc.Metadata()
+      }
+      call.emit('error', error)
+      call.end()
+    } else {
+      dispatcher(call, data)
+    }
+  })
 }
 
-exports.generateService = ({ proto, persist, sessionManager, options }) => {
-  const subscribeDispatcher = dispatcher(proto.GameAction.fields, new SubscribeHandlers({ persist: persist, sessionManager: sessionManager }))
-  const lobbyDispatcher = dispatcher(proto.GameLobbyAction.fields, new LobbyHandlers({ persist: persist, sessionManager: sessionManager }))
+exports.generateService = ({ proto, sessionManager, options }) => {
+  const subscribeDispatcher = dispatcher(proto.GameAction, new SubscribeHandlers({ sessionManager: sessionManager }))
+  const lobbyDispatcher = dispatcher(proto.GameLobbyAction, new LobbyHandlers({ sessionManager: sessionManager }))
   return {
-    Subscribe: call => Subscribe(persist, options, sessionManager, call, subscribeDispatcher),
+    Subscribe: call => Subscribe(options, sessionManager, call, subscribeDispatcher),
     Lobby: call => Lobby(call, lobbyDispatcher)
   }
 }

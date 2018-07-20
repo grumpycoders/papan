@@ -202,6 +202,21 @@
           if (this.lobby.info.id !== info.info.id) return
           this._updateLobbyInfo(info)
         })
+        this.lobby.on('gamestarted', info => {
+          this._view = 'board'
+          if (this._componentPromise) {
+            this._componentPromise.then(component => {
+              const gameBoard = document.createElement(component)
+              gameBoard.setAttribute('id', 'papan-game-board')
+              gameBoard.setProperties({ lobby: this.lobby })
+              const anchor = this.$['main-view']
+              while (anchor.firstChild) anchor.removeChild(anchor.firstChild)
+              anchor.appendChild(gameBoard)
+              this.lobby.setBoardElement(gameBoard)
+              gameBoard.addEventListener('action', data => this.lobby.action(data.detail))
+            })
+          }
+        })
       },
 
       _updateLobbyInfo: function (info) {
@@ -213,6 +228,9 @@
           // else
           // create team slots
           this._currentGame = info.info.gameInfo
+          if (info.info.gameInfo) {
+            this._componentPromise = global.componentLoader.load(info.info.gameInfo)
+          }
           this._playersInfo = info.info.playersInfo
           // FIX: currently there is no players_info in the GameInfo json
           this._view = 'teamselection'
@@ -231,8 +249,6 @@
 
       _start: function () {
         this.lobby.startGame()
-        // TODO: move this to the callback on the server's answer to startGame()
-        this._view = 'board'
       },
 
       _join: function () {
@@ -317,37 +333,7 @@
             }
           })
         })
-      }/*,
-      _start: function () {
-        if (global.PapanUtils.isElectron()) {
-          const electron = require('electron')
-          const ipc = electron.ipcRenderer
-          ipc.once('asynchronous-reply', (event, game) => {
-            const renderer = game.gamePath + '/' + game.gameData.webcomponent
-            let link = document.createElement('link')
-            link.setAttribute('rel', 'import')
-            link.setAttribute('href', renderer)
-            link.onload = () => {
-              let view = document.createElement('papan-main-board')
-              view.setAttribute('id', 'main-board')
-              view.addEventListener('view-ready', () => {
-                ipc.send('asynchronous-message', { type: 'refreshPublicScene' })
-              })
-              view.addEventListener('action', (event) => {
-                ipc.send('asynchronous-message', { type: 'action', data: event.detail })
-              })
-              this.$['main-view'].appendChild(view)
-            }
-            document.body.appendChild(link)
-          })
-          ipc.send('asynchronous-message', { type: 'startGame' })
-          ipc.on('publicSceneDelta', (event, { diff }) => {
-            this.$['main-view'].children[0].applyPublicDelta(diff)
-          })
-        } else {
-          window.alert('Browser support not implemented yet')
-        }
-      } */
+      }
     })
   </script>
 </dom-module>

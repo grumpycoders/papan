@@ -4,88 +4,88 @@ const path = require('path')
 const redux = require('redux')
 const seedrandom = require('seedrandom').alea
 const PRNG = require('./prng.js')
+const deepDiff = require('deep-diff')
+const PlayersInfo = require('../../common/player-info.js')
 
 exports.createInstance = args => {
-  const { gameInfo, settings, seed, channel, restoredState } = args
+  const { gameInfo, playersInfo, settings, seed, channel, restoredState } = args
   const gameLogic = require(path.join(gameInfo.fullPath, gameInfo.json.main))
-  const players = settings.players
+  const players = PlayersInfo.playersInfoToAllocatedSlotsTree(playersInfo)
   let initialState
 
   if (restoredState) {
     initialState = restoredState
   } else {
-    const initialGameState = gameLogic.setUp(settings.players)
+    const initialGameState = gameLogic.setUp({ players: players, settings: settings })
     const initialStep = gameLogic.getStep(initialGameState)
-    const initialRngState = seedrandom(seed, { state: true })
+    const initialRngState = seedrandom(seed, { state: true }).state()
     initialState = {
-      gameState: initialState,
+      gameState: initialGameState,
       currentStep: initialStep,
       rngState: initialRngState
     }
   }
 
-  let store = redux.createStore((state, action) => {
-    let gameState
-    const random = seedrandom('', { state: state.rngState })
-    const prng = new PRNG(() => random())
-    let deadline
-    let deadlineAction
-    let deadlineSet = false
-    const setTimeout = (payload, timeout) => {
-      if (timeout === undefined) {
-        deadline = undefined
-        deadlineAction = undefined
-      } else {
-        deadline = (new Date()).getTime() + timeout
-        deadlineAction = payload
-      }
-      deadlineSet = true
-    }
+  const store = redux.createStore((state, action) => {
     switch (action.type) {
-      case '@@redux/INIT':
-        return initialState
       case 'action':
-        const gotTimeout = (state.deadline && state.deadline > (new Date().getTime()))
-        gameState = gameLogic.transition({
+        const random = seedrandom('', { state: state.rngState })
+        const prng = new PRNG(() => random())
+        const gameState = gameLogic.transition({
           state: state.gameState,
-          action: gotTimeout ? state.deadlineAction : action.data,
-          prng: prng,
-          setTimeout: setTimeout
+          action: action.data,
+          senders: action.senders,
+          prng: prng
         })
         const currentStep = gameLogic.getStep(gameState)
         const newStep = currentStep !== state.currentStep
         return {
-          deadline: deadlineSet ? deadline : state.deadline,
-          deadlineAction: deadlineSet ? deadlineAction : state.deadlineAction,
           gameState: gameState,
           currentStep: currentStep,
-          rngState: newStep ? PRNG.state() : state.rngState
+          rngState: newStep ? random.state() : state.rngState
         }
+      default:
+        return state || initialState
     }
   })
 
+  let previousStep = -1
+  let previousPublicScene = {}
+
   const sceneWatcher = () => {
     const state = store.getState()
-    const newPublicScene = gameLogic.getPublicScene(state)
-    const step = gameLogic.getStep(state)
-    channel.sendPublicScene(step, newPublicScene)
+    const newPublicScene = gameLogic.getPublicScene(state.gameState)
+    const newStep = gameLogic.getStep(state.gameState)
+    if (previousStep !== newStep) {
+      const deltas = deepDiff(previousPublicScene, newPublicScene)
+      channel.sendPublicScene({ previousStep, newStep, deltas })
+      previousPublicScene = newPublicScene
+      previousStep = newStep
+    }
 
-    if (!gameLogic.getPrivateScene) return
-
-    for (let player of players) {
-      const newPrivateScene = gameLogic.getPrivateScene(state, player)
-      channel.sendPrivateScene(step, newPrivateScene, player)
+    if (gameLogic.getTemporaryScene) {
+      const temporaryScene = gameLogic.getTemporaryScene(state.gameState)
+      if (temporaryScene) {
+        const deltas = deepDiff(newPublicScene, temporaryScene)
+        channel.sendTemporaryScene({ newStep, deltas })
+      }
     }
   }
 
   store.subscribe(sceneWatcher)
+  setImmediate(sceneWatcher)
 
   return {
-    serialize: () => store.getState(),
+    sendFullScenes: () => {
+      previousPublicScene = {}
+      previousStep = -1
+      sceneWatcher()
+    },
     action: action => {
       store.dispatch({
         type: 'action',
-        data: action
+        data: action.data,
+        senders: action.senders
       })
     }
   }

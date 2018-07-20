@@ -315,7 +315,8 @@ class PersistClient {
     if (info.owner.id !== userId) return info
     const newGameId = await this._promised.incrby('lobbyinfo:' + id + ':gameid', 1)
     const oldGameId = newGameId - 1
-    const multi = this._client.multi()
+    await this._promised.set('lobbyinfo:' + id + ':gamestatus:' + newGameId, 0)
+    const multi = this._promised.multi()
     multi.del('lobbyinfo:' + id + ':gameteaminfo:' + oldGameId)
     await createMinimumSlots('lobbyinfo:' + id + ':gameteaminfo:' + newGameId, multi, gameInfo.json.playersInfo)
     await multi.exec()
@@ -342,7 +343,7 @@ class PersistClient {
       return (data.id ? (data.id + ':') : '') + buildSlotId(data.team)
     }
     const slotId = 'playerinfo:' + buildSlotId(data)
-    const multi = this._client.multi()
+    const multi = this._promised.multi()
     let discarded = false
     const gameKey = 'lobbyinfo:' + lobbyId + ':gameteaminfo:' + gameId
     if (owner === senderId) {
@@ -425,10 +426,29 @@ class PersistClient {
   isApiKeyValid (apiKey) {
     return Promise.resolve(false)
   }
+
+  async lobbyStartNewGame ({ id, seed }) {
+    this._client.watch('lobbyinfo:' + id + ':gameid')
+    const gameId = await this._promised.get('lobbyinfo:' + id + ':gameid')
+    this._client.watch('lobbyinfo:' + id + ':gamestatus:' + gameId)
+    const gameStatus = await this._promised.get('lobbyinfo:' + id + ':gamestatus:' + gameId)
+    if (gameStatus !== '0') {
+      this._client.unwatch()
+      return false
+    }
+    const request = this._promised.multi()
+    request.get('lobbyinfo:' + id + ':gameid')
+    request.set('lobbyinfo:' + id + ':gamestatus:' + gameId, 1)
+    request.set('lobbyinfo:' + id + ':gameseed:' + gameId, seed)
+    const result = await request.exec()
+    return result && ('GAME-' + result[0])
+  }
 }
 
-exports.createPersist = () => {
+exports.createPersist = args => {
   let mock
+  if (!args) args = {}
+  const needsSession = args.needsSession
   if (!argv.use_redis_mock && !argv.use_redis_server) {
     mock = PapanUtils.isElectron()
   } else {
@@ -443,8 +463,9 @@ exports.createPersist = () => {
   if (mock) {
     redis.setMaxListeners(0)
     client.watch = () => {}
+    client.unwatch = () => {}
   }
-  const rs = new RedisSessions({ client: client })
+  const rs = needsSession ? new RedisSessions({ client: client }) : null
 
-  return Promise.resolve(new PersistClient({ rs: rs, client: client, redis: redis }))
+  return new PersistClient({ rs: rs, client: client, redis: redis })
 }

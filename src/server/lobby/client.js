@@ -140,13 +140,18 @@ class LobbyClient {
       console.log('end')
     })
     call.on('data', data => {
+      let justJoined = false
       const LobbyUpdateField = this.LobbyUpdateFields[data.update]
       let typeName = 'PapanLobby.' + LobbyUpdateField.type
       if (!id && data.update === 'info') {
+        justJoined = true
         id = data.info.id
         this.lobbies[id] = { call: call }
       }
       this.clientInterface[typeName](data[data.update], { id: id })
+      if (justJoined) {
+        this.clientInterface.joinedLobby(data.info)
+      }
     })
 
     call.write({ join: data })
