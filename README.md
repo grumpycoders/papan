@@ -8,3 +8,7 @@ This work is currently extremely early, and the repository only contains ideas a
 
 ## How ?
 See the [current discussion](docs/architecture.md) for our plans on how we'd like to proceed.
+
+## Who ?
+https://github.com/nicolasnoble
+https://github.com/RackhamLeNoir
