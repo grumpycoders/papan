@@ -26,3 +26,4 @@ notifications:
 
 after_success:
   - npm run coveralls
+  - npm run codecov
