@@ -1,5 +1,6 @@
 [![Standard - JavaScript Style Guide](https://img.shields.io/badge/code%20style-standard-brightgreen.svg)](http://standardjs.com/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Travis build](https://travis-ci.org/grumpycoders/papan.svg?branch=master)](https://travis-ci.org/grumpycoders/papan)
 
 # [Papan](https://translate.google.com/#id/en/papan)
 
